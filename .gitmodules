@@ -1,0 +1,8 @@
+[submodule "bashrc"]
+	path = bashrc
+	url = git@github.com:andreasnonslid/bashrc.git
+	branch = master
+[submodule "nvim"]
+	path = nvim
+	url = git@github.com:andreasnonslid/nvim.git
+	branch = master
