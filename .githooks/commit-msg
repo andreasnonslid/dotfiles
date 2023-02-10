@@ -1,0 +1,49 @@
+#!/usr/bin/env perl
+use strict;
+use warnings;
+
+my $msg_file = $ARGV[0];
+open my $fh, '<', $msg_file or die "Can't open commit message file: $!";
+
+my $header = <$fh>;
+chomp $header;
+
+# Allowed types/verbs
+my @types = qw(feat fix docs style refactor perf test build ci chore revert);
+my $types_re = join('|', @types);
+
+# Regex for: type(scope): summary
+if ($header !~ /^($types_re)(\([a-z0-9\-]+\))?:\s(.+)$/) {
+    print STDERR "ERROR: Commit message must start with <type>(optional-scope): <summary>\n";
+    print STDERR "Allowed types: @types\n";
+    exit 1;
+}
+
+my ($type, $scope, $summary) = ($1, $2, $3);
+
+# Type must be lower-case and from allowed list (already checked)
+# Scope (if present) must be lower-case, no spaces
+if (defined $scope && $scope ne '' && $scope !~ /^\([a-z0-9\-]+\)$/) {
+    print STDERR "ERROR: Scope must be lower-case, no spaces, e.g. (nvim)\n";
+    exit 1;
+}
+
+# Summary checks
+my $summary_len = length($summary);
+my @summary_words = split(/\s+/, $summary);
+if ($summary_len < 10 || $summary_len > 50) {
+    print STDERR "ERROR: Summary must be 10-50 characters (currently $summary_len)\n";
+    exit 1;
+}
+if (@summary_words < 2 || @summary_words > 10) {
+    print STDERR "ERROR: Summary must be 2-10 words (currently " . scalar(@summary_words) . ")\n";
+    exit 1;
+}
+
+# Full header max 72 chars
+if (length($header) > 72) {
+    print STDERR "ERROR: Commit header must be <= 72 characters\n";
+    exit 1;
+}
+
+exit 0; 
