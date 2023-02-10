@@ -1,6 +1,9 @@
+#!/bin/bash
+set -ex
+
 # zypper prep
 sudo zypper refresh
-sudo zupper update
+sudo zypper update
 
 # git lfs
 sudo zypper install -y git git-lfs
@@ -57,3 +60,41 @@ confirm_and_execute "~/dotfiles/arm11.3.sh"
 
 # make sure everything is up to date
 sudo zypper update
+
+# Install pyenv
+if ! command -v pyenv &>/dev/null; then
+  curl https://pyenv.run | bash
+  export PATH="$HOME/.pyenv/bin:$PATH"
+  eval "$(pyenv init -)"
+  eval "$(pyenv virtualenv-init -)"
+fi
+
+# Install nvm
+if ! command -v nvm &>/dev/null; then
+  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+  export NVM_DIR="$HOME/.nvm"
+  [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+fi
+
+# Install rustup
+if ! command -v rustup &>/dev/null; then
+  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+  export PATH="$HOME/.cargo/bin:$PATH"
+fi
+
+# Install Node.js LTS and xpm
+nvm install --lts
+nvm use --lts
+npm install --global xpm typescript
+
+# Rust tools
+cargo install exa zellij tealdeer
+
+# Neovim and tree-sitter (optional, if not using system package)
+sudo zypper install -y neovim tree-sitter
+
+# Run ARM toolchain install script if desired
+chmod +x ~/dotfiles/arm11.3.sh && ~/dotfiles/arm11.3.sh
+
+sudo zypper update
+set +ex
