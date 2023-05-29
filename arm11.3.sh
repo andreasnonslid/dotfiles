@@ -33,7 +33,6 @@ setup_alternative "arm-none-eabi-gdb"
 setup_alternative "arm-none-eabi-objdump"
 setup_alternative "arm-none-eabi-nm"
 
-# to make arm-none-eabi-gdb work
 export PYTHONHOME=$(pyenv prefix 3.8.12)
 export PYTHONPATH=$PYTHONHOME/lib/python3.8
 unset PYTHONHOME
