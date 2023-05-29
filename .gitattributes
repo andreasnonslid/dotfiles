@@ -1,10 +1,7 @@
-# Set default behavior to automatically normalize line endings.
 * text=auto
 
-# Specify text files that should always use CRLF
 *.bat text eol=crlf
 *.cmd text eol=crlf
 
-# Specify text files that should always use LF
 *.sh text eol=lf
 *.py text eol=lf

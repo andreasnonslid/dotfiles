@@ -11,7 +11,6 @@
 # Options:
 #   --RSA - Use RSA key instead of Ed25519.
 
-# Functions
 function list_keys {
   echo "Listing available SSH keys:"
   ls ~/.ssh/id_* | grep -v ".pub$"
@@ -45,7 +44,6 @@ function rename_key {
   fi
 }
 
-# Main script starts here
 action=$1
 name=$2
 email=$3
@@ -86,7 +84,6 @@ case $action in
     ;;
 esac
 
-# Instructions for GitHub
 if [[ "$action" == "create" ]]; then
   echo "Next, go to GitHub and add the public key to your account:"
   echo "1. Open GitHub in your web browser and log in."

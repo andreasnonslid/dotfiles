@@ -16,6 +16,10 @@ npm install -g neovim
 
 This repository enforces a professional commit message style using a portable Perl commit-msg hook stored in `.githooks/commit-msg`.
 
+```sh
+git config core.hooksPath .githooks
+```
+
 **To enable commit message enforcement after cloning:**
 
 ```sh

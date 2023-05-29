@@ -30,21 +30,30 @@ def create_symlink(target, link_name):
     except Exception as e:
         print(f"Failed to create/update symlink from {target} to {link_name}: {e}")
 
-def create_symlinks_from_directory(source_dir, dest_dir):
-    Path(dest_dir).mkdir(parents=True, exist_ok=True)
-    for item in os.listdir(source_dir):
-        if item in EXCLUDE:
-            print(f"Skipping excluded item: {item}")
-            continue
-        full_item_path = os.path.join(source_dir, item)
-        if os.path.isfile(full_item_path) or os.path.isdir(full_item_path):
-            link_name = os.path.join(dest_dir, item)
-            create_symlink(full_item_path, link_name)
+def main():
+    repo_root = Path(__file__).parent.resolve()
+    home = Path.home()
+    is_windows = os.name == "nt"
+
+    # bashrc
+    bashrc_source = repo_root / "bashrc"
+    bashrc_target = home / "bashrc"
+    if bashrc_source.exists():
+        create_symlink(str(bashrc_source), str(bashrc_target))
+    else:
+        print(f"bashrc source not found: {bashrc_source}")
+
+    # nvim
+    nvim_source = repo_root / "nvim"
+    if is_windows:
+        nvim_target = Path(os.environ.get("LOCALAPPDATA", home / "AppData/Local")) / "nvim"
+    else:
+        nvim_target = home / ".config" / "nvim"
+    if nvim_source.exists():
+        nvim_target.parent.mkdir(parents=True, exist_ok=True)
+        create_symlink(str(nvim_source), str(nvim_target))
+    else:
+        print(f"nvim source not found: {nvim_source}")
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        print("Usage: python symlink_creator.py <source_dir> <dest_dir>")
-        sys.exit(1)
-    source_dir = sys.argv[1]
-    dest_dir = sys.argv[2]
-    create_symlinks_from_directory(source_dir, dest_dir)
+    main()

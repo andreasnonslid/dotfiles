@@ -1,5 +1,4 @@
 #!/bin/bash
-
 function set_version {
     echo "Please select the default GCC version:"
     sudo update-alternatives --config gcc
@@ -19,11 +18,6 @@ GCC_REPO="https://gcc.gnu.org/git/gcc.git"
 
 function add_to_path {
     echo "export PATH=$GCC_PREFIX/bin:\$PATH" >> $HOME/.profile
-}
-
-function set_version {
-    echo "Please select the default GCC version:"
-    sudo update-alternatives --config gcc
 }
 
 mkdir -p $DEV_DIR
