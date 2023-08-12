@@ -1,44 +1,56 @@
 import os
 import shutil
 from pathlib import Path
+import argparse
 
 EXCLUDE = {".git", ".DS_Store", "__pycache__", "LICENSE", "README.md", ".gitignore", ".gitmodules", ".gitattributes"}
 
-def create_symlink(target, link_name):
+def create_symlink(target, link_name, auto_yes=False):
     try:
         target = os.path.abspath(os.path.expanduser(target))
         link_name = os.path.abspath(os.path.expanduser(link_name))
+        parent_dir = os.path.dirname(link_name)
+        # Always ensure the parent directory exists
+        os.makedirs(parent_dir, exist_ok=True)
         if os.path.islink(link_name) or os.path.exists(link_name):
-            print(f"Removing existing: {link_name}")
+            if not auto_yes:
+                response = input(f"{link_name} exists and will be removed. Continue? [y/N]: ")
+                if response.lower() != 'y':
+                    print(f"Skipped: {link_name}")
+                    return
             if os.path.isdir(link_name) and not os.path.islink(link_name):
                 shutil.rmtree(link_name)
             else:
                 os.unlink(link_name)
-        parent_dir = os.path.dirname(link_name)
-        os.makedirs(parent_dir, exist_ok=True)
+            print(f"Removed existing: {link_name}")
         os.symlink(target, link_name)
         print(f"Created symlink: {link_name} -> {target}")
     except Exception as e:
         print(f"Failed to create symlink from {target} to {link_name}: {e}")
 
-def symlink_dir_contents(source_dir, target_dir):
+def symlink_dir_contents(source_dir, target_dir, auto_yes=False):
     for item in os.listdir(source_dir):
         if item in EXCLUDE:
             continue
         src_path = os.path.join(source_dir, item)
         tgt_path = os.path.join(target_dir, item)
-        create_symlink(src_path, tgt_path)
+        create_symlink(src_path, tgt_path, auto_yes=auto_yes)
 
 def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('-y', '--yes', action='store_true', help='Automatically confirm all removals')
+    args = parser.parse_args()
+
     repo_root = Path(__file__).parent.resolve()
     home = Path.home()
     is_windows = os.name == "nt"
+    config_dir = home / ".config"
 
     # bashrc contents
     bashrc_source = repo_root / "bashrc"
     bashrc_target = home
     if bashrc_source.exists() and bashrc_source.is_dir():
-        symlink_dir_contents(str(bashrc_source), str(bashrc_target))
+        symlink_dir_contents(str(bashrc_source), str(bashrc_target), auto_yes=args.yes)
     else:
         print(f"bashrc source directory not found: {bashrc_source}")
 
@@ -47,13 +59,33 @@ def main():
     if is_windows:
         nvim_target = Path(os.environ.get("LOCALAPPDATA", home / "AppData/Local")) / "nvim"
     else:
-        nvim_target = home / ".config" / "nvim"
+        nvim_target = config_dir / "nvim"
 
     if nvim_source.exists() and nvim_source.is_dir():
-        nvim_target.mkdir(parents=True, exist_ok=True)
-        symlink_dir_contents(str(nvim_source), str(nvim_target))
+        symlink_dir_contents(str(nvim_source), str(nvim_target), auto_yes=args.yes)
     else:
         print(f"nvim source directory not found: {nvim_source}")
+
+    # fish contents
+    fish_source = repo_root / "fish"
+    if is_windows:
+        fish_target = Path(os.environ.get("LOCALAPPDATA", home / "AppData/Local")) / "fish"
+    else:
+        fish_target = config_dir / "fish"
+
+    if fish_source.exists() and fish_source.is_dir():
+        symlink_dir_contents(str(fish_source), str(fish_target), auto_yes=args.yes)
+    else:
+        print(f"fish source directory not found: {fish_source}")
+
+    # starship.toml
+    starship_source = repo_root / "starship.toml"
+    if is_windows:
+        starship_target = Path(os.environ.get("LOCALAPPDATA", home / "AppData/Local")) / "starship.toml"
+    else:
+        starship_target = config_dir / "starship.toml"
+
+    create_symlink(str(starship_source), str(starship_target), auto_yes=args.yes)
 
 if __name__ == "__main__":
     main()

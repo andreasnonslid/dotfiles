@@ -10,9 +10,9 @@ sudo apt install -y \
     git git-lfs curl build-essential make automake cmake ninja-build \
     libgmp-dev libmpfr-dev libmpc-dev flex bison texinfo unzip wget jq \
     fzf bat ripgrep silversearcher-ag zoxide tldr secure-delete openssh-client \
-    tmux xclip libgit2-dev eza software-properties-common neovim \
+    tmux xclip libgit2-dev eza software-properties-common neovim just \
     libbz2-dev libncurses5-dev libncursesw5-dev libreadline-dev \
-    libsqlite3-dev libffi-dev liblzma-dev tk-dev zlib1g-dev golang
+    libsqlite3-dev libffi-dev liblzma-dev tk-dev zlib1g-dev golang fish
 
 sudo locale-gen en_US.UTF-8
 sudo update-locale

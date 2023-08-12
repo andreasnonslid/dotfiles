@@ -5,4 +5,8 @@
 [submodule "nvim"]
 	path = nvim
 	url = git@github.com:andreasnonslid/nvim.git
+    branch = master
+[submodule "fish"]
+	path = fish
+	url = git@github.com:andreasnonslid/fish.git
 	branch = master
