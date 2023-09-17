@@ -12,7 +12,8 @@ sudo apt install -y \
     fzf bat ripgrep silversearcher-ag zoxide tldr secure-delete openssh-client \
     tmux xclip libgit2-dev eza software-properties-common neovim just \
     libbz2-dev libncurses5-dev libncursesw5-dev libreadline-dev \
-    libsqlite3-dev libffi-dev liblzma-dev tk-dev zlib1g-dev golang fish
+    libsqlite3-dev libffi-dev liblzma-dev tk-dev zlib1g-dev golang fish \
+    clang-format-15
 
 sudo locale-gen en_US.UTF-8
 sudo update-locale
