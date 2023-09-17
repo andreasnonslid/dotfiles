@@ -7,7 +7,7 @@ pacman -S --needed --noconfirm \
   base-devel git git-lfs curl automake cmake ninja \
   flex bison texinfo unzip wget jq fzf bat ripgrep \
   the_silver_searcher zoxide tldr eza neovim fish go \
-  openssh tmux xclip libgit2 just clang \
+  openssh tmux xclip libgit2 just clang less prettier \
 
 pacman -S --needed --noconfirm \
   openssl zlib xz sqlite readline tk libffi
