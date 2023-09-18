@@ -8,7 +8,7 @@ pacman -S --needed --noconfirm \
     flex bison texinfo unzip wget jq fzf bat ripgrep \
     the_silver_searcher zoxide tldr eza neovim fish go \
     openssh tmux xclip libgit2 just clang less prettier \
-    shfmt stylua python-black taplo-cli go
+    shfmt stylua python-black taplo-cli go fd
 
 pacman -S --needed --noconfirm \
     openssl zlib xz sqlite readline tk libffi
@@ -17,6 +17,13 @@ pacman -S --needed --noconfirm \
 export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init --path)"
 eval "$(pyenv virtualenv-init -)"
+
+pyenv install --skip-existing 3.11.13
+pyenv global 3.11.13
+pyenv rehash
+
+pip install cppman
+cppman --cache-all
 
 if [ ! -d "$HOME/.nvm" ]; then
     curl -fsSL https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
