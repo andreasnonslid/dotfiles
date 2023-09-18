@@ -1,49 +1,88 @@
 #!/usr/bin/env bash
-set -euo pipefail
 
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
-nvm use --lts >/dev/null
-
-DO_INSTALL=0
-MODE="-l"
-
-usage(){
-  cat <<EOF
-Usage: $(basename "$0") [--install|-i] [--write|-w] [--list|-l]
-  -i, --install   npm install --global prettier and its plugins
-  -w, --write     run prettier --write (in-place)
-  -l, --list      run prettier -l (list unformatted; default)
+MODE="list"
+usage() {
+    cat <<EOF
+Usage: $(basename "$0") [-w|--write] [-l|--list]
+  -w, --write   format files in place
+  -l, --list    list files that need formatting (default)
 EOF
-  exit 1
+    exit 1
 }
 
-while (( $# )); do
-  case $1 in
-    -i|--install) DO_INSTALL=1; shift ;;
-    -w|--write)    MODE="--write"; shift ;;
-    -l|--list)     MODE="-l"; shift ;;
-    -h|--help)     usage ;;
-    *)             echo "Unknown option: $1" >&2; usage ;;
-  esac
+while (($#)); do
+    case "$1" in
+    -w | --write)
+        MODE="write"
+        shift
+        ;;
+    -l | --list)
+        MODE="list"
+        shift
+        ;;
+    -h | --help) usage ;;
+    *)
+        echo "Unknown: $1"
+        usage
+        ;;
+    esac
 done
 
-if (( DO_INSTALL )); then
-  echo "🔧 Installing prettier & plugins globally…"
-  npm install --global \
-    prettier \
-    prettier-plugin-lua \
-    prettier-plugin-shell \
-    prettier-plugin-toml \
-    prettier-plugin-fish
-  echo "✅ Installed."
+if [ "$MODE" = "list" ]; then
+    SHFMT_OPTS="-l"
+    LUA_OPTS="--check"
+    BLACK_OPTS="--check --quiet"
+    GO_OPTS="-l"
+    TAPLO_OPTS="format --check"
+    CLANG_OPTS="--dry-run --Werror"
+    PRETTIER_OPTS="-l"
+else
+    SHFMT_OPTS="-w"
+    LUA_OPTS=""
+    BLACK_OPTS="--quiet"
+    GO_OPTS="-w"
+    TAPLO_OPTS="format"
+    CLANG_OPTS="-i"
+    PRETTIER_OPTS="--write"
 fi
 
-echo "💅 Running: find . -type d -name .git -prune -o -type f -print0 | xargs -0 prettier ${MODE} --ignore-path '' --ignore-unknown"
-find . \
-  -type d -name .git -prune \
-  -o -type f -print0 \
-| xargs -0 prettier $MODE --ignore-path '' --ignore-unknown
+# Exclude only .git directories
+PRUNE_ARGS=(-path '*/.git/*' -prune -o)
 
-echo "🎉 Done."
+# Shell scripts (shfmt)
+find . "${PRUNE_ARGS[@]}" -type f \( -iname '*.sh' -o -iname '*.bash' -o -iname '*.zsh' \) -print0 |
+    xargs -0 shfmt $SHFMT_OPTS
 
+# Lua files (stylua)
+find . "${PRUNE_ARGS[@]}" -type f -iname '*.lua' -print0 |
+    xargs -0 stylua $LUA_OPTS
+
+# Python files (black)
+find . "${PRUNE_ARGS[@]}" -type f -iname '*.py' -print0 |
+    xargs -0 black $BLACK_OPTS
+
+# Go files (gofmt)
+find . "${PRUNE_ARGS[@]}" -type f -iname '*.go' -print0 |
+    xargs -0 gofmt $GO_OPTS
+
+# TOML files (taplo)
+find . "${PRUNE_ARGS[@]}" -type f -iname '*.toml' -print0 |
+    xargs -0 taplo format $TAPLO_OPTS
+
+# C/C++/Java files (clang-format)
+find . "${PRUNE_ARGS[@]}" -type f \( -iname '*.c' -o -iname '*.cpp' -o -iname '*.h' -o -iname '*.hpp' -o -iname '*.java' \) -print0 |
+    xargs -0 clang-format $CLANG_OPTS
+
+# JS/TS/JSON/MD/YAML files (prettier)
+find . "${PRUNE_ARGS[@]}" -type f \( -iname '*.js' -o -iname '*.jsx' -o -iname '*.ts' -o -iname '*.tsx' -o -iname '*.json' -o -iname '*.md' -o -iname '*.yaml' -o -iname '*.yml' \) -print0 |
+    xargs -0 prettier $PRETTIER_OPTS
+
+# Fish scripts (fish_indent)
+if [ "$MODE" = "list" ]; then
+    echo "Skipping fish scripts in list mode; fish_indent does not support list"
+else
+    set +e
+    find . "${PRUNE_ARGS[@]}" -type f -iname '*.fish' -print0 |
+        xargs -0 fish_indent -w || true
+    set -e
+fi

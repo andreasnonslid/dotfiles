@@ -17,7 +17,7 @@ GCC_PREFIX="$DEV_DIR/gcc-$VERSION"
 GCC_REPO="https://gcc.gnu.org/git/gcc.git"
 
 function add_to_path {
-    echo "export PATH=$GCC_PREFIX/bin:\$PATH" >> $HOME/.profile
+    echo "export PATH=$GCC_PREFIX/bin:\$PATH" >>$HOME/.profile
 }
 
 mkdir -p $DEV_DIR

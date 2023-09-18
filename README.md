@@ -29,6 +29,7 @@ git config core.hooksPath .githooks
 This ensures all contributors follow the same commit message standards, improving project history and collaboration.
 
 **Commit message format:**
+
 - `<type>(optional-scope): <summary>`
 - Allowed types: feat, fix, docs, style, refactor, perf, test, build, ci, chore, revert
 - Type: lower-case, required

@@ -20,7 +20,7 @@ sudo update-locale
 
 # Install pyenv only if directory is missing
 if [ ! -d "$HOME/.pyenv" ]; then
-  curl https://pyenv.run | bash
+    curl https://pyenv.run | bash
 fi
 export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init --path)"
@@ -28,7 +28,7 @@ eval "$(pyenv virtualenv-init -)"
 
 # Install nvm if not already installed
 if [ ! -d "$HOME/.nvm" ]; then
-  curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash
 fi
 export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && . "$NVM_DIR/nvm.sh"
@@ -40,7 +40,7 @@ npm install --global xpm typescript neovim
 
 # Install rustup if not already installed
 if ! command -v rustup &>/dev/null; then
-  curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
+    curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh -s -- -y
 fi
 export PATH="$HOME/.cargo/bin:$PATH"
 

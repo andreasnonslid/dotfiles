@@ -3,7 +3,17 @@ import shutil
 from pathlib import Path
 import argparse
 
-EXCLUDE = {".git", ".DS_Store", "__pycache__", "LICENSE", "README.md", ".gitignore", ".gitmodules", ".gitattributes"}
+EXCLUDE = {
+    ".git",
+    ".DS_Store",
+    "__pycache__",
+    "LICENSE",
+    "README.md",
+    ".gitignore",
+    ".gitmodules",
+    ".gitattributes",
+}
+
 
 def create_symlink(target, link_name, auto_yes=False):
     try:
@@ -14,8 +24,10 @@ def create_symlink(target, link_name, auto_yes=False):
         os.makedirs(parent_dir, exist_ok=True)
         if os.path.islink(link_name) or os.path.exists(link_name):
             if not auto_yes:
-                response = input(f"{link_name} exists and will be removed. Continue? [y/N]: ")
-                if response.lower() != 'y':
+                response = input(
+                    f"{link_name} exists and will be removed. Continue? [y/N]: "
+                )
+                if response.lower() != "y":
                     print(f"Skipped: {link_name}")
                     return
             if os.path.isdir(link_name) and not os.path.islink(link_name):
@@ -28,6 +40,7 @@ def create_symlink(target, link_name, auto_yes=False):
     except Exception as e:
         print(f"Failed to create symlink from {target} to {link_name}: {e}")
 
+
 def symlink_dir_contents(source_dir, target_dir, auto_yes=False):
     for item in os.listdir(source_dir):
         if item in EXCLUDE:
@@ -36,9 +49,12 @@ def symlink_dir_contents(source_dir, target_dir, auto_yes=False):
         tgt_path = os.path.join(target_dir, item)
         create_symlink(src_path, tgt_path, auto_yes=auto_yes)
 
+
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument('-y', '--yes', action='store_true', help='Automatically confirm all removals')
+    parser.add_argument(
+        "-y", "--yes", action="store_true", help="Automatically confirm all removals"
+    )
     args = parser.parse_args()
 
     repo_root = Path(__file__).parent.resolve()
@@ -57,7 +73,9 @@ def main():
     # nvim contents
     nvim_source = repo_root / "nvim"
     if is_windows:
-        nvim_target = Path(os.environ.get("LOCALAPPDATA", home / "AppData/Local")) / "nvim"
+        nvim_target = (
+            Path(os.environ.get("LOCALAPPDATA", home / "AppData/Local")) / "nvim"
+        )
     else:
         nvim_target = config_dir / "nvim"
 
@@ -69,7 +87,9 @@ def main():
     # fish contents
     fish_source = repo_root / "fish"
     if is_windows:
-        fish_target = Path(os.environ.get("LOCALAPPDATA", home / "AppData/Local")) / "fish"
+        fish_target = (
+            Path(os.environ.get("LOCALAPPDATA", home / "AppData/Local")) / "fish"
+        )
     else:
         fish_target = config_dir / "fish"
 
@@ -81,12 +101,15 @@ def main():
     # starship.toml
     starship_source = repo_root / "starship.toml"
     if is_windows:
-        starship_target = Path(os.environ.get("LOCALAPPDATA", home / "AppData/Local")) / "starship.toml"
+        starship_target = (
+            Path(os.environ.get("LOCALAPPDATA", home / "AppData/Local"))
+            / "starship.toml"
+        )
     else:
         starship_target = config_dir / "starship.toml"
 
     create_symlink(str(starship_source), str(starship_target), auto_yes=args.yes)
 
+
 if __name__ == "__main__":
     main()
-
