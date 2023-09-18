@@ -30,9 +30,8 @@ done
 
 if [ "$MODE" = "list" ]; then
     SHFMT_OPTS="-l"
-    LUA_OPTS="--check"
+    LUA_OPTS=" --check"
     BLACK_OPTS="--check --quiet"
-    GO_OPTS="-l"
     TAPLO_OPTS="format --check"
     CLANG_OPTS="--dry-run --Werror"
     PRETTIER_OPTS="-l"
@@ -40,7 +39,6 @@ else
     SHFMT_OPTS="-w"
     LUA_OPTS=""
     BLACK_OPTS="--quiet"
-    GO_OPTS="-w"
     TAPLO_OPTS="format"
     CLANG_OPTS="-i"
     PRETTIER_OPTS="--write"
@@ -60,10 +58,6 @@ find . "${PRUNE_ARGS[@]}" -type f -iname '*.lua' -print0 |
 # Python files (black)
 find . "${PRUNE_ARGS[@]}" -type f -iname '*.py' -print0 |
     xargs -0 black $BLACK_OPTS
-
-# Go files (gofmt)
-find . "${PRUNE_ARGS[@]}" -type f -iname '*.go' -print0 |
-    xargs -0 gofmt $GO_OPTS
 
 # TOML files (taplo)
 find . "${PRUNE_ARGS[@]}" -type f -iname '*.toml' -print0 |
