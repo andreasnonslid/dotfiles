@@ -39,9 +39,14 @@ fi
 export PATH="$HOME/.cargo/bin:$PATH"
 cargo install fd-find zellij tealdeer tree-sitter-cli
 
+sed -i 's|^//[[:space:]]*pane_frames[[:space:]]|pane_frames |' ~/.config/zellij/config.kdl
+
 if ! command -v starship &>/dev/null; then
     curl -fsSL https://starship.rs/install.sh | sh -s -- -y
 fi
+
+locale-gen en_US.UTF-8
+localedef -i en_US -f UTF-8 en_US.UTF-8
 
 pacman -Sc --noconfirm
 
