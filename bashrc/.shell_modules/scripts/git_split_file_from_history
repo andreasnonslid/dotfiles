@@ -1,0 +1,191 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+# USAGE: process_commits.pl <input_hash> <input_file>
+die "Usage: $0 <input_hash> <input_file>\n" unless @ARGV == 2;
+my ($input_hash, $input_file) = @ARGV;
+
+#########################
+# PHASE 1: Process commits in range input_hash..HEAD and cherry-pick them onto a temporary branch.
+#########################
+
+# Data structures:
+# CommitInfo: { hash => <commit hash>, message => <commit message>, touched_files => [ { filename, change_type } ] }
+# Analysis: { commit => <CommitInfo>, touches_input_file => 0|1, is_exclusive => 0|1 }
+
+my @commits;
+
+print "Gathering commits in range $input_hash..HEAD...\n";
+# Get commit hashes (git log returns newest first, so reverse to process oldest first)
+my $log_cmd = "git log $input_hash..HEAD --format='%H'";
+my @commit_hashes = `$log_cmd`;
+chomp @commit_hashes;
+@commit_hashes = reverse @commit_hashes;
+
+# Gather commit details
+foreach my $commit_hash (@commit_hashes) {
+    my $msg_cmd = "git log -1 --format='%s' $commit_hash";
+    my $commit_msg = `$msg_cmd`;
+    chomp $commit_msg;
+
+    my $diff_cmd = "git diff-tree --no-commit-id --name-status -r $commit_hash";
+    my @diff_output = `$diff_cmd`;
+    chomp @diff_output;
+
+    my @files;
+    foreach my $line (@diff_output) {
+        my ($status, $filename, $extra) = split /\t/, $line;
+        push @files, { filename => $filename, change_type => $status };
+    }
+
+    my $commit_info = {
+        hash          => $commit_hash,
+        message       => $commit_msg,
+        touched_files => \@files,
+    };
+    push @commits, $commit_info;
+
+    print "Found commit: $commit_hash\n  Message: $commit_msg\n";
+    foreach my $f (@files) {
+        print "    Touched: $f->{filename} (status: $f->{change_type})\n";
+    }
+}
+
+# Analyze each commit to see if it touches the input file.
+my @analysis;
+foreach my $commit (@commits) {
+    my $touches_input = 0;
+    foreach my $f (@{ $commit->{touched_files} }) {
+        if ($f->{filename} eq $input_file) {
+            $touches_input = 1;
+            last;
+        }
+    }
+    my $is_exclusive = 0;
+    if ($touches_input) {
+        $is_exclusive = (scalar(@{ $commit->{touched_files} }) == 1) ? 1 : 0;
+    }
+    push @analysis, {
+        commit             => $commit,
+        touches_input_file => $touches_input,
+        is_exclusive       => $is_exclusive,
+    };
+    print "Analysis for commit $commit->{hash}: touches_input_file = $touches_input, is_exclusive = $is_exclusive\n";
+}
+
+# Create a temporary branch starting at input_hash
+my $temp_branch = "temp_branch";
+print "\nCreating temporary branch '$temp_branch' at $input_hash...\n";
+system("git checkout -b $temp_branch $input_hash") == 0
+    or die "Failed to create branch '$temp_branch' at $input_hash\n";
+
+# Process each commit: cherry-pick with modifications as needed.
+foreach my $entry (@analysis) {
+    my $commit = $entry->{commit};
+    my $chash  = $commit->{hash};
+    print "\nProcessing commit $chash...\n";
+
+    if (not $entry->{touches_input_file}) {
+        # Cherry-pick as is.
+        system("git cherry-pick $chash") == 0
+            or die "Cherry-pick failed for commit $chash\n";
+        print "Cherry-picked commit $chash (does NOT touch '$input_file')\n";
+    }
+    else {
+        if ($entry->{is_exclusive}) {
+            # Commit exclusively touches the input file.
+            system("git cherry-pick $chash") == 0
+                or die "Cherry-pick failed for commit $chash\n";
+            print "Cherry-picked commit $chash (only touches '$input_file')\n";
+            # Amend commit message to the actual file name.
+            system("git commit --amend -m \"$input_file\"") == 0
+                or die "Commit amend failed for commit $chash\n";
+            print "Amended commit message to '$input_file' for commit $chash\n";
+        }
+        else {
+            # Commit touches input_file and other files: split the commit.
+            system("git cherry-pick $chash") == 0
+                or die "Cherry-pick failed for commit $chash\n";
+            print "Cherry-picked commit $chash (touches '$input_file' and others)\n";
+            # Soft reset to undo commit while keeping changes staged.
+            system("git reset --soft HEAD~1") == 0
+                or die "Soft reset failed for commit $chash\n";
+            print "Performed 'git reset --soft' for commit $chash\n";
+            # Unstage the input file changes.
+            system("git restore --staged $input_file") == 0
+                or die "Unstaging '$input_file' failed for commit $chash\n";
+            print "Unstaged '$input_file' from commit $chash\n";
+            # Commit non-input_file changes with the original commit message.
+            system("git commit -m \"" . $commit->{message} . "\"") == 0
+                or die "Commit of non-'$input_file' changes failed for commit $chash\n";
+            print "Committed non-'$input_file' changes with message: $commit->{message}\n";
+            # Stage the input_file changes and commit them separately with message = input_file.
+            system("git add $input_file") == 0
+                or die "Staging '$input_file' failed for commit $chash\n";
+            system("git commit -m \"$input_file\"") == 0
+                or die "Commit of '$input_file' changes failed for commit $chash\n";
+            print "Committed '$input_file' changes separately with message '$input_file' for commit $chash\n";
+        }
+    }
+}
+
+#########################
+# PHASE 2: Reorder commits so that all commits whose commit message equals $input_file
+# are moved to the end (preserving their relative order) and then squashed into one commit.
+#########################
+
+print "\n--- Reordering and squashing commits ---\n";
+print "Reordering commits to move all commits with message '$input_file' to the end...\n";
+
+# Get all commit hashes on temp_branch (from input_hash to HEAD), oldest first.
+my $log_cmd2 = "git log $input_hash..HEAD --format='%H'";
+my @temp_commits = `$log_cmd2`;
+chomp @temp_commits;
+@temp_commits = reverse @temp_commits;
+
+my (@groupA, @groupB);
+foreach my $commit (@temp_commits) {
+    my $msg = `git log -1 --format='%s' $commit`;
+    chomp $msg;
+    if ($msg eq $input_file) {
+        push @groupB, $commit;
+    } else {
+        push @groupA, $commit;
+    }
+}
+
+print "Group A (other commits):\n";
+print "  " . join("\n  ", @groupA) . "\n" if @groupA;
+print "Group B (commits with message '$input_file'):\n";
+print "  " . join("\n  ", @groupB) . "\n" if @groupB;
+
+# Create a new branch from input_hash to build the reordered history.
+my $new_branch = "temp_branch_reordered";
+print "\nCreating new branch '$new_branch' from $input_hash...\n";
+system("git checkout -b $new_branch $input_hash") == 0
+    or die "Failed to create branch '$new_branch' from $input_hash\n";
+
+# Cherry-pick Group A commits (which do NOT have the input_file message) in order.
+foreach my $commit (@groupA) {
+    system("git cherry-pick $commit") == 0
+        or die "Cherry-pick failed for commit $commit in Group A\n";
+    print "Cherry-picked Group A commit: $commit\n";
+}
+
+# For Group B, accumulate their changes using cherry-pick -n (no commit)
+foreach my $commit (@groupB) {
+    system("git cherry-pick -n $commit") == 0
+        or die "Cherry-pick -n failed for commit $commit in Group B\n";
+    print "Accumulated changes from Group B commit: $commit\n";
+}
+
+# Commit the accumulated changes from Group B as one squashed commit.
+system("git commit -m \"$input_file\"") == 0
+    or die "Final commit for Group B failed\n";
+print "Committed squashed Group B changes as a single commit with message '$input_file'\n";
+
+print "\nReordering and squashing complete. New branch: $new_branch\n";
+print "Final history on $new_branch should have all non-'$input_file' commits followed by a single '$input_file' commit.\n";
+
+print "\nProcess complete.\n";
