@@ -92,8 +92,8 @@ complete -c re -w git-remote
 
 # reset
 function __gr-reset --description "git reset wrapper"
-    set -l mode $argv[1]      # soft|hard
-    set -l target $argv[2]    # N commits or ref
+    set -l mode $argv[1] # soft|hard
+    set -l target $argv[2] # N commits or ref
     test -z "$target"; and set target 1
     git reset --$mode "HEAD~$target"
 end
@@ -112,8 +112,8 @@ end
 function rhu --description "hard-reset to upstream"
     git reset --hard (__gr-upstream-ref)
 end
-complete -c rs  -d "soft reset HEAD~N"  -a "1 2 3 4 5"
-complete -c rh  -d "hard reset HEAD~N"  -a "1 2 3 4 5"
+complete -c rs -d "soft reset HEAD~N" -a "1 2 3 4 5"
+complete -c rh -d "hard reset HEAD~N" -a "1 2 3 4 5"
 complete -c rsu -d "soft reset to upstream"
 complete -c rhu -d "hard reset to upstream"
 
@@ -172,10 +172,10 @@ end
 
 function commit_types --description 'Print Conventional Commit types fast'
     # colour helpers
-    set -l kw   (set_color cyan)
+    set -l kw (set_color cyan)
     set -l full (set_color yellow)
     set -l info (set_color white)
-    set -l rst  (set_color normal)
+    set -l rst (set_color normal)
 
     for spec in \
         'feat        |Features|A new feature' \
@@ -189,7 +189,7 @@ function commit_types --description 'Print Conventional Commit types fast'
         'ci          |Continuous Integrations|Changes to our CI configuration files and scripts (example scopes: Travis, Circle, BrowserStack, SauceLabs)' \
         'chore       |Chores|Other changes that do not modify src or test files' \
         'revert      |Reverts|Reverts a previous commit'
-        set -l parts (string split '|' $spec)   # key|full|info
+        set -l parts (string split '|' $spec) # key|full|info
         echo -n $kw$parts[1]$rst' '
         echo $full$parts[2]$rst
         echo $info$parts[3]$rst
@@ -201,13 +201,13 @@ complete -c gcmp -a "(git branch --format='%(refname:short)')" -d "Git branch"
 
 alias gsquash="git rebase -i (git rev-list --max-parents=0 HEAD)"
 
-alias gxcl="git reset --hard && git clean -ffdx && git submodule sync
---recursive && git submodule update --init --recursive --force && git submodule
+alias gxcl="git reset --hard && git clean -ffdx && git submodule sync \\
+--recursive && git submodule update --init --recursive --force && git submodule \\
 foreach --recursive git clean -ffdx && git checkout --force"
 
-alias gxclFULL="git reset --hard --recurse-submodules && git lfs fetch --all &&
-git lfs prune && git add --renormalize . && git stash --include-untracked && git
-clean -ffdx && git reflog expire --all --expire='2.weeks.ago'
---expire-unreachable='now' && git gc --prune=now && git submodule sync
---recursive && git submodule update --init --recursive --force && git submodule
+alias gxclFULL="git reset --hard --recurse-submodules && git lfs fetch --all && \\
+git lfs prune && git add --renormalize . && git stash --include-untracked && git \\
+clean -ffdx && git reflog expire --all --expire='2.weeks.ago' \\
+--expire-unreachable='now' && git gc --prune=now && git submodule sync \\
+--recursive && git submodule update --init --recursive --force && git submodule \\
 foreach --recursive git clean -ffdx && git checkout --force"
