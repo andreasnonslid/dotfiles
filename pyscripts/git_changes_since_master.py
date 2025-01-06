@@ -1,41 +1,30 @@
 #!/usr/bin/env python3
-import argparse
-import subprocess
+from git import Repo
 import sys
 
-def run_git(args):
-    try:
-        return subprocess.check_output(["git"] + args, text=True)
-    except subprocess.CalledProcessError as e:
-        sys.stderr.write(e.output)
-        sys.exit(e.returncode or 1)
+needle = sys.argv[1] if len(sys.argv) > 1 else input("Search letters: ")
+base = "origin/master"
 
-def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("needle", help="Substring to search for in changed file paths")
-    ap.add_argument("--base", default="origin/master", help="Base ref (default: origin/master)")
-    ap.add_argument("--head", default="HEAD", help="Head ref (default: HEAD)")
-    ap.add_argument("--symmetric", action="store_true", help="Use BASE...HEAD instead of BASE..HEAD")
-    args = ap.parse_args()
+def is_subsequence(needle, haystack):
+    it = iter(haystack.lower())
+    return all(c in it for c in needle.lower())
 
-    commit_range = f"{args.base}...{args.head}" if args.symmetric else f"{args.base}..{args.head}"
-    output = run_git(["log", commit_range, "--name-status", "--pretty=%H%x1f%s"])
+repo = Repo(".", search_parent_directories=True)
+commits = list(repo.iter_commits(f"{base}..HEAD", reverse=True))
 
-    current_hash = None
-    current_msg = None
-    printed = set()
+matches = []
+for commit in commits:
+    for f in commit.stats.files.keys():
+        if is_subsequence(needle, f):
+            matches.append((commit.hexsha, commit.summary, f))
 
-    for line in output.splitlines():
-        if "\x1f" in line:  # commit header
-            current_hash, current_msg = line.split("\x1f", 1)
-        elif line.strip():  # file change line
-            parts = line.split("\t", 1)
-            if len(parts) > 1:
-                path = parts[1]
-                if args.needle in path and current_hash not in printed:
-                    print(f"{current_hash} {current_msg}")
-                    printed.add(current_hash)
+if not matches:
+    print(f"No commits found containing subsequence '{needle}'.")
+    sys.exit(0)
 
-if __name__ == "__main__":
-    main()
+seen = set()
+for sha, msg, path in matches:
+    if sha not in seen:
+        print(f"{sha[:7]} {msg}  [{path}]")
+        seen.add(sha)
 
