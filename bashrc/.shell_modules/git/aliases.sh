@@ -62,8 +62,8 @@ alias re='git remote'
 
 # reset functions
 __gr-reset() {
-    local mode="$1"  # soft|hard
-    local target="${2:-1}"  # N commits or ref, default 1
+    local mode="$1"        # soft|hard
+    local target="${2:-1}" # N commits or ref, default 1
     git reset --"$mode" "HEAD~$target"
 }
 
@@ -130,10 +130,10 @@ aac() {
 
 commit_types() {
     # Print Conventional Commit types fast
-    local kw='\033[0;36m'  # cyan
-    local full='\033[0;33m'  # yellow
-    local info='\033[0;37m'  # white
-    local rst='\033[0m'  # reset
+    local kw='\033[0;36m'   # cyan
+    local full='\033[0;33m' # yellow
+    local info='\033[0;37m' # white
+    local rst='\033[0m'     # reset
 
     local types=(
         'feat        |Features|A new feature'
@@ -150,7 +150,7 @@ commit_types() {
     )
 
     for spec in "${types[@]}"; do
-        IFS='|' read -r key full_name info_text <<< "$spec"
+        IFS='|' read -r key full_name info_text <<<"$spec"
         echo -e "${kw}${key}${rst} ${full}${full_name}${rst}"
         echo -e "${info}${info_text}${rst}"
         echo
@@ -165,26 +165,91 @@ gsquash() {
     git rebase -i "$(git rev-list --max-parents=0 HEAD)"
 }
 
+___anh___wait_for_locks() {
+    local max_wait=10
+    local bar_length=20
+    local check_interval=500
+    local waited=0
+    local max_wait_ms=$((max_wait * 1000))
+
+    find .git -name "*.lock" -type f -delete 2>/dev/null || true
+
+    if [ ! -f .git/index.lock ] && ! find .git -name "*.lock" -type f 2>/dev/null | grep -q .; then
+        return 0
+    fi
+
+    echo "Waiting for git locks to clear."
+    echo "Timeout: ${max_wait}s"
+
+    while [ $waited -lt $max_wait_ms ]; do
+        find .git -name "*.lock" -type f -delete 2>/dev/null || true
+
+        if [ -f .git/index.lock ] || find .git -name "*.lock" -type f 2>/dev/null | grep -q .; then
+            local filled=$(((waited * bar_length) / max_wait_ms))
+            local bar="|"
+            local i=0
+            while [ $i -lt $filled ]; do
+                bar="${bar}*"
+                i=$((i + 1))
+            done
+            while [ $i -lt $bar_length ]; do
+                bar="${bar}-"
+                i=$((i + 1))
+            done
+            bar="${bar}|"
+
+            printf "\r%s" "$bar"
+            sleep 0.5
+            waited=$((waited + check_interval))
+        else
+            printf "\n"
+            break
+        fi
+    done
+
+    find .git -name "*.lock" -type f -delete 2>/dev/null || true
+}
+
 gxcl() {
+    ___anh___wait_for_locks
     git reset --hard &&
-    git clean -ffdx &&
-    git submodule sync --recursive &&
+        git clean -ffdx &&
+        git submodule sync --recursive &&
+        ___anh___wait_for_locks
     git submodule update --init --recursive --force &&
-    git submodule foreach --recursive git clean -ffdx &&
-    git checkout --force
+        ___anh___wait_for_locks
+    git submodule foreach --recursive 'git reset --hard HEAD && git clean -ffdx' &&
+        git checkout --force
 }
 
 gxclfull() {
-    git reset --hard --recurse-submodules &&
-    git lfs fetch --all &&
-    git lfs prune &&
-    git add --renormalize . &&
-    git stash --include-untracked &&
-    git clean -ffdx &&
-    git reflog expire --all --expire='2.weeks.ago' --expire-unreachable='now' &&
-    git gc --prune=now &&
-    git submodule sync --recursive &&
+    ___anh___wait_for_locks
+    git reset --hard &&
+        git lfs fetch --all &&
+        git lfs prune &&
+        git add --renormalize . &&
+        git stash --include-untracked &&
+        git clean -ffdx &&
+        git reflog expire --all --expire='2.weeks.ago' --expire-unreachable='now' &&
+        git gc --prune=now &&
+        ___anh___wait_for_locks
+    git submodule deinit --force --all &&
+        git submodule sync --recursive &&
+        ___anh___wait_for_locks
     git submodule update --init --recursive --force &&
-    git submodule foreach --recursive git clean -ffdx &&
-    git checkout --force
+        ___anh___wait_for_locks
+    git submodule foreach --recursive 'git reset --hard HEAD && git clean -ffdx' &&
+        git checkout --force
+}
+
+gxclreset() {
+    ___anh___wait_for_locks
+    git reset --hard &&
+        git clean -ffdx &&
+        git submodule sync --recursive &&
+        ___anh___wait_for_locks
+    git submodule update --init --recursive --force &&
+        ___anh___wait_for_locks
+    git submodule foreach --recursive 'git fetch --all && git reset --hard origin/$(git rev-parse --abbrev-ref HEAD) && git clean -ffdx' &&
+        git checkout --force
 }
