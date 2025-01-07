@@ -1,1 +1,2 @@
 bash
+. "$HOME/.cargo/env"

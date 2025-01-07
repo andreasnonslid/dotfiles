@@ -1,39 +1,70 @@
 #!/bin/bash
-INSTALL_DIR="/usr/local/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi"
+set -e
 
+# === Configuration ===
+GCC_VERSION="11.3.rel1"
+GDB_VERSION="13.3.rel1"
+GCC_DIR="/usr/local/arm-gnu-toolchain-${GCC_VERSION}-x86_64-arm-none-eabi"
+GDB_DIR="/usr/local/arm-gnu-toolchain-${GDB_VERSION}-x86_64-arm-none-eabi"
+
+# === Helper ===
 function is_installed {
-    type "$1" >/dev/null 2>&1
+    [ -x "$1" ]
 }
 
-if is_installed $INSTALL_DIR/bin/arm-none-eabi-gcc; then
-    echo "ARM GNU Toolchain is already installed."
+# === Install GCC toolchain ===
+if is_installed "$GCC_DIR/bin/arm-none-eabi-gcc"; then
+    echo "ARM GCC ${GCC_VERSION} already installed."
 else
-    echo "Downloading ARM GNU Toolchain..."
-    curl -LO "https://developer.arm.com/-/media/Files/downloads/gnu/11.3.rel1/binrel/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi.tar.xz?rev=95edb5e17b9d43f28c74ce824f9c6f10&hash=176C4D884DBABB657ADC2AC886C8C095409547C4"
-    echo "Extracting..."
-    sudo tar xJf arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi.tar.xz -C /usr/local
+    echo "Downloading ARM GCC ${GCC_VERSION}..."
+    curl -LO "https://developer.arm.com/-/media/Files/downloads/gnu/${GCC_VERSION}/binrel/arm-gnu-toolchain-${GCC_VERSION}-x86_64-arm-none-eabi.tar.xz"
+    echo "Extracting GCC..."
+    sudo tar -xJf "arm-gnu-toolchain-${GCC_VERSION}-x86_64-arm-none-eabi.tar.xz" -C /usr/local
+    rm -f "arm-gnu-toolchain-${GCC_VERSION}-x86_64-arm-none-eabi.tar.xz"
 fi
 
+# === Install newer GDB (13.3) ===
+if is_installed "$GDB_DIR/bin/arm-none-eabi-gdb"; then
+    echo "ARM GDB ${GDB_VERSION} already installed."
+else
+    echo "Downloading ARM GDB ${GDB_VERSION}..."
+    curl -LO "https://developer.arm.com/-/media/Files/downloads/gnu/${GDB_VERSION}/binrel/arm-gnu-toolchain-${GDB_VERSION}-x86_64-arm-none-eabi.tar.xz"
+    echo "Extracting GDB..."
+    sudo tar -xJf "arm-gnu-toolchain-${GDB_VERSION}-x86_64-arm-none-eabi.tar.xz" -C /usr/local
+    rm -f "arm-gnu-toolchain-${GDB_VERSION}-x86_64-arm-none-eabi.tar.xz"
+fi
+
+# === Register binaries ===
 function setup_alternative {
     tool=$1
-    path="$INSTALL_DIR/bin/$tool"
+    path=$2
     if [ -f "$path" ]; then
         sudo update-alternatives --install "/usr/bin/$tool" "$tool" "$path" 100
-        sudo update-alternatives --config "$tool"
     else
-        echo "Executable $tool not found."
+        echo "⚠️  Missing: $path"
     fi
 }
 
-setup_alternative "arm-none-eabi-gcc"
-setup_alternative "arm-none-eabi-g++"
-setup_alternative "arm-none-eabi-objcopy"
-setup_alternative "arm-none-eabi-size"
-setup_alternative "arm-none-eabi-gdb"
-setup_alternative "arm-none-eabi-objdump"
-setup_alternative "arm-none-eabi-nm"
+# Compiler tools from GCC 11.3
+setup_alternative "arm-none-eabi-gcc" "$GCC_DIR/bin/arm-none-eabi-gcc"
+setup_alternative "arm-none-eabi-g++" "$GCC_DIR/bin/arm-none-eabi-g++"
+setup_alternative "arm-none-eabi-objcopy" "$GCC_DIR/bin/arm-none-eabi-objcopy"
+setup_alternative "arm-none-eabi-size" "$GCC_DIR/bin/arm-none-eabi-size"
+setup_alternative "arm-none-eabi-objdump" "$GCC_DIR/bin/arm-none-eabi-objdump"
+setup_alternative "arm-none-eabi-nm" "$GCC_DIR/bin/arm-none-eabi-nm"
 
-export PYTHONHOME=$(pyenv prefix 3.8.12)
-export PYTHONPATH=$PYTHONHOME/lib/python3.8
-unset PYTHONHOME
-unset PYTHONPATH
+# Debugger from GDB 13.3
+setup_alternative "arm-none-eabi-gdb" "$GDB_DIR/bin/arm-none-eabi-gdb"
+
+# Harmless link for libncursesw.so.5 backwards compat
+sudo ln -sf /usr/lib/x86_64-linux-gnu/libncursesw.so.6 /usr/lib/x86_64-linux-gnu/libncursesw.so.5
+sudo ln -sf /usr/lib/x86_64-linux-gnu/libtinfo.so.6 /usr/lib/x86_64-linux-gnu/libtinfo.so.5
+
+# === Final verification ===
+echo
+echo "Installed toolchain versions:"
+arm-none-eabi-gcc --version | head -n1
+arm-none-eabi-gdb --version | head -n1
+
+echo
+echo "✅ Setup complete: GCC ${GCC_VERSION}, GDB ${GDB_VERSION}"

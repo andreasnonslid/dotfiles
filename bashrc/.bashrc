@@ -39,17 +39,17 @@ jobs_count=""
 # Function to get the return value of the last command
 update_exit_status() {
     if [[ $? == 0 ]]; then
-        last_exit_status="✔ "  # Green color for success
+        last_exit_status="✔ " # Green color for success
         exit_status_color="$LIGHT_GREEN"
     else
-        last_exit_status="✘ "  # Red color for failure
+        last_exit_status="✘ " # Red color for failure
         exit_status_color="$LIGHT_RED"
     fi
 }
 
 # Function to get git info
 parse_git_branch() {
-    git branch 2> /dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
+    git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
 }
 
 # This function updates the prompt.
@@ -98,18 +98,9 @@ alias help="tldr"
 # PATH settings
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# SDKMAN configuration
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-# Python environment
-export PATH="$HOME/.pyenv/bin:$PATH"
-eval "$(pyenv init --path)"
-eval "$(pyenv init -)"
-
 export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
+[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 
 export PATH="/opt/nvim-linux-x86_64/bin:$PATH"
 
@@ -121,3 +112,5 @@ if [[ $- == *i* ]]; then
 fi
 
 . "$HOME/.cargo/env"
+
+export STM32_PRG_PATH=/home/anh/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin
