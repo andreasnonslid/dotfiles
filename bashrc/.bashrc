@@ -29,6 +29,13 @@ if command -v zoxide &>/dev/null; then
     eval "$(zoxide init bash)"
 fi
 
+# Pyenv initialization
+if command -v pyenv >/dev/null 2>&1; then
+    export PYENV_ROOT="$HOME/.pyenv"
+    export PATH="$PYENV_ROOT/bin:$PATH"
+    eval "$(pyenv init -)"
+fi
+
 # SHELL PROMPT
 # Initial values
 last_exit_status="✔ "
@@ -91,6 +98,14 @@ updateStatusLine() {
 # The commands which are run every time a command is entered in the shell
 PROMPT_COMMAND="updateStatusLine"
 
+# Optional: Use Starship prompt instead of custom prompt
+# Uncomment the following lines to enable Starship:
+# if command -v starship >/dev/null 2>&1; then
+#     eval "$(starship init bash)"
+#     # Disable custom prompt when using Starship
+#     unset PROMPT_COMMAND
+# fi
+
 # Helpful aliases
 alias cheat="curl cheat.sh/"
 alias help="tldr"
@@ -105,12 +120,23 @@ export NVM_DIR="$HOME/.nvm"
 export PATH="/opt/nvim-linux-x86_64/bin:$PATH"
 
 # Call Fish for interactive shells
-if [[ $- == *i* ]]; then
-    if command -v fish >/dev/null 2>&1; then
-        exec fish
-    fi
-fi
+# if [[ $- == *i* ]]; then
+#     if command -v fish >/dev/null 2>&1; then
+#         exec fish
+#     fi
+# fi
 
 . "$HOME/.cargo/env"
 
 export STM32_PRG_PATH=/home/anh/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin
+
+# Optional: Start Zellij on interactive shells
+# Uncomment the following lines to enable Zellij auto-start:
+if [[ $- == *i* ]]; then
+    if [ -z "$ZELLIJ" ] && [ -z "$TMUX" ]; then
+        if command -v zellij >/dev/null 2>&1; then
+            zellij
+        fi
+    fi
+fi
+
