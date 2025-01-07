@@ -12,6 +12,9 @@ alias bv='b -vv'
 alias bd='b -d'
 alias bsu='b --set-upstream-to'
 
+# fetch
+alias f="git fetch"
+
 # checkout
 alias ch='git checkout'
 
@@ -49,10 +52,15 @@ alias pl='git pull'
 
 # push
 alias p='git push'
+alias pf='git push --force-with-lease'
 
 # rebase
 alias r='git rebase'
 alias ri='git rebase -i'
+alias rom='r origin/master'
+alias romain='r origin/main'
+alias riom='ri origin/master'
+alias riomain='ri origin/main'
 
 # reflog
 alias ref='git reflog'
