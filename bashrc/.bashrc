@@ -126,7 +126,7 @@ export PATH="/opt/nvim-linux-x86_64/bin:$PATH"
 #     fi
 # fi
 
-. "$HOME/.cargo/env"
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
 
 export STM32_PRG_PATH=/home/anh/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin
 
