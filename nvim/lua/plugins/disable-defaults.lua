@@ -9,6 +9,17 @@ return {
   -- Disable mini.animate completely to prevent any scroll animations
   { "nvim-mini/mini.animate", enabled = false },
 
+  -- Disable dashboard on startup (snacks.nvim shows it when no file is opened)
+  {
+    "folke/snacks.nvim",
+    opts = {
+      dashboard = { enabled = false },
+    },
+  },
+
+  -- Disable bufferline (the tab bar at top) - use [b/]b and <leader>f<leader> for buffer switching
+  { "akinsho/bufferline.nvim", enabled = false },
+
   -- Disable LazyVim's tab functionality and keymaps
   {
     "LazyVim/LazyVim",

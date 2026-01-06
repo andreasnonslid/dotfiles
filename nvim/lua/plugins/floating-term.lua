@@ -26,15 +26,6 @@ return {
         width = math.floor(vim.o.columns * 0.8), -- 80% of screen width
         height = math.floor(vim.o.lines * 0.8), -- 80% of screen height
         winblend = 0,
-        highlights = {
-          border = "Normal",
-          background = "Normal",
-        },
-      },
-      highlights = {
-        Normal = { guibg = "Normal" },
-        NormalFloat = { link = "Normal" },
-        FloatBorder = { guifg = "Normal", guibg = "Normal" },
       },
     })
 
@@ -64,7 +55,7 @@ return {
       lazygit:toggle()
     end
     
-    -- Keymap for lazygit
-    vim.api.nvim_set_keymap("n", "<leader>g", "<cmd>lua _lazygit_toggle()<CR>", {noremap = true, silent = true})
+    -- Keymap for lazygit (<leader>gg avoids conflict with <leader>g* git submenu)
+    vim.keymap.set("n", "<leader>gg", "<cmd>lua _lazygit_toggle()<CR>", { desc = "Lazygit" })
   end,
 } 
