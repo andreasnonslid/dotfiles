@@ -71,12 +71,3 @@ find . "${PRUNE_ARGS[@]}" -type f \( -iname '*.c' -o -iname '*.cpp' -o -iname '*
 find . "${PRUNE_ARGS[@]}" -type f \( -iname '*.js' -o -iname '*.jsx' -o -iname '*.ts' -o -iname '*.tsx' -o -iname '*.json' -o -iname '*.md' -o -iname '*.yaml' -o -iname '*.yml' \) -print0 |
     xargs -0 prettier $PRETTIER_OPTS
 
-# Fish scripts (fish_indent)
-if [ "$MODE" = "list" ]; then
-    echo "Skipping fish scripts in list mode; fish_indent does not support list"
-else
-    set +e
-    find . "${PRUNE_ARGS[@]}" -type f -iname '*.fish' -print0 |
-        xargs -0 fish_indent -w || true
-    set -e
-fi

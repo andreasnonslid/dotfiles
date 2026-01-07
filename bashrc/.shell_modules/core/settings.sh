@@ -32,5 +32,3 @@ export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 # Editor settings
 export EDITOR='nvim'
 alias vim="nvim"
-
-git config --global core.autocrlf input

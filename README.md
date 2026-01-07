@@ -12,21 +12,19 @@ npm install -g neovim
 
 # Dotfiles
 
+## Setup
+
+After cloning, run once:
+
+```sh
+./configure_git.sh
+```
+
+This sets `core.autocrlf` and enables commit message hooks.
+
 ## Commit Message Enforcement
 
 This repository enforces a professional commit message style using a portable Perl commit-msg hook stored in `.githooks/commit-msg`.
-
-```sh
-git config core.hooksPath .githooks
-```
-
-**To enable commit message enforcement after cloning:**
-
-```sh
-git config core.hooksPath .githooks
-```
-
-This ensures all contributors follow the same commit message standards, improving project history and collaboration.
 
 **Commit message format:**
 

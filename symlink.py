@@ -84,20 +84,6 @@ def main():
     else:
         print(f"nvim source directory not found: {nvim_source}")
 
-    # fish contents
-    fish_source = repo_root / "fish"
-    if is_windows:
-        fish_target = (
-            Path(os.environ.get("LOCALAPPDATA", home / "AppData/Local")) / "fish"
-        )
-    else:
-        fish_target = config_dir / "fish"
-
-    if fish_source.exists() and fish_source.is_dir():
-        symlink_dir_contents(str(fish_source), str(fish_target), auto_yes=args.yes)
-    else:
-        print(f"fish source directory not found: {fish_source}")
-
     # starship.toml
     starship_source = repo_root / "starship.toml"
     if is_windows:
