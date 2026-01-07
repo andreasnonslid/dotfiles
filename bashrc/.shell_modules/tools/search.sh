@@ -37,6 +37,5 @@ replace() {
     shift 2
     local extra=("$@")
 
-    # null separated filenames passed to sed
     search "$old" "${extra[@]}" --null | xargs -0 sed -i "s|$old|$new|g"
 }
