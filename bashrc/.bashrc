@@ -41,7 +41,6 @@ fi
 last_exit_status="✔ "
 exit_status_color="$LIGHT_GREEN"
 git_info=""
-jobs_count=""
 
 # Function to get the return value of the last command
 update_exit_status() {
@@ -72,16 +71,6 @@ update_git_info() {
     fi
 }
 
-# Function to get count of background jobs
-update_jobs_count() {
-    local count=$(jobs -p | wc -l)
-    if [[ $count -gt 0 ]]; then
-        jobs_count=" [$count]"
-    else
-        jobs_count=""
-    fi
-}
-
 # Set the prompt
 setPS1() {
     PS1="\[$exit_status_color\]$last_exit_status \[$LIGHT_BLUE\]\w $git_info \[$CYAN\]🕒 \t\n\[$WHITE\]❯ "
@@ -91,7 +80,6 @@ setPS1() {
 updateStatusLine() {
     update_exit_status
     update_git_info
-    update_jobs_count
     setPS1
 }
 
