@@ -4,6 +4,8 @@ case $- in
 *) return ;;
 esac
 
+export DOTFILES="$HOME/dotfiles"
+
 # Source core settings first
 for config_file in ~/.shell_modules/core/*.sh; do
     source "$config_file"
