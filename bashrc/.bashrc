@@ -67,7 +67,7 @@ update_git_info() {
         curBranch=$branch
     else
         git_info=""
-        curBranch=$branch
+        curBranch=""
     fi
 }
 
