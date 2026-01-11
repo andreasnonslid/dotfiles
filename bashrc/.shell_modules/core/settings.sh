@@ -23,9 +23,6 @@ fi
 bind '"\e[A": history-search-backward'
 bind '"\e[B": history-search-forward'
 
-# PATH settings
-export PATH="$PATH:/usr/bin"
-
 # GCC colors for better error messages
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
 
