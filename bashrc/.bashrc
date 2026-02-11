@@ -128,3 +128,4 @@ if [[ $- == *i* ]]; then
     fi
 fi
 
+[ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
