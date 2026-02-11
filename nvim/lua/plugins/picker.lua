@@ -171,6 +171,7 @@ return {
           require("snacks").picker.grep()
         end,
         desc = "[S]earch by [G]rep",
+        mode = { "n", "v" },
       },
       {
         "<leader>sj",
@@ -230,14 +231,6 @@ return {
       },
 
       -- Visual mode search
-      {
-        "<leader>sg",
-        function()
-          require("snacks").picker.grep()
-        end,
-        desc = "[S]earch [G]rep selection",
-        mode = "v",
-      },
       {
         "<leader>sw",
         function()
