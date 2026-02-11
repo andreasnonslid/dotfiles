@@ -1,6 +1,15 @@
-alias logch="jiralog log TIME-195 today"
-alias logasios="jiralog log TIME-164 today"
-alias logasio3="jiralog log TIME-76 today"
-alias logfusion="jiralog log TIME-25 today"
-alias logversa="jiralog log TIME-13 today"
-alias logmeeting="jiralog log TIME-182 today"
+# Jira time logging aliases. Requires 'jiralog' command.
+# Customize via env vars, e.g. export JIRA_LOGCH=TIME-123
+: "${JIRA_LOGCH:=TIME-195}"
+: "${JIRA_ASIOS:=TIME-164}"
+: "${JIRA_ASIO3:=TIME-76}"
+: "${JIRA_FUSION:=TIME-25}"
+: "${JIRA_VERSA:=TIME-13}"
+: "${JIRA_MEETING:=TIME-182}"
+
+alias logch="jiralog log $JIRA_LOGCH today"
+alias logasios="jiralog log $JIRA_ASIOS today"
+alias logasio3="jiralog log $JIRA_ASIO3 today"
+alias logfusion="jiralog log $JIRA_FUSION today"
+alias logversa="jiralog log $JIRA_VERSA today"
+alias logmeeting="jiralog log $JIRA_MEETING today"
