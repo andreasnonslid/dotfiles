@@ -37,5 +37,9 @@ replace() {
     shift 2
     local extra=("$@")
 
-    search "$old" "${extra[@]}" --null | xargs -0 sed -i "s|$old|$new|g"
+    # Use perl for literal replacement (avoids sed regex/special-char issues)
+    local new_escaped
+    new_escaped=$(printf '%s' "$new" | sed 's/\\/\\\\/g; s/\$/\\$/g')
+    export REPLACE_OLD="$old" REPLACE_NEW="$new_escaped"
+    search "$old" "${extra[@]}" --null | xargs -0 perl -i -pe 's/\Q$ENV{REPLACE_OLD}\E/$ENV{REPLACE_NEW}/g'
 }
