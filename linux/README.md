@@ -1,4 +1,4 @@
-tree-sitter uses cmake min versino 3.2 and breaks when using 3.5<cmake version
+tree-sitter uses cmake min version 3.2 and breaks when using cmake version < 3.5
 
 to fix
 
