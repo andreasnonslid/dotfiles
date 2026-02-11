@@ -9,10 +9,10 @@ return {
     config = function()
         local jl = require("justlists")
 
-        -- 1) Initialize with your desired root_dir:
+        -- 1) Initialize with root_dir. Override via :let g:justlists_root = "~/path"
         jl.setup({
             root_dir = vim.fn.expand(
-                "/mnt/c/Users/andreas/dropbox/list_directory"
+                vim.g.justlists_root or "~/Dropbox/list_directory"
             ),
         })
 
