@@ -6,7 +6,7 @@
 - **noctishc** - Dark theme with custom colors (overrides LazyVim's tokyonight)
 - **noice.nvim** - Better UI messages and notifications
 - **oil.nvim** - Vim-like file manager (replaces LazyVim's neo-tree)
-- **undotree** - Visual undo history with `<leader>u` toggle
+- **undotree** - Visual undo history with `<leader>uu` toggle
 
 ### **Navigation & Editing**
 - **harpoon2** - Quick file navigation with **LazyVim standard keymaps**:
@@ -109,7 +109,7 @@
 - `<leader>cs` - Symbols (Trouble)
 - `<leader>xx` - Diagnostics (Trouble)
 - `<leader>xX` - Buffer diagnostics (Trouble)
-- `<leader>u` - Undotree toggle
+- `<leader>uu` - Undotree toggle
 
 ### **Terminal & Tools**
 - `<F4>` - Toggle floating terminal

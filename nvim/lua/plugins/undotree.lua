@@ -21,7 +21,7 @@ return {
     vim.g.undotree_HighlightSyntaxChange = "DiffChange"
     vim.g.undotree_HighlightSyntaxDel = "DiffDelete"
 
-    -- Keymap to toggle undotree
-    vim.keymap.set("n", "<leader>u", "<cmd>UndotreeToggle<CR>", { desc = "Toggle [U]ndotree" })
+    -- Keymap to toggle undotree (<leader>uu to avoid LazyVim UI group conflict)
+    vim.keymap.set("n", "<leader>uu", "<cmd>UndotreeToggle<CR>", { desc = "Toggle [U]ndotree" })
   end,
 } 
