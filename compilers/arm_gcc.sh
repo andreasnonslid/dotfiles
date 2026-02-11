@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Usage: ./manage_arm_gcc.sh
+# Usage: ./arm_gcc.sh
 function install_version() {
     echo "Fetching available versions of ARM None-EABI GCC using xpm..."
     local versions=$(npm view @xpack-dev-tools/arm-none-eabi-gcc versions --json | jq -r '.[]')
