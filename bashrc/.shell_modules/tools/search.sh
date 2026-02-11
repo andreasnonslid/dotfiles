@@ -9,7 +9,8 @@ fi
 alias ffind='find . -type f -name'
 
 maliases() {
-    rg -e "^alias.*$1.*" ~/dotfiles/bashrc/.bashrc ~/dotfiles/bashrc/.shell_modules --no-ignore --hidden --glob "*.sh" --glob "*.bashrc"
+    local dotfiles="${DOTFILES:-$HOME/dotfiles}"
+    rg -e "^alias.*$1.*" "$dotfiles/bashrc/.bashrc" "$dotfiles/bashrc/.shell_modules" --no-ignore --hidden --glob "*.sh" --glob "*.bashrc"
 }
 
 search() {
