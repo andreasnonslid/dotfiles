@@ -1,6 +1,6 @@
 reloadbash() {
-    cd ~/dotfiles
-    source $HOME/.bashrc
+    cd "${DOTFILES:-$HOME/dotfiles}"
+    source "$HOME/.bashrc"
     cd - >/dev/null
     echo "Bash configuration reloaded."
 }
