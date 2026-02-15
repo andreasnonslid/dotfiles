@@ -1,11 +1,5 @@
 -- Small utility plugins that don't need their own files
 return {
-  -- Vim repeat - repeat plugin commands with .
-  {
-    "tpope/vim-repeat",
-    event = "VeryLazy",
-  },
-
   -- Indent guides - LazyVim has this built-in, but if you want explicit control:
   {
     "lukas-reineke/indent-blankline.nvim",
