@@ -23,6 +23,7 @@ require("lazy").setup({
     { import = "lazyvim.plugins.extras.lang.python" },
     -- Enable snacks picker (replaces telescope/fzf-lua)
     { import = "lazyvim.plugins.extras.editor.snacks_picker" },
+    { import = "lazyvim.plugins.extras.editor.inc-rename" },
     -- import/override with your plugins
     { import = "plugins" },
   },
