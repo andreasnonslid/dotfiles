@@ -67,6 +67,7 @@ return {
           require("snacks").picker.grep()
         end,
         desc = "[F]ind by [G]rep in repo",
+        mode = { "n", "v" },
       },
       {
         "<leader>Fw",
@@ -82,14 +83,6 @@ return {
         end,
         desc = "[F]ind [G]it files in repo",
       },
-      {
-        "<leader>F<space>",
-        function()
-          require("snacks").picker.git_files()
-        end,
-        desc = "[F]ind git-tracked files",
-      },
-
       -- Local (cwd) operations - <leader>f*
       {
         "<leader>ff",
@@ -166,26 +159,11 @@ return {
         desc = "[S]earch [B]uffer lines",
       },
       {
-        "<leader>sg",
-        function()
-          require("snacks").picker.grep()
-        end,
-        desc = "[S]earch by [G]rep",
-        mode = { "n", "v" },
-      },
-      {
         "<leader>sj",
         function()
           require("snacks").picker.jumps()
         end,
         desc = "[S]earch [J]umps",
-      },
-      {
-        "<leader>sk",
-        function()
-          require("snacks").picker.keymaps()
-        end,
-        desc = "[S]earch [K]eymaps",
       },
       {
         "<leader>sl",
@@ -207,13 +185,6 @@ return {
           require("snacks").picker.notifications()
         end,
         desc = "[S]earch [N]otifications",
-      },
-      {
-        "<leader>sr",
-        function()
-          require("snacks").picker.resume()
-        end,
-        desc = "[S]earch [R]esume",
       },
       {
         "<leader>sq",
