@@ -43,36 +43,6 @@ return {
     end,
   },
 
-  -- Comment plugin - LazyVim includes mini.comment by default, but if you prefer:
-  {
-    "numToStr/Comment.nvim",
-    event = "VeryLazy",
-    opts = {
-      padding = true,
-      sticky = true,
-      ignore = nil,
-      toggler = {
-        line = "gcc",
-        block = "gbc",
-      },
-      opleader = {
-        line = "gc",
-        block = "gb",
-      },
-      extra = {
-        above = "gcO",
-        below = "gco",
-        eol = "gcA",
-      },
-      mappings = {
-        basic = true,
-        extra = true,
-      },
-      pre_hook = nil,
-      post_hook = nil,
-    },
-  },
-
   -- Indent guides - LazyVim has this built-in, but if you want explicit control:
   {
     "lukas-reineke/indent-blankline.nvim",
