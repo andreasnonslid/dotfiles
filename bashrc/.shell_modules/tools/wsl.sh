@@ -12,3 +12,4 @@ wsl_clean() {
         return 1
     fi
 }
+wfn wsl_clean "Shutdown WSL to reclaim memory"

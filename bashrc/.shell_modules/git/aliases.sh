@@ -79,11 +79,13 @@ rs() {
     # soft-reset HEAD~N (default 1)
     __gr-reset soft "$@"
 }
+wfn rs "Soft reset HEAD~N (default 1)"
 
 rh() {
     # hard-reset HEAD~N (default 1)
     __gr-reset hard "$@"
 }
+wfn rh "Hard reset HEAD~N (default 1)"
 
 __gr-upstream-ref() {
     echo "origin/$(git branch --show-current)"
@@ -93,11 +95,13 @@ rsu() {
     # soft-reset to upstream
     git reset --soft "$(__gr-upstream-ref)"
 }
+wfn rsu "Soft reset to upstream"
 
 rhu() {
     # hard-reset to upstream
     git reset --hard "$(__gr-upstream-ref)"
 }
+wfn rhu "Hard reset to upstream"
 
 # show
 alias sh='git show'
@@ -135,6 +139,7 @@ aac() {
     local msg="$*"
     c -m "$msg"
 }
+wfn aac "Add all and commit with message"
 
 commit_types() {
     # Print Conventional Commit types fast
@@ -164,14 +169,17 @@ commit_types() {
         echo
     done
 }
+wfn commit_types "Print conventional commit types"
 
 gcmp() {
     git log --oneline --graph "$1..$2"
 }
+wfn gcmp "Compare two git refs with log graph"
 
 gsquash() {
     git rebase -i "$(git rev-list --max-parents=0 HEAD)"
 }
+wfn gsquash "Interactive rebase from root commit"
 
 ___anh___wait_for_locks() {
     local max_wait=10
@@ -229,6 +237,7 @@ gxcl() {
     git submodule foreach --recursive 'git reset --hard HEAD && git clean -ffdx' &&
         git checkout --force
 }
+wfn gxcl "Full git clean, reset, and submodule sync"
 
 gxclfull() {
     ___anh___wait_for_locks
@@ -249,6 +258,7 @@ gxclfull() {
     git submodule foreach --recursive 'git reset --hard HEAD && git clean -ffdx' &&
         git checkout --force
 }
+wfn gxclfull "Aggressive git clean with LFS, reflog, gc"
 
 gxclreset() {
     ___anh___wait_for_locks
@@ -261,3 +271,4 @@ gxclreset() {
     git submodule foreach --recursive 'git fetch --all && git reset --hard origin/$(git rev-parse --abbrev-ref HEAD) && git clean -ffdx' &&
         git checkout --force
 }
+wfn gxclreset "Full clean with submodule reset to origin"

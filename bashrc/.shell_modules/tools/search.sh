@@ -10,8 +10,9 @@ alias ffind='find . -type f -name'
 
 maliases() {
     local dotfiles="${DOTFILES:-$HOME/dotfiles}"
-    rg -e "^alias.*$1.*" "$dotfiles/bashrc/.bashrc" "$dotfiles/bashrc/.shell_modules" --no-ignore --hidden --glob "*.sh" --glob "*.bashrc"
+    rg -e "^alias.*$1.*" -e "^wfn.*$1.*" "$dotfiles/bashrc/.bashrc" "$dotfiles/bashrc/.shell_modules" --no-ignore --hidden --glob "*.sh" --glob "*.bashrc"
 }
+wfn maliases "Search aliases and wrapped functions"
 
 search() {
     if [ $# -lt 1 ]; then
@@ -25,6 +26,7 @@ search() {
 
     rg -l --hidden --no-ignore "$pattern" . "${extra_args[@]}"
 }
+wfn search "Ripgrep file search in current directory"
 
 replace() {
     if [ $# -lt 2 ]; then
@@ -44,3 +46,4 @@ replace() {
     export REPLACE_OLD="$old" REPLACE_NEW="$new_escaped"
     search "$old" "${extra[@]}" --null | xargs -0 perl -i -pe 's/\Q$ENV{REPLACE_OLD}\E/$ENV{REPLACE_NEW}/g'
 }
+wfn replace "Find and replace text across files"
