@@ -118,6 +118,10 @@ export PATH="/opt/nvim-linux-x86_64/bin:$PATH"
 
 export STM32_PRG_PATH=/home/anh/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin
 
+# ST-Link WSL bridge: interceptor must come before /usr/bin/openocd
+export PATH="$HOME/.local/bin:$PATH"
+export PATH="$PATH:$HOME/tools/scripts"
+
 # Optional: Start Zellij on interactive shells
 # Uncomment the following lines to enable Zellij auto-start:
 if [[ $- == *i* ]]; then
