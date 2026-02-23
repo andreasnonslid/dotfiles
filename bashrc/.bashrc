@@ -120,6 +120,7 @@ export STM32_PRG_PATH=/home/anh/STMicroelectronics/STM32Cube/STM32CubeProgrammer
 
 # ST-Link WSL bridge: interceptor must come before /usr/bin/openocd
 export PATH="$HOME/.local/bin:$PATH"
+export PATH="$HOME/.npm-global/bin:$PATH"
 export PATH="$PATH:$HOME/tools/scripts"
 
 # Optional: Start Zellij on interactive shells
