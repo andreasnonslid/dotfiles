@@ -128,4 +128,4 @@ return {
   keys = {
     { "<leader>o", "<cmd>AerialToggle<CR>", desc = "[O]verview" },
   },
-} 
+}

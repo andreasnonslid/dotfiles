@@ -14,4 +14,4 @@ return {
       -- Don't override picker settings here
     },
   },
-} 
+}

@@ -37,7 +37,7 @@ vim.keymap.set("n", "<leader>yfp", ":let @+ = expand('%:p')<CR>", {
 
 -- LazyVim trouble keymaps (for reference):
 -- <leader>xx = "Diagnostics (Trouble)"
--- <leader>xX = "Buffer Diagnostics (Trouble)"  
+-- <leader>xX = "Buffer Diagnostics (Trouble)"
 -- <leader>cs = "Symbols (Trouble)"
 -- <leader>cS = "LSP references/definitions/... (Trouble)"
 -- <leader>xL = "Location List (Trouble)"
@@ -45,7 +45,7 @@ vim.keymap.set("n", "<leader>yfp", ":let @+ = expand('%:p')<CR>", {
 
 -- LazyVim has logical groupings:
 -- <leader>b* = buffer operations
--- <leader>c* = code operations  
+-- <leader>c* = code operations
 -- <leader>f* = file/find operations
 -- <leader>g* = git operations
 -- <leader>q* = quit/session operations

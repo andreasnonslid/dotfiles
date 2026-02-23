@@ -26,4 +26,4 @@ return {
       theme = my_theme,
     },
   },
-} 
+}

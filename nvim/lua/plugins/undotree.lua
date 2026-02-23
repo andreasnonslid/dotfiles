@@ -24,4 +24,4 @@ return {
     -- Keymap to toggle undotree (<leader>uu to avoid LazyVim UI group conflict)
     vim.keymap.set("n", "<leader>uu", "<cmd>UndotreeToggle<CR>", { desc = "Toggle [U]ndotree" })
   end,
-} 
+}

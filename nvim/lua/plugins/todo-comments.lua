@@ -55,4 +55,4 @@ return {
       pattern = [[\b(KEYWORDS):]],
     },
   },
-} 
+}

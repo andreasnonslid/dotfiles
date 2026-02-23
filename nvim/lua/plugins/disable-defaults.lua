@@ -48,4 +48,3 @@ return {
   --   { "windwp/nvim-autopairs", enabled = false },      -- If you prefer mini.pairs
   --   { "lukas-reineke/indent-blankline.nvim", enabled = false }, -- If you prefer mini.indentscope
 }
-
