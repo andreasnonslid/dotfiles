@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+# pre-commit: check formatting, block commit if files need formatting
+
+root=$(git rev-parse --show-toplevel)
+
+if ! lua "$root/pretty.lua" -l > /dev/null 2>&1; then
+    echo "Files need formatting. Run:"
+    echo "  lua pretty.lua -w && git add -u"
+    exit 1
+fi
+
+exit 0
