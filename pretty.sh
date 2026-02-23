@@ -70,4 +70,3 @@ find . "${PRUNE_ARGS[@]}" -type f \( -iname '*.c' -o -iname '*.cpp' -o -iname '*
 # JS/TS/JSON/MD/YAML files (prettier)
 find . "${PRUNE_ARGS[@]}" -type f \( -iname '*.js' -o -iname '*.jsx' -o -iname '*.ts' -o -iname '*.tsx' -o -iname '*.json' -o -iname '*.md' -o -iname '*.yaml' -o -iname '*.yml' \) -print0 |
     xargs -0 prettier $PRETTIER_OPTS
-
