@@ -229,12 +229,12 @@ ___anh___wait_for_locks() {
 gxcl() {
     ___anh___wait_for_locks
     git reset --hard &&
-        git clean -ffdx &&
+        git clean -ffdx -e .local/ &&
         git submodule sync --recursive &&
         ___anh___wait_for_locks
     git submodule update --init --recursive --force &&
         ___anh___wait_for_locks
-    git submodule foreach --recursive 'git reset --hard HEAD && git clean -ffdx' &&
+    git submodule foreach --recursive 'git reset --hard HEAD && git clean -ffdx -e .local/' &&
         git checkout --force
 }
 wfn gxcl "Full git clean, reset, and submodule sync"
@@ -246,7 +246,7 @@ gxclfull() {
         git lfs prune &&
         git add --renormalize . &&
         git stash --include-untracked &&
-        git clean -ffdx &&
+        git clean -ffdx -e .local/ &&
         git reflog expire --all --expire='2.weeks.ago' --expire-unreachable='now' &&
         git gc --prune=now &&
         ___anh___wait_for_locks
@@ -255,7 +255,7 @@ gxclfull() {
         ___anh___wait_for_locks
     git submodule update --init --recursive --force &&
         ___anh___wait_for_locks
-    git submodule foreach --recursive 'git reset --hard HEAD && git clean -ffdx' &&
+    git submodule foreach --recursive 'git reset --hard HEAD && git clean -ffdx -e .local/' &&
         git checkout --force
 }
 wfn gxclfull "Aggressive git clean with LFS, reflog, gc"
@@ -263,12 +263,12 @@ wfn gxclfull "Aggressive git clean with LFS, reflog, gc"
 gxclreset() {
     ___anh___wait_for_locks
     git reset --hard &&
-        git clean -ffdx &&
+        git clean -ffdx -e .local/ &&
         git submodule sync --recursive &&
         ___anh___wait_for_locks
     git submodule update --init --recursive --force &&
         ___anh___wait_for_locks
-    git submodule foreach --recursive 'git fetch --all && git reset --hard origin/$(git rev-parse --abbrev-ref HEAD) && git clean -ffdx' &&
+    git submodule foreach --recursive 'git fetch --all && git reset --hard origin/$(git rev-parse --abbrev-ref HEAD) && git clean -ffdx -e .local/' &&
         git checkout --force
 }
 wfn gxclreset "Full clean with submodule reset to origin"
