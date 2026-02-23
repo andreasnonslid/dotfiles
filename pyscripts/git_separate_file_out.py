@@ -3,10 +3,12 @@ from git import Repo
 import sys
 import os
 
+
 def is_subsequence(needle, haystack):
     """Return True if all chars in needle appear in haystack in order."""
     it = iter(haystack.lower())
     return all(c in it for c in needle.lower())
+
 
 def main():
     if len(sys.argv) < 2:
@@ -54,9 +56,12 @@ def main():
 
         # Commit the rest, preserving author/date
         repo.git.commit(
-            "--reuse-message", commit.hexsha,
-            "--author", f"{commit.author.name} <{commit.author.email}>",
-            "--date", commit.authored_datetime.isoformat()
+            "--reuse-message",
+            commit.hexsha,
+            "--author",
+            f"{commit.author.name} <{commit.author.email}>",
+            "--date",
+            commit.authored_datetime.isoformat(),
         )
 
         # Now commit only the matched files from the original commit
@@ -67,13 +72,16 @@ def main():
                 continue
         repo.git.add(*matched_files)
         repo.git.commit(
-            "-m", f"{commit.summary} (split: {needle})",
-            "--author", f"{commit.author.name} <{commit.author.email}>",
-            "--date", commit.authored_datetime.isoformat()
+            "-m",
+            f"{commit.summary} (split: {needle})",
+            "--author",
+            f"{commit.author.name} <{commit.author.email}>",
+            "--date",
+            commit.authored_datetime.isoformat(),
         )
 
     print(f"Done! Branch '{new_branch}' has split commits.")
 
+
 if __name__ == "__main__":
     main()
-
