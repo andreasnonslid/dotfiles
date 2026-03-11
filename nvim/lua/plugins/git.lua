@@ -1,9 +1,8 @@
--- Git configuration - extends LazyVim's gitsigns with custom keymaps
 return {
   {
     "lewis6991/gitsigns.nvim",
+    event = { "BufReadPost", "BufNewFile" },
     opts = {
-      -- LazyVim already configures gitsigns, we just add our custom keymaps
       current_line_blame = false,
       current_line_blame_opts = {
         virt_text = true,
@@ -11,35 +10,30 @@ return {
         delay = 1000,
         ignore_whitespace = false,
       },
-    },
-    keys = {
-      -- Remap hunk navigation to [H/]H to free [h/]h for harpoon
-      { "]h", false },
-      { "[h", false },
-      {
-        "]H",
-        function()
+      on_attach = function(bufnr)
+        local gs = require("gitsigns")
+        local map = function(keys, func, desc)
+          vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc })
+        end
+        map("]H", function()
           if vim.wo.diff then
             vim.cmd.normal({ "]c", bang = true })
           else
-            require("gitsigns").nav_hunk("next")
+            gs.nav_hunk("next")
           end
-        end,
-        desc = "Next Git Hunk",
-      },
-      {
-        "[H",
-        function()
+        end, "Next Git Hunk")
+        map("[H", function()
           if vim.wo.diff then
             vim.cmd.normal({ "[c", bang = true })
           else
-            require("gitsigns").nav_hunk("prev")
+            gs.nav_hunk("prev")
           end
-        end,
-        desc = "Prev Git Hunk",
-      },
-      -- Add our custom git toggle keymap
-      { "<leader>gt", "<cmd>Gitsigns toggle_current_line_blame<CR>", desc = "[G]it [T]oggle line blame" },
+        end, "Prev Git Hunk")
+        map("<leader>gt", "<cmd>Gitsigns toggle_current_line_blame<CR>", "Toggle Git Blame")
+        map("<leader>gp", gs.preview_hunk, "Preview Hunk")
+        map("<leader>gS", gs.stage_hunk, "Stage Hunk")
+        map("<leader>gR", gs.reset_hunk, "Reset Hunk")
+      end,
     },
   },
 }

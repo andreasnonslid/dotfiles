@@ -1,17 +1,50 @@
--- Configure snacks.nvim to disable animations without breaking picker functionality
 return {
-  {
-    "folke/snacks.nvim",
-    opts = {
-      -- Disable animations but don't touch picker settings
-      animate = {
-        enabled = false,
-      },
-      scroll = {
-        enabled = false,
-      },
-      -- Let LazyVim's snacks_picker extra handle all picker configuration
-      -- Don't override picker settings here
-    },
+  "folke/snacks.nvim",
+  priority = 1000,
+  lazy = false,
+  opts = {
+    animate = { enabled = false },
+    scroll = { enabled = false },
+    dashboard = { enabled = false },
+    notifier = { enabled = true },
+    bigfile = { enabled = true },
+    quickfile = { enabled = true },
+    statuscolumn = { enabled = false },
+    words = { enabled = false },
+  },
+  keys = {
+    -- Find (repo root)
+    { "<leader>Ff", function() require("snacks").picker.files() end, desc = "Find Files (repo)" },
+    { "<leader>Fg", function() require("snacks").picker.grep() end, desc = "Grep (repo)", mode = { "n", "v" } },
+    { "<leader>Fw", function() require("snacks").picker.grep_word() end, desc = "Grep Word (repo)" },
+    { "<leader>FG", function() require("snacks").picker.git_files() end, desc = "Git Files (repo)" },
+    -- Find (cwd)
+    { "<leader>ff", function() require("snacks").picker.files({ root = false }) end, desc = "Find Files (cwd)" },
+    { "<leader>fg", function() require("snacks").picker.grep({ root = false }) end, desc = "Grep (cwd)" },
+    { "<leader>fw", function() require("snacks").picker.grep_word({ root = false }) end, desc = "Grep Word (cwd)" },
+    -- General find
+    { "<leader>fh", function() require("snacks").picker.help() end, desc = "Find Help" },
+    { "<leader>fk", function() require("snacks").picker.keymaps() end, desc = "Find Keymaps" },
+    { "<leader>fs", function() require("snacks").picker.lsp_symbols() end, desc = "Find Symbols" },
+    { "<leader>fd", function() require("snacks").picker.diagnostics() end, desc = "Find Diagnostics" },
+    { "<leader>fr", function() require("snacks").picker.resume() end, desc = "Resume Picker" },
+    { "<leader>f.", function() require("snacks").picker.recent() end, desc = "Recent Files" },
+    { "<leader>f<leader>", function() require("snacks").picker.buffers() end, desc = "Find Buffers" },
+    -- Git
+    { "<leader>gf", function() require("snacks").picker.git_files() end, desc = "Git Files" },
+    { "<leader>gc", function() require("snacks").picker.git_commits() end, desc = "Git Commits" },
+    { "<leader>gb", function() require("snacks").picker.git_branches() end, desc = "Git Branches" },
+    { "<leader>gs", function() require("snacks").picker.git_status() end, desc = "Git Status" },
+    -- Search
+    { "<leader>s/", function() require("snacks").picker.search_history() end, desc = "Search History" },
+    { "<leader>s:", function() require("snacks").picker.command_history() end, desc = "Command History" },
+    { "<leader>sb", function() require("snacks").picker.lines() end, desc = "Buffer Lines" },
+    { "<leader>sj", function() require("snacks").picker.jumps() end, desc = "Jumps" },
+    { "<leader>sl", function() require("snacks").picker.loclist() end, desc = "Location List" },
+    { "<leader>sm", function() require("snacks").picker.marks() end, desc = "Marks" },
+    { "<leader>sn", function() require("snacks").picker.notifications() end, desc = "Notifications" },
+    { "<leader>sq", function() require("snacks").picker.qflist() end, desc = "Quickfix" },
+    { "<leader>st", function() require("snacks").picker.todo_comments() end, desc = "Todo Comments" },
+    { "<leader>sw", function() require("snacks").picker.grep_word() end, desc = "Search Word", mode = "v" },
   },
 }

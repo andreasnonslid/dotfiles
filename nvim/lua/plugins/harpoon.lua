@@ -1,4 +1,4 @@
--- Harpoon - Quick navigation between files (LazyVim standard keymaps)
+-- Harpoon - Quick navigation between files
 return {
   "ThePrimeagen/harpoon",
   branch = "harpoon2",
@@ -6,10 +6,8 @@ return {
   config = function()
     local harpoon = require("harpoon")
 
-    -- REQUIRED
     harpoon:setup()
 
-    -- LazyVim standard keymaps - matches their harpoon extra
     vim.keymap.set("n", "<leader>H", function()
       harpoon:list():add()
     end, { desc = "Harpoon File" })
@@ -17,7 +15,6 @@ return {
       harpoon.ui:toggle_quick_menu(harpoon:list())
     end, { desc = "Harpoon Quick Menu" })
 
-    -- LazyVim standard navigation - <leader>1-5 for harpoon files
     vim.keymap.set("n", "<leader>1", function()
       harpoon:list():select(1)
     end, { desc = "Harpoon to File 1" })
@@ -34,7 +31,7 @@ return {
       harpoon:list():select(5)
     end, { desc = "Harpoon to File 5" })
 
-    -- Toggle previous & next buffers stored within Harpoon list
+    -- Prev/next harpoon buffer
     vim.keymap.set("n", "[h", function()
       harpoon:list():prev()
     end, { desc = "Prev Harpoon buffer" })

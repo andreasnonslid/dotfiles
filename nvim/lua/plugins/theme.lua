@@ -1,29 +1,23 @@
--- Custom theme configuration (overrides LazyVim's default tokyonight)
-local my_theme = "noctishc"
-
 return {
-  -- Custom theme
   {
     "iagorrr/noctishc.nvim",
-    opts = {},
-    config = function(_, opts)
-      require(my_theme).setup(opts)
+    lazy = false,
+    priority = 1000,
+    config = function()
+      require("noctishc").setup({})
+      vim.cmd.colorscheme("noctishc")
     end,
   },
-
-  -- Configure LazyVim to use our custom theme
-  {
-    "LazyVim/LazyVim",
-    opts = {
-      colorscheme = my_theme,
-    },
-  },
-
-  -- Configure lualine to use our theme
   {
     "nvim-lualine/lualine.nvim",
+    event = "VeryLazy",
+    dependencies = { "nvim-tree/nvim-web-devicons" },
     opts = {
-      theme = my_theme,
+      options = {
+        theme = "noctishc",
+        component_separators = "|",
+        section_separators = "",
+      },
     },
   },
 }
