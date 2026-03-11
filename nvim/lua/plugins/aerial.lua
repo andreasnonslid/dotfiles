@@ -1,6 +1,22 @@
 -- Aerial - Code outline and symbol navigator
 return {
   "stevearc/aerial.nvim",
+  config = function(_, opts)
+    require("aerial").setup(opts)
+
+    _G.AerialBreadcrumb = function()
+      local excluded = { oil = true, toggleterm = true, help = true, qf = true, aerial = true }
+      if excluded[vim.bo.filetype] then return "" end
+      local file = vim.fn.expand("%:t")
+      if file == "" then return "" end
+      local ok, aerial = pcall(require, "aerial")
+      if not ok then return file end
+      local location = aerial.get_location()
+      return (location and location ~= "") and file .. "  " .. location or file
+    end
+
+    vim.opt.winbar = "%{%v:lua.AerialBreadcrumb()%}"
+  end,
   opts = {
     -- Configuration options
     backends = { "lsp", "treesitter", "markdown", "man" },
@@ -101,14 +117,8 @@ return {
       update_delay = 300,
       priority = {
         "pyright",
-        "pylsp",
-        "jedi_language_server",
-        "typescript-language-server",
-        "tsserver",
         "clangd",
-        "rust_analyzer",
         "lua_ls",
-        "null-ls",
       },
     },
     treesitter = {

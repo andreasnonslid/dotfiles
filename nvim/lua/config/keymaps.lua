@@ -38,6 +38,9 @@ vim.keymap.set("n", "<C-s>", "<cmd>w<CR>", { desc = "Save File" })
 vim.keymap.set("v", "<leader>y", '"+y', { desc = "Yank to Clipboard" })
 vim.keymap.set("n", "<leader>p", '"+p', { desc = "Paste from Clipboard" })
 
+-- Folding
+vim.keymap.set("n", "<CR>", "za", { desc = "Toggle Fold" })
+
 -- Utility
 vim.keymap.set("n", "<leader>cm", ":let @/ = ''<CR>:%s/\\r//g<CR>", { desc = "Remove Windows Line Endings" })
 vim.keymap.set("n", "<leader>ybn", ":let @+ = expand('%')<CR>", { desc = "Yank Buffer Name" })

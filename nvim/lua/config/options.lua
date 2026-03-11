@@ -41,6 +41,14 @@ vim.opt.scrolloff = 10
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
+-- Folding (treesitter-based, all open by default)
+vim.opt.foldmethod = "expr"
+vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
+vim.opt.foldlevel = 99
+vim.opt.foldlevelstart = 99
+vim.opt.foldenable = true
+vim.opt.foldtext = "" -- show actual line content when folded (nvim 0.10+)
+
 -- Disable animations
 vim.opt.smoothscroll = false
 vim.g.snacks_animate = false
