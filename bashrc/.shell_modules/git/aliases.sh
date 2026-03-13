@@ -272,3 +272,36 @@ gxclreset() {
         git checkout --force
 }
 wfn gxclreset "Full clean with submodule reset to origin"
+
+# worktree
+alias wt='git worktree'
+alias wtl='wt list'
+alias wtr='wt remove'
+
+worktree() {
+    local name="$1"
+    local branch="${2:-$1}"
+
+    if [[ -z "$name" ]]; then
+        echo "Usage: worktree <name> [branch]"
+        echo "  Creates worktree at <repo-root>/../<name> on [branch] (defaults to <name>)"
+        return 1
+    fi
+
+    local repo_root
+    repo_root="$(git rev-parse --show-toplevel 2>/dev/null)" || {
+        echo "Error: not inside a git repository"
+        return 1
+    }
+
+    local wt_path="$repo_root/../$name"
+
+    if git show-ref --verify --quiet "refs/heads/$branch" 2>/dev/null; then
+        git worktree add "$wt_path" "$branch"
+    else
+        git worktree add -b "$branch" "$wt_path"
+    fi || return 1
+
+    cd "$wt_path" || return 1
+}
+wfn worktree "Create worktree at <repo-root>/../<name> and cd into it"
