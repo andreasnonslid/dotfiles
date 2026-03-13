@@ -5,7 +5,9 @@ return {
   keys = {
     {
       "<leader>cf",
-      function() require("conform").format({ async = true }) end,
+      function()
+        require("conform").format({ async = true })
+      end,
       desc = "Format Buffer",
     },
   },

@@ -6,11 +6,17 @@ return {
 
     _G.AerialBreadcrumb = function()
       local excluded = { oil = true, toggleterm = true, help = true, qf = true, aerial = true }
-      if excluded[vim.bo.filetype] then return "" end
+      if excluded[vim.bo.filetype] then
+        return ""
+      end
       local file = vim.fn.expand("%:t")
-      if file == "" then return "" end
+      if file == "" then
+        return ""
+      end
       local ok, aerial = pcall(require, "aerial")
-      if not ok then return file end
+      if not ok then
+        return file
+      end
       local location = aerial.get_location()
       return (location and location ~= "") and file .. "  " .. location or file
     end

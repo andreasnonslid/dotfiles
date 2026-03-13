@@ -1,10 +1,15 @@
 alias grep='grep --color=auto'
 alias fgrep='fgrep --color=auto'
 alias egrep='egrep --color=auto'
+
 if command -v fd >/dev/null 2>&1; then
-    alias fd='fd'
+    alias ff='fd --hidden --follow'
+    alias ffd='fd --hidden --follow --type d'
+    alias fff='fd --hidden --follow --type f'
 else
-    alias fd='find . -type f -name'
+    alias ff='find . -name'
+    alias ffd='find . -type d -name'
+    alias fff='find . -type f -name'
 fi
 alias ffind='find . -type f -name'
 

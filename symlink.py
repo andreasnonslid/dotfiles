@@ -84,6 +84,14 @@ def main():
     else:
         print(f"nvim source directory not found: {nvim_source}")
 
+    # fd config directory
+    fd_source = repo_root / "bashrc" / ".config" / "fd"
+    fd_target = config_dir / "fd"
+    if fd_source.exists() and fd_source.is_dir():
+        symlink_dir_contents(str(fd_source), str(fd_target), auto_yes=args.yes)
+    else:
+        print(f"fd config source directory not found: {fd_source}")
+
     # starship.toml
     starship_source = repo_root / "starship.toml"
     if is_windows:

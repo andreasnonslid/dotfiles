@@ -1,0 +1,40 @@
+# Smart case: case-insensitive unless pattern contains uppercase
+--smart-case
+
+# Show line numbers
+--line-number
+
+# Limit column width to keep output readable (highlight match position)
+--max-columns=200
+--max-columns-preview
+
+# Search hidden files/dirs (dotfiles), with explicit excludes below for .git etc.
+--hidden
+
+# Follow symlinks
+--follow
+
+# Color output
+--color=auto
+
+# Don't search in these directories
+--glob=!.git/
+--glob=!node_modules/
+--glob=!.venv/
+--glob=!__pycache__/
+--glob=!*.pyc
+--glob=!.mypy_cache/
+--glob=!.pytest_cache/
+--glob=!target/
+--glob=!build/
+--glob=!dist/
+--glob=!.next/
+--glob=!.nuxt/
+--glob=!coverage/
+--glob=!*.min.js
+--glob=!*.min.css
+--glob=!package-lock.json
+--glob=!yarn.lock
+--glob=!pnpm-lock.yaml
+--glob=!Cargo.lock
+--glob=!*.map
