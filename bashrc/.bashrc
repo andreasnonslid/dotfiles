@@ -137,3 +137,4 @@ if [[ $- == *i* ]]; then
 fi
 
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+export PATH=~/.npm-global/bin:$PATH
