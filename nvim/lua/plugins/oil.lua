@@ -43,6 +43,13 @@ return {
         ["<C-l>"] = false,
         ["<C-r>"] = "actions.refresh",
         ["<C-s>"] = "actions.select_vsplit",
+        ["<leader>Wa"] = {
+          desc = "Workspace: Add this dir",
+          callback = function()
+            local dir = require("oil").get_current_dir()
+            require("config.workspaces").add_dir(dir)
+          end,
+        },
       },
     })
 
