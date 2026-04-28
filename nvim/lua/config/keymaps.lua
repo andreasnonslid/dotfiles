@@ -41,6 +41,10 @@ vim.keymap.set("n", "<leader>p", '"+p', { desc = "Paste from Clipboard" })
 -- Folding
 vim.keymap.set("n", "<CR>", "za", { desc = "Toggle Fold" })
 
+-- Mouse side buttons -> jumplist back/forward
+vim.keymap.set({ "n", "i", "v" }, "<X1Mouse>", "<C-o>", { desc = "Jumplist Back" })
+vim.keymap.set({ "n", "i", "v" }, "<X2Mouse>", "<C-i>", { desc = "Jumplist Forward" })
+
 -- Utility
 vim.keymap.set("n", "<leader>cm", ":let @/ = ''<CR>:%s/\\r//g<CR>", { desc = "Remove Windows Line Endings" })
 vim.keymap.set("n", "<leader>ybn", ":let @+ = expand('%')<CR>", { desc = "Yank Buffer Name" })
