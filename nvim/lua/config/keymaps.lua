@@ -67,6 +67,9 @@ vim.api.nvim_create_autocmd("LspAttach", {
       vim.keymap.set("n", keys, func, { buffer = ev.buf, desc = "LSP: " .. desc })
     end
     map("gd", vim.lsp.buf.definition, "Go to Definition")
+    vim.keymap.set("n", "<2-LeftMouse>", function()
+      vim.lsp.buf.definition()
+    end, { buffer = ev.buf, desc = "LSP: Go to Definition (double-click)" })
     map("gD", vim.lsp.buf.declaration, "Go to Declaration")
     map("gr", vim.lsp.buf.references, "Go to References")
     map("gi", vim.lsp.buf.implementation, "Go to Implementation")
