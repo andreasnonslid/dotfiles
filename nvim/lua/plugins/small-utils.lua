@@ -31,6 +31,7 @@ return {
         { "<leader>L", group = "Lazy" },
         { "<leader>x", group = "Diagnostics" },
         { "<leader>q", group = "Quit/Session" },
+        { "<leader>W", group = "Workspace" },
         { "<leader>y", group = "Yank" },
       })
     end,
