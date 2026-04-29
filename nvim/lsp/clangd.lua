@@ -8,6 +8,7 @@ return {
     "--function-arg-placeholders",
     "--fallback-style=llvm",
     "--pch-storage=memory",
+    "--query-driver=**",
   },
   filetypes = { "c", "cpp", "objc", "objcpp" },
   root_markers = { "compile_commands.json", "compile_flags.txt", ".clangd", "Makefile" },
