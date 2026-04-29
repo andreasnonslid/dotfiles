@@ -12,6 +12,7 @@
 #SingleInstance Force
 
 #HotIf WinActive("ahk_exe wezterm-gui.exe") || WinActive("ahk_exe WindowsTerminal.exe")
-XButton1::Send "{F13}"
-XButton2::Send "{F14}"
+XButton1::Send("^o")
+XButton2::Send("^i")
 #HotIf
+
