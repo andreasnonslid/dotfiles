@@ -1,30 +1,18 @@
--- WezTerm config: minimal chrome, opensuse-tumbleweed WSL by default,
--- Iosevka Nerd Font.
---
--- Install location on Windows: %USERPROFILE%\.wezterm.lua
--- (or %USERPROFILE%\.config\wezterm\wezterm.lua)
+; Forward mouse side-buttons (XButton1/back, XButton2/forward) as F13/F14
+; only when a terminal window is focused. Browsers and other apps keep
+; their normal back/forward behaviour.
+;
+; Setup:
+;   1. Install AutoHotkey v2 (https://www.autohotkey.com/v2/).
+;   2. Drop a shortcut to this file into shell:startup so it runs at logon.
+;
+; Pair with the matching <F13>/<F14> keymaps in nvim's keymaps.lua.
 
-local wezterm = require("wezterm")
+#Requires AutoHotkey v2.0
+#SingleInstance Force
 
-return {
-  -- Minimal chrome
-  enable_tab_bar = false,
-  window_decorations = "RESIZE",
-  window_padding = { left = 0, right = 0, top = 0, bottom = 0 },
+#HotIf WinActive("ahk_exe wezterm-gui.exe") || WinActive("ahk_exe WindowsTerminal.exe")
+XButton1::Send("^o")
+XButton2::Send("^i")
+#HotIf
 
-  -- Default to openSUSE Tumbleweed under WSL.
-  -- The exact name must match `wsl --list --quiet`. If WezTerm errors on
-  -- launch, run that command in PowerShell and replace the suffix.
-  default_domain = "WSL:openSUSE-Tumbleweed",
-
-  -- Font
-  font = wezterm.font("Iosevka Nerd Font"),
-  font_size = 11.0,
-
-  -- Quality of life
-  scrollback_lines = 10000,
-  hide_mouse_cursor_when_typing = true,
-  audible_bell = "Disabled",
-  check_for_updates = false,
-  default_cursor_style = "SteadyBlock",
-}
