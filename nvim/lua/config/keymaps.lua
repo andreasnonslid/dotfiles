@@ -51,7 +51,14 @@ vim.keymap.set("n", "<leader>ybn", ":let @+ = expand('%')<CR>", { desc = "Yank B
 vim.keymap.set("n", "<leader>yfp", ":let @+ = expand('%:p')<CR>", { desc = "Yank Full Path" })
 
 -- LSP
-vim.lsp.enable({ "clangd", "pyright", "lua_ls", "ruff", "bashls" })
+local lsp_servers = { "clangd", "pyright", "lua_ls", "ruff", "bashls" }
+for _, name in ipairs(lsp_servers) do
+  local files = vim.api.nvim_get_runtime_file("lsp/" .. name .. ".lua", false)
+  if #files > 0 then
+    vim.lsp.config(name, dofile(files[1]))
+  end
+end
+vim.lsp.enable(lsp_servers)
 
 vim.diagnostic.config({
   virtual_text = true,
