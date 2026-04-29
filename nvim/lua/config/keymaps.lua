@@ -52,10 +52,27 @@ vim.keymap.set("n", "<leader>yfp", ":let @+ = expand('%:p')<CR>", { desc = "Yank
 
 -- LSP
 local lsp_servers = { "clangd", "pyright", "lua_ls", "ruff", "bashls" }
+local function load_lsp_config(name)
+  local rtp = vim.api.nvim_get_runtime_file("lsp/" .. name .. ".lua", false)
+  if #rtp > 0 then
+    return rtp[1]
+  end
+  local fallback = vim.fn.stdpath("config") .. "/lsp/" .. name .. ".lua"
+  if vim.uv.fs_stat(fallback) then
+    return fallback
+  end
+end
 for _, name in ipairs(lsp_servers) do
-  local files = vim.api.nvim_get_runtime_file("lsp/" .. name .. ".lua", false)
-  if #files > 0 then
-    vim.lsp.config(name, dofile(files[1]))
+  local path = load_lsp_config(name)
+  if not path then
+    vim.notify("LSP config file missing: " .. name, vim.log.levels.WARN)
+  else
+    local ok, cfg = pcall(dofile, path)
+    if ok and type(cfg) == "table" then
+      vim.lsp.config(name, cfg)
+    else
+      vim.notify("LSP config load failed: " .. name .. " (" .. tostring(cfg) .. ")", vim.log.levels.ERROR)
+    end
   end
 end
 vim.lsp.enable(lsp_servers)
