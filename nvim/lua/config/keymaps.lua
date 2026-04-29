@@ -44,6 +44,11 @@ vim.keymap.set("n", "<CR>", "za", { desc = "Toggle Fold" })
 -- Mouse side buttons -> jumplist back/forward
 vim.keymap.set({ "n", "i", "v" }, "<X1Mouse>", "<C-o>", { desc = "Jumplist Back" })
 vim.keymap.set({ "n", "i", "v" }, "<X2Mouse>", "<C-i>", { desc = "Jumplist Forward" })
+-- Same, via F13/F14 -- used when a remapper (e.g. AHK on Windows) translates
+-- the side buttons into function keys because the terminal does not forward
+-- them as mouse events.
+vim.keymap.set({ "n", "i", "v" }, "<F13>", "<C-o>", { desc = "Jumplist Back" })
+vim.keymap.set({ "n", "i", "v" }, "<F14>", "<C-i>", { desc = "Jumplist Forward" })
 
 -- Utility
 vim.keymap.set("n", "<leader>cm", ":let @/ = ''<CR>:%s/\\r//g<CR>", { desc = "Remove Windows Line Endings" })
