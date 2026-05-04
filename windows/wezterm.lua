@@ -1,18 +1,28 @@
-; Forward mouse side-buttons (XButton1/back, XButton2/forward) as F13/F14
-; only when a terminal window is focused. Browsers and other apps keep
-; their normal back/forward behaviour.
-;
-; Setup:
-;   1. Install AutoHotkey v2 (https://www.autohotkey.com/v2/).
-;   2. Drop a shortcut to this file into shell:startup so it runs at logon.
-;
-; Pair with the matching <F13>/<F14> keymaps in nvim's keymaps.lua.
+local wezterm = require("wezterm")
 
-#Requires AutoHotkey v2.0
-#SingleInstance Force
+return {
+  -- Minimal chrome, but keep real title bar
+  enable_tab_bar = false,
+  window_decorations = "TITLE | RESIZE",
+  window_padding = { left = 0, right = 0, top = 0, bottom = 0 },
 
-#HotIf WinActive("ahk_exe wezterm-gui.exe") || WinActive("ahk_exe WindowsTerminal.exe")
-XButton1::Send("^o")
-XButton2::Send("^i")
-#HotIf
+  -- Make title bar visually subtle
+  colors = {
+    titlebar_background = "#000000"
+  },
 
+
+  -- Default to openSUSE Tumbleweed under WSL.
+  default_domain = "WSL:openSUSE-Tumbleweed",
+
+  -- Font
+  font = wezterm.font("Iosevka Nerd Font Mono"),
+  font_size = 14.0,
+
+  -- QoL
+  scrollback_lines = 10000,
+  hide_mouse_cursor_when_typing = true,
+  audible_bell = "Disabled",
+  check_for_updates = false,
+  default_cursor_style = "SteadyBlock",
+}
