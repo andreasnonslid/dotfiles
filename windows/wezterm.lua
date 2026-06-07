@@ -6,12 +6,6 @@ return {
   window_decorations = "TITLE | RESIZE",
   window_padding = { left = 0, right = 0, top = 0, bottom = 0 },
 
-  -- Make title bar visually subtle
-  colors = {
-    titlebar_background = "#000000"
-  },
-
-
   -- Default to openSUSE Tumbleweed under WSL.
   default_domain = "WSL:openSUSE-Tumbleweed",
 
