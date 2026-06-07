@@ -92,6 +92,22 @@ def main():
     else:
         print(f"fd config source directory not found: {fd_source}")
 
+    # clangd config
+    clangd_source = repo_root / "config" / "clangd"
+    clangd_target = config_dir / "clangd"
+    if clangd_source.exists() and clangd_source.is_dir():
+        symlink_dir_contents(str(clangd_source), str(clangd_target), auto_yes=args.yes)
+    else:
+        print(f"clangd config source directory not found: {clangd_source}")
+
+    # zellij config
+    zellij_source = repo_root / "config" / "zellij"
+    zellij_target = config_dir / "zellij"
+    if zellij_source.exists() and zellij_source.is_dir():
+        symlink_dir_contents(str(zellij_source), str(zellij_target), auto_yes=args.yes)
+    else:
+        print(f"zellij config source directory not found: {zellij_source}")
+
     # starship.toml
     starship_source = repo_root / "starship.toml"
     if is_windows:
