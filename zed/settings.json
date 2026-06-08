@@ -1,0 +1,56 @@
+// Zed settings
+//
+// For information on how to configure Zed, see the Zed
+// documentation: https://zed.dev/docs/configuring-zed
+//
+// To see all of Zed's default settings without changing your
+// custom settings, run `zed: open default settings` from the
+// command palette (cmd-shift-p / ctrl-shift-p)
+{
+    "vim_mode": true,
+    "buffer_font_family": "IosevkaTerm Nerd Font Mono",
+    "icon_theme": "Catppuccin Frappé",
+    "project_panel": {
+        "dock": "left"
+    },
+    "outline_panel": {
+        "dock": "left"
+    },
+    "collaboration_panel": {
+        "dock": "left"
+    },
+    "agent": {
+        "dock": "right",
+        "favorite_models": [],
+        "model_parameters": []
+    },
+    "git_panel": {
+        "dock": "left"
+    },
+    "ui_font_size": 16,
+    "buffer_font_size": 15,
+
+    "theme": {
+        "mode": "system",
+        "light": "One Light",
+        "dark": "Ayu Dark"
+    },
+
+    "languages": {
+        "C": {
+            "semantic_tokens": "combined"
+        },
+        "C++": {
+            "semantic_tokens": "combined"
+        }
+    },
+
+    "global_lsp_settings": {
+        "semantic_token_rules": [
+            {
+                "token_type": "parameter",
+                "foreground_color": "#E6B673FF"
+            }
+        ]
+    }
+}
