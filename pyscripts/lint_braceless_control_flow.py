@@ -25,9 +25,7 @@ from pathlib import Path
 DEFAULT_EXTENSIONS = [".c", ".cpp", ".cc", ".cxx", ".h", ".hpp", ".hh", ".hxx"]
 
 CTRL_FLOW_RE = re.compile(
-    r"^(\s*)"
-    r"(if\s*\(.*\)|else\s+if\s*\(.*\)|while\s*\(.*\)|for\s*\(.*\))"
-    r"\s*$"
+    r"^(\s*)" r"(if\s*\(.*\)|else\s+if\s*\(.*\)|while\s*\(.*\)|for\s*\(.*\))" r"\s*$"
 )
 ELSE_RE = re.compile(r"^(\s*)else\s*$")
 
@@ -111,13 +109,15 @@ def scan_diff(diff_text: str) -> list[Finding]:
                     if nxt_stripped.startswith("{"):
                         break
                     body_stripped = nxt_stripped
-                    findings.append(Finding(
-                        file=current_file,
-                        line=hunk_line,
-                        control=code.rstrip(),
-                        body=nxt_code.rstrip(),
-                        is_guard=is_guard_body(body_stripped),
-                    ))
+                    findings.append(
+                        Finding(
+                            file=current_file,
+                            line=hunk_line,
+                            control=code.rstrip(),
+                            body=nxt_code.rstrip(),
+                            is_guard=is_guard_body(body_stripped),
+                        )
+                    )
                     break
                     j += 1
 
@@ -146,15 +146,21 @@ def scan_files(extensions: list[str]) -> list[Finding]:
                 if ctrl and i + 1 < len(file_lines):
                     nxt = file_lines[i + 1]
                     nxt_stripped = nxt.strip()
-                    if not nxt_stripped or nxt_stripped.startswith("//") or nxt_stripped.startswith("{"):
+                    if (
+                        not nxt_stripped
+                        or nxt_stripped.startswith("//")
+                        or nxt_stripped.startswith("{")
+                    ):
                         continue
-                    findings.append(Finding(
-                        file=rel,
-                        line=i + 1,
-                        control=line.rstrip(),
-                        body=nxt.rstrip(),
-                        is_guard=is_guard_body(nxt_stripped),
-                    ))
+                    findings.append(
+                        Finding(
+                            file=rel,
+                            line=i + 1,
+                            control=line.rstrip(),
+                            body=nxt.rstrip(),
+                            is_guard=is_guard_body(nxt_stripped),
+                        )
+                    )
     return findings
 
 
@@ -183,19 +189,26 @@ def main():
         description="Find braceless control flow in git branch diff"
     )
     parser.add_argument(
-        "base", nargs="?", default="origin/master",
+        "base",
+        nargs="?",
+        default="origin/master",
         help="Base ref to diff against (default: origin/master)",
     )
     parser.add_argument(
-        "--ext", nargs="+", default=DEFAULT_EXTENSIONS,
+        "--ext",
+        nargs="+",
+        default=DEFAULT_EXTENSIONS,
         help=f"File extensions to check (default: {' '.join(DEFAULT_EXTENSIONS)})",
     )
     parser.add_argument(
-        "--all", action="store_true", dest="scan_all",
+        "--all",
+        action="store_true",
+        dest="scan_all",
         help="Scan entire working tree, not just branch diff",
     )
     parser.add_argument(
-        "--no-color", action="store_true",
+        "--no-color",
+        action="store_true",
         help="Disable colored output",
     )
     args = parser.parse_args()
@@ -203,6 +216,7 @@ def main():
     if args.no_color:
         # Strip ANSI by monkey-patching (keeps logic simple)
         import functools
+
         _orig_print = print
         _ansi_re = re.compile(r"\033\[[0-9;]*m")
 
@@ -212,14 +226,19 @@ def main():
             _orig_print(*a, **kw)
 
         import builtins
+
         builtins.print = _plain_print
 
     if args.scan_all:
-        print(f"Scanning working tree for braceless control flow ({', '.join(args.ext)})...")
+        print(
+            f"Scanning working tree for braceless control flow ({', '.join(args.ext)})..."
+        )
         findings = scan_files(args.ext)
     else:
         base = git_merge_base(args.base)
-        print(f"Scanning diff {args.base} ({base[:10]})...HEAD for braceless control flow")
+        print(
+            f"Scanning diff {args.base} ({base[:10]})...HEAD for braceless control flow"
+        )
         diff = git_diff(base, args.ext)
         findings = scan_diff(diff)
 
@@ -229,10 +248,12 @@ def main():
 
     stats = print_findings(findings)
 
-    print(f"\n\033[1mTotal: {stats.total}\033[0m instances "
-          f"({stats.guards} guard clauses, "
-          f"{stats.total - stats.guards} other) "
-          f"across {len(stats.by_file)} files")
+    print(
+        f"\n\033[1mTotal: {stats.total}\033[0m instances "
+        f"({stats.guards} guard clauses, "
+        f"{stats.total - stats.guards} other) "
+        f"across {len(stats.by_file)} files"
+    )
     sys.exit(1)
 
 

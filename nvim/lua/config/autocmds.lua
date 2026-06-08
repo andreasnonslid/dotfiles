@@ -18,10 +18,7 @@ do
       seen[key] = true
       vim.schedule(function()
         vim.notify(
-          "treesitter query.parse failed for "
-            .. (lang or "?")
-            .. " (suppressing duplicates): "
-            .. tostring(result),
+          "treesitter query.parse failed for " .. (lang or "?") .. " (suppressing duplicates): " .. tostring(result),
           vim.log.levels.WARN
         )
       end)
