@@ -1,0 +1,11 @@
+If:
+    PathMatch: .*/ASMonoRepo/products/port/autocase/mcpu/.*
+
+CompileFlags:
+    Add:
+        - -isystem/usr/local/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/c++/11.3.1
+        - -isystem/usr/local/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/c++/11.3.1/arm-none-eabi
+        - -isystem/usr/local/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include/c++/11.3.1/backward
+        - -isystem/usr/local/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/11.3.1/include
+        - -isystem/usr/local/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/lib/gcc/arm-none-eabi/11.3.1/include-fixed
+        - -isystem/usr/local/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/arm-none-eabi/include
