@@ -88,21 +88,10 @@ def main():
     # to bashrc/.config (via the bashrc loop above), so fd/ignore is already in
     # place. Re-linking it here would create a self-referential symlink.
 
-    # clangd config
-    clangd_source = repo_root / "config" / "clangd"
-    clangd_target = config_dir / "clangd"
-    if clangd_source.exists() and clangd_source.is_dir():
-        symlink_dir_contents(str(clangd_source), str(clangd_target), auto_yes=args.yes)
-    else:
-        print(f"clangd config source directory not found: {clangd_source}")
-
-    # zellij config
-    zellij_source = repo_root / "config" / "zellij"
-    zellij_target = config_dir / "zellij"
-    if zellij_source.exists() and zellij_source.is_dir():
-        symlink_dir_contents(str(zellij_source), str(zellij_target), auto_yes=args.yes)
-    else:
-        print(f"zellij config source directory not found: {zellij_source}")
+    # NOTE: clangd and zellij configs are not handled separately either. They
+    # live at bashrc/.config/{clangd,zellij}/, which is already ~/.config via
+    # the symlink above, so they are the single source of truth and need no
+    # extra linking. Pointing a separate source at them would self-symlink.
 
     # starship.toml
     starship_source = repo_root / "starship.toml"
