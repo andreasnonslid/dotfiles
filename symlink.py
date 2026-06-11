@@ -105,6 +105,25 @@ def main():
 
     create_symlink(str(starship_source), str(starship_target), auto_yes=args.yes)
 
+    # caveman: always-on terse-output rule for Cursor (IDE + CLI) and Claude Code
+    caveman_dir = repo_root / "caveman"
+    # Cursor reads file-backed global rules from ~/.cursor/rules/*.mdc
+    create_symlink(
+        str(caveman_dir / "caveman.mdc"),
+        str(home / ".cursor" / "rules" / "caveman.mdc"),
+        auto_yes=args.yes,
+    )
+    # Claude Code global memory lives at ~/.claude/CLAUDE.md. Only link it when
+    # nothing real would be clobbered (don't overwrite existing user memory).
+    claude_md = home / ".claude" / "CLAUDE.md"
+    if claude_md.is_symlink() or not claude_md.exists():
+        create_symlink(str(caveman_dir / "CLAUDE.md"), str(claude_md), auto_yes=args.yes)
+    else:
+        print(
+            f"Skipping {claude_md}: real file exists. "
+            f"Add caveman manually or '@{caveman_dir / 'CLAUDE.md'}' import."
+        )
+
     # Local-only secrets: kept outside the repo in ~/.local/secrets and linked
     # into place only if present. These are never committed (see .gitignore).
     secrets_root = home / ".local" / "secrets"
