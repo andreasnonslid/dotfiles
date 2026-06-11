@@ -12,15 +12,31 @@ npm install -g neovim
 
 # Dotfiles
 
-## Setup
-
-After cloning, run once:
+## Setup (new machine)
 
 ```sh
-./configure_git.sh
+git clone git@github.com:andreasnonslid/dotfiles.git ~/dotfiles
+cd ~/dotfiles && ./bootstrap.sh
 ```
 
-This sets `core.autocrlf` and enables commit message hooks.
+`bootstrap.sh` is idempotent. It:
+
+1. Runs `configure_git.sh` (sets `core.autocrlf`, enables commit-msg hooks).
+2. Runs `symlink.py -y` — links bashrc, nvim, configs, starship, and the
+   always-on **caveman** rule into `~/.cursor/rules/caveman.mdc` (Cursor IDE +
+   CLI) and `~/.claude/CLAUDE.md` (Claude Code).
+3. Reminds you about machine-local secrets in `~/.local/secrets/` (never
+   tracked; linked in automatically when present).
+
+### Secrets
+
+Secrets stay out of git in `~/.local/secrets/`. Example:
+
+```sh
+mkdir -p ~/.local/secrets/autostore
+echo 'export GITLAB_ACCESS_KEY=...' > ~/.local/secrets/autostore/gitlab-npm.env
+./bootstrap.sh   # re-run to link it into ~/.config/autostore/
+```
 
 ## Commit Message Enforcement
 
