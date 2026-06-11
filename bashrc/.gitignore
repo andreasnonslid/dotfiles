@@ -1,1 +1,20 @@
 auth.sh
+
+# ~/.config is symlinked to this directory, so apps write their state/secrets
+# straight into the repo. Keep secrets and app-managed state out of git.
+#
+# Secrets live in ~/.local/secrets and are symlinked in by symlink.py.
+.config/autostore/
+.config/cursor/
+
+# Machine-specific / app-managed state (not worth versioning)
+.config/jgit/
+.config/zed/
+
+# Install-target symlinks created by symlink.py (real sources live elsewhere
+# in the repo: nvim/ and starship.toml at the repo root)
+.config/nvim/
+.config/starship.toml
+
+# Editor backups
+.config/zellij/*.bak

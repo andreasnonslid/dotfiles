@@ -9,6 +9,9 @@ export DOTFILES="$HOME/dotfiles"
 # Source non-git-tracked auth/secrets if present
 [ -f "$DOTFILES/bashrc/auth.sh" ] && source "$DOTFILES/bashrc/auth.sh"
 
+# GitLab PAT for @autostore npm (read_api); used by ~/.npmrc ${GITLAB_ACCESS_KEY}
+[ -f "$HOME/.config/autostore/gitlab-npm.env" ] && . "$HOME/.config/autostore/gitlab-npm.env"
+
 # Source core settings first
 for config_file in ~/.shell_modules/core/*.sh; do
     source "$config_file"

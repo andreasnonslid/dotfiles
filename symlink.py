@@ -84,13 +84,9 @@ def main():
     else:
         print(f"nvim source directory not found: {nvim_source}")
 
-    # fd config directory
-    fd_source = repo_root / "bashrc" / ".config" / "fd"
-    fd_target = config_dir / "fd"
-    if fd_source.exists() and fd_source.is_dir():
-        symlink_dir_contents(str(fd_source), str(fd_target), auto_yes=args.yes)
-    else:
-        print(f"fd config source directory not found: {fd_source}")
+    # NOTE: fd config is not handled separately. ~/.config is itself symlinked
+    # to bashrc/.config (via the bashrc loop above), so fd/ignore is already in
+    # place. Re-linking it here would create a self-referential symlink.
 
     # clangd config
     clangd_source = repo_root / "config" / "clangd"
@@ -119,6 +115,19 @@ def main():
         starship_target = config_dir / "starship.toml"
 
     create_symlink(str(starship_source), str(starship_target), auto_yes=args.yes)
+
+    # Local-only secrets: kept outside the repo in ~/.local/secrets and linked
+    # into place only if present. These are never committed (see .gitignore).
+    secrets_root = home / ".local" / "secrets"
+    secret_links = {
+        "autostore/gitlab-npm.env": config_dir / "autostore" / "gitlab-npm.env",
+    }
+    for rel_path, link_target in secret_links.items():
+        secret_file = secrets_root / rel_path
+        if secret_file.exists():
+            create_symlink(str(secret_file), str(link_target), auto_yes=args.yes)
+        else:
+            print(f"Secret not found, skipping link: {secret_file}")
 
 
 if __name__ == "__main__":
