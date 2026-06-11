@@ -11,10 +11,9 @@ auth.sh
 .config/jgit/
 .config/zed/
 
-# Install-target symlinks created by symlink.py (real sources live elsewhere
-# in the repo: nvim/ and starship.toml at the repo root)
+# Install-target symlinks created by symlink.py (real source lives at nvim/).
+# Note: .config/starship.toml is tracked on purpose (it is the install symlink).
 .config/nvim/
-.config/starship.toml
 
 # Editor backups
 .config/zellij/*.bak
