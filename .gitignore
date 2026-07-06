@@ -1,0 +1,19 @@
+# bashrc/.config mirrors ~/.config, but only individual entries are
+# symlinked in (see symlink.py), not the directory wholesale. Default-deny
+# here anyway and only allow the configs actually meant to be
+# dotfiles-managed, so untracked junk under this path doesn't get picked up.
+/bashrc/.config/*
+!/bashrc/.config/clangd
+!/bashrc/.config/fd
+!/bashrc/.config/gh
+!/bashrc/.config/git
+!/bashrc/.config/hypr
+!/bashrc/.config/mako
+!/bashrc/.config/mimeapps.list
+!/bashrc/.config/nvim
+!/bashrc/.config/starship.toml
+!/bashrc/.config/waybar
+!/bashrc/.config/zellij
+
+.DS_Store
+__pycache__/

@@ -1,5 +1,6 @@
 import os
 import shutil
+from datetime import datetime
 from pathlib import Path
 import argparse
 
@@ -30,11 +31,13 @@ def create_symlink(target, link_name, auto_yes=False):
                 if response.lower() != "y":
                     print(f"Skipped: {link_name}")
                     return
-            if os.path.isdir(link_name) and not os.path.islink(link_name):
-                shutil.rmtree(link_name)
-            else:
+            if os.path.islink(link_name):
                 os.unlink(link_name)
-            print(f"Removed existing: {link_name}")
+                print(f"Removed existing symlink: {link_name}")
+            else:
+                backup = f"{link_name}.bak-{datetime.now():%Y%m%d%H%M%S}"
+                shutil.move(link_name, backup)
+                print(f"Backed up existing {link_name} -> {backup}")
         os.symlink(target, link_name)
         print(f"Created symlink: {link_name} -> {target}")
     except Exception as e:
@@ -62,11 +65,22 @@ def main():
     is_windows = os.name == "nt"
     config_dir = home / ".config"
 
-    # bashrc contents
+    # bashrc contents (dotfiles that land directly in $HOME, e.g. .bashrc)
     bashrc_source = repo_root / "bashrc"
-    bashrc_target = home
     if bashrc_source.exists() and bashrc_source.is_dir():
-        symlink_dir_contents(str(bashrc_source), str(bashrc_target), auto_yes=args.yes)
+        for item in os.listdir(bashrc_source):
+            if item in EXCLUDE:
+                continue
+            src_path = bashrc_source / item
+            if item == ".config":
+                # Never symlink ~/.config wholesale: every app that writes
+                # into $XDG_CONFIG_HOME (browsers, 1Password, ...) would end
+                # up writing straight into this git repo. Keep ~/.config a
+                # real directory and link only the tracked configs into it.
+                config_dir.mkdir(parents=True, exist_ok=True)
+                symlink_dir_contents(str(src_path), str(config_dir), auto_yes=args.yes)
+            else:
+                create_symlink(str(src_path), str(home / item), auto_yes=args.yes)
     else:
         print(f"bashrc source directory not found: {bashrc_source}")
 
@@ -84,14 +98,8 @@ def main():
     else:
         print(f"nvim source directory not found: {nvim_source}")
 
-    # NOTE: fd config is not handled separately. ~/.config is itself symlinked
-    # to bashrc/.config (via the bashrc loop above), so fd/ignore is already in
-    # place. Re-linking it here would create a self-referential symlink.
-
-    # NOTE: clangd and zellij configs are not handled separately either. They
-    # live at bashrc/.config/{clangd,zellij}/, which is already ~/.config via
-    # the symlink above, so they are the single source of truth and need no
-    # extra linking. Pointing a separate source at them would self-symlink.
+    # fd, clangd, zellij configs live at bashrc/.config/{fd,clangd,zellij}/
+    # and are linked individually into ~/.config by the bashrc loop above.
 
     # starship.toml
     starship_source = repo_root / "starship.toml"
