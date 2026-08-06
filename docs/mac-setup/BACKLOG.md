@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 3 / 45 complete**
+**Progress: 4 / 45 complete**
 
 ## Context
 
@@ -146,7 +146,7 @@ checks as it lands rather than bolting diagnostics on at the end. `doctor.sh` mu
 **before** bootstrap (pre-flight: "what's missing?") as well as after (post-flight: "did
 it work?").
 
-- [ ] **D01 — `scripts/doctor.sh` framework + core checks**
+- [x] **D01 — `scripts/doctor.sh` framework + core checks**
       Check-registration pattern with auto-discovered modules in `scripts/doctor.d/`. Each
       check emits `PASS`/`WARN`/`FAIL` plus a remediation hint. Grouped output, colour when
       TTY, summary counts, non-zero exit on any FAIL. Flags: `--verbose`, `--json`
