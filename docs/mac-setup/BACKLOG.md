@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 1 / 45 complete**
+**Progress: 2 / 45 complete**
 
 ## Context
 
@@ -111,7 +111,7 @@ _Blocks everything._
       it and fails closed, blocking every commit, which is silent and confusing. Also
       confirm `core.hooksPath` gets set; it is currently unset in fresh clones.
 
-- [ ] **M01 — `lib/os.sh`**
+- [x] **M01 — `lib/os.sh`**
       `detect_os` (darwin/linux/windows), `detect_arch`, `is_macos`, `is_linux`, `is_wsl`.
       Pure POSIX sh, no bashisms. Sourceable from bash _and_ zsh. `shellcheck` clean.
       [dep: M00]
