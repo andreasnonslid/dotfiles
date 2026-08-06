@@ -61,6 +61,36 @@ largest bash-specific chunk and is a win regardless.
 
 ---
 
+## Issue index
+
+Every deliverable has a GitHub issue. Claim it by commenting before starting work.
+
+| ID  | Issue | ID  | Issue | ID  | Issue |
+| --- | ----- | --- | ----- | --- | ----- |
+| M00 | #7    | M13 | #28   | M26 | #41   |
+| M01 | #8    | M14 | #29   | M27 | #42   |
+| M02 | #9    | M15 | #30   | M28 | #43   |
+| M03 | #10   | M16 | #31   | M29 | #44   |
+| M04 | #11   | M17 | #32   | M30 | #45   |
+| M05 | #12   | M18 | #33   | M31 | #46   |
+| D01 | #13   | M19 | #34   | M32 | #47   |
+| D02 | #14   | M20 | #35   | M33 | #48   |
+| D03 | #15   | M21 | #36   | M34 | #49   |
+| D04 | #16   | M22 | #37   | M35 | #50   |
+| D05 | #17   | M23 | #38   | M36 | #51   |
+| D06 | #18   | M24 | #39   |     |       |
+| D07 | #19   | M25 | #40   |     |       |
+| D08 | #20   |     |       |     |       |
+| M06 | #21   |     |       |     |       |
+| M07 | #22   |     |       |     |       |
+| M08 | #23   |     |       |     |       |
+| M09 | #24   |     |       |     |       |
+| M10 | #25   |     |       |     |       |
+| M11 | #26   |     |       |     |       |
+| M12 | #27   |     |       |     |       |
+
+---
+
 ## Legend
 
 - `[dep: …]` — blocked until those IDs are ticked
