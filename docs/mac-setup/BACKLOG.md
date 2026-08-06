@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 0 / 45 complete**
+**Progress: 1 / 45 complete**
 
 ## Context
 
@@ -103,7 +103,7 @@ Every deliverable has a GitHub issue. Claim it by commenting before starting wor
 
 _Blocks everything._
 
-- [ ] **M00 — Agent environment setup**
+- [x] **M00 — Agent environment setup**
       The container is missing `shfmt`, `stylua`, `taplo`, `lua`, `shellcheck` and `zsh`,
       so M02's harness would have nothing to run and `pretty.lua` silently skips those
       formatters. Add a `SessionStart` hook (or `scripts/setup-agent-env.sh`) that

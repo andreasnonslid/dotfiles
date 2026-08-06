@@ -38,6 +38,20 @@ echo 'export GITLAB_ACCESS_KEY=...' > ~/.local/secrets/autostore/gitlab-npm.env
 ./bootstrap.sh   # re-run to link it into ~/.config/autostore/
 ```
 
+## Agent / formatter tooling
+
+`.githooks/pre-commit` runs `lua pretty.lua -l`, which needs `shellcheck`,
+`shfmt`, `stylua`, `taplo` and `lua` itself on `PATH`. Claude Code on the web
+installs these automatically via a `SessionStart` hook
+(`.claude/hooks/session-start.sh`). To set up the same tooling by hand (e.g.
+on a fresh Debian/Ubuntu container or machine):
+
+```sh
+./scripts/setup-agent-env.sh
+```
+
+It's idempotent — safe to re-run, and skips anything already installed.
+
 ## Commit Message Enforcement
 
 This repository enforces a professional commit message style using a portable Perl commit-msg hook stored in `.githooks/commit-msg`.
