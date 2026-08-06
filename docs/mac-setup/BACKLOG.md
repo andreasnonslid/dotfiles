@@ -425,9 +425,12 @@ Each hourly agent run does **exactly one item**:
    append the verification steps to `macos/RUNBOOK.md`.
 5. Commit. `.githooks/commit-msg` enforces conventional commits with a **2–10 word, 10–50
    character summary and ≤72 char header** — comply or the commit is rejected.
-6. Tick the checkbox here, update the progress count, close the issue with a short summary
-   of what changed and anything the next agent should know.
-7. **Stop.** One item per run, no batching.
+6. Push and open a PR into `master`. Merge it yourself once checks pass — **except**
+   `needs-mac` items and **M24**, which stay open and unmerged until the user validates
+   them on hardware.
+7. Tick the checkbox here, update the progress count, close the issue with a short summary
+   of what changed, whether the PR merged, and anything the next agent should know.
+8. **Stop.** One item per run, no batching.
 
 If an item turns out to be mis-scoped or blocked, do not improvise: comment on the issue
 explaining why, leave the box unchecked, and stop.
