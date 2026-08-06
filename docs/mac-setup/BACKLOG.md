@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 4 / 45 complete**
+**Progress: 5 / 45 complete**
 
 ## Context
 
@@ -122,7 +122,7 @@ _Blocks everything._
       any failure. **This is what every subsequent agent runs before committing.**
       [dep: M00]
 
-- [ ] **M03 — Per-OS link manifest in `symlink.py`**
+- [x] **M03 — Per-OS link manifest in `symlink.py`**
       Darwin branch. `hypr/`, `waybar/`, `mako/`, `mimeapps.list` excluded on darwin;
       Ghostty/AeroSpace included only on darwin. Preserve the existing "never symlink
       `~/.config` wholesale" safety property. [dep: M01]
