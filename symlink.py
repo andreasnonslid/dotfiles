@@ -1,4 +1,5 @@
 import os
+import platform
 import shutil
 from datetime import datetime
 from pathlib import Path
@@ -13,6 +14,18 @@ EXCLUDE = {
     ".gitignore",
     ".gitmodules",
     ".gitattributes",
+}
+
+# Wayland/Linux-only entries under bashrc/.config/ that have no meaning on
+# macOS. Ghostty (M17) and AeroSpace (M19) configs are darwin-only in the
+# other direction, but need no entry here: they aren't excluded by default,
+# so once their config dirs land under bashrc/.config/ this same loop picks
+# them up automatically.
+DARWIN_CONFIG_EXCLUDE = {
+    "hypr",
+    "waybar",
+    "mako",
+    "mimeapps.list",
 }
 
 
@@ -44,9 +57,10 @@ def create_symlink(target, link_name, auto_yes=False):
         print(f"Failed to create symlink from {target} to {link_name}: {e}")
 
 
-def symlink_dir_contents(source_dir, target_dir, auto_yes=False):
+def symlink_dir_contents(source_dir, target_dir, auto_yes=False, extra_exclude=None):
+    exclude = EXCLUDE | (extra_exclude or set())
     for item in os.listdir(source_dir):
-        if item in EXCLUDE:
+        if item in exclude:
             continue
         src_path = os.path.join(source_dir, item)
         tgt_path = os.path.join(target_dir, item)
@@ -63,6 +77,7 @@ def main():
     repo_root = Path(__file__).parent.resolve()
     home = Path.home()
     is_windows = os.name == "nt"
+    is_darwin = platform.system() == "Darwin"
     config_dir = home / ".config"
 
     # bashrc contents (dotfiles that land directly in $HOME, e.g. .bashrc)
@@ -78,7 +93,13 @@ def main():
                 # up writing straight into this git repo. Keep ~/.config a
                 # real directory and link only the tracked configs into it.
                 config_dir.mkdir(parents=True, exist_ok=True)
-                symlink_dir_contents(str(src_path), str(config_dir), auto_yes=args.yes)
+                config_exclude = DARWIN_CONFIG_EXCLUDE if is_darwin else None
+                symlink_dir_contents(
+                    str(src_path),
+                    str(config_dir),
+                    auto_yes=args.yes,
+                    extra_exclude=config_exclude,
+                )
             else:
                 create_symlink(str(src_path), str(home / item), auto_yes=args.yes)
     else:
