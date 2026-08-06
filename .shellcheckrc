@@ -1,0 +1,7 @@
+# Default dialect for .sh files with no shebang -- most files under
+# bashrc/.shell_modules/ are meant to be sourced, not executed, so they
+# don't carry one. Without this, shellcheck can't guess the shell and
+# reports a false-positive SC2148 on every one of them. Files that are
+# POSIX sh (e.g. lib/os.sh) override this with an inline
+# `# shellcheck shell=sh` directive.
+shell=bash

@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 2 / 45 complete**
+**Progress: 3 / 45 complete**
 
 ## Context
 
@@ -116,7 +116,7 @@ _Blocks everything._
       Pure POSIX sh, no bashisms. Sourceable from bash _and_ zsh. `shellcheck` clean.
       [dep: M00]
 
-- [ ] **M02 — `scripts/check.sh` static harness**
+- [x] **M02 — `scripts/check.sh` static harness**
       Runs `shellcheck` on all `.sh`, `bash -n`/`zsh -n` syntax checks, `stylua --check`,
       `python3 -m pytest` on the symlink tests, and `lua pretty.lua -l`. Exits non-zero on
       any failure. **This is what every subsequent agent runs before committing.**
