@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 5 / 45 complete**
+**Progress: 6 / 45 complete**
 
 ## Context
 
@@ -127,7 +127,7 @@ _Blocks everything._
       Ghostty/AeroSpace included only on darwin. Preserve the existing "never symlink
       `~/.config` wholesale" safety property. [dep: M01]
 
-- [ ] **M04 — `tests/test_symlink.py`**
+- [x] **M04 — `tests/test_symlink.py`**
       Run `symlink.py` against a temp fake `$HOME` with the platform monkeypatched to
       darwin _and_ linux; assert the exact expected link set for each. Wire into
       `check.sh`. [dep: M03]
