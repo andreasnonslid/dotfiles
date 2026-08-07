@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 6 / 45 complete**
+**Progress: 7 / 45 complete**
 
 ## Context
 
@@ -132,7 +132,7 @@ _Blocks everything._
       darwin _and_ linux; assert the exact expected link set for each. Wire into
       `check.sh`. [dep: M03]
 
-- [ ] **M05 — `bootstrap.sh` OS dispatch**
+- [x] **M05 — `bootstrap.sh` OS dispatch**
       Source `lib/os.sh`; on darwin run `macos/install.sh`, on linux keep current
       behaviour. Still idempotent. Fail loudly with a clear message on unsupported OS.
       [dep: M01]
