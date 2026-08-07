@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 9 / 45 complete**
+**Progress: 10 / 45 complete**
 
 ## Context
 
@@ -241,7 +241,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
 
 ## E2 — macOS provisioning
 
-- [ ] **M13 — `macos/install.sh` orchestrator**
+- [x] **M13 — `macos/install.sh` orchestrator**
       Idempotent. Installs Xcode Command Line Tools, installs Homebrew if absent, handles
       `/opt/homebrew` shellenv wiring, runs `brew bundle`, then `defaults.sh`. Safe to
       re-run. `shellcheck` clean. [dep: M05]
