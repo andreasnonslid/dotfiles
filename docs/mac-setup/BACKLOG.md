@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 10 / 45 complete**
+**Progress: 11 / 45 complete**
 
 ## Context
 
@@ -246,7 +246,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       `/opt/homebrew` shellenv wiring, runs `brew bundle`, then `defaults.sh`. Safe to
       re-run. `shellcheck` clean. [dep: M05]
 
-- [ ] **M14 — `macos/Brewfile` — CLI formulae**
+- [x] **M14 — `macos/Brewfile` — CLI formulae**
       Union of the existing distro scripts — git, git-lfs, cmake, ninja, automake, jq,
       fzf, bat, ripgrep, fd, the_silver_searcher, zoxide, eza, neovim, tmux, just, llvm,
       less, lua, libgit2, gh, git-delta, sd, starship, zellij, tealdeer, go. **Must

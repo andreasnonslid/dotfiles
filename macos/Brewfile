@@ -1,0 +1,61 @@
+# macos/Brewfile -- CLI formulae (M14).
+#
+# Consumed by `brew bundle --file macos/Brewfile` from macos/install.sh.
+# Casks, fonts and GUI apps live in a separate file (M15) so this one stays
+# a plain CLI toolchain manifest.
+#
+# The list is the union of linux/{ubuntu,debian,arch,opensuse}.sh plus every
+# formatter pretty.lua/.githooks/pre-commit need. Where a Homebrew formula
+# name differs from the package name used on Linux, the difference is noted
+# inline -- `brew bundle check` on real hardware is the actual acceptance
+# test (this can only be written and reasoned about here, not run).
+
+# --- Core dev tools ---------------------------------------------------
+brew "git"
+brew "git-lfs"
+brew "cmake"
+# Linux apt package is "ninja-build"; the binary and brew formula are "ninja".
+brew "ninja"
+brew "automake"
+brew "jq"
+brew "fzf"
+brew "bat"
+brew "ripgrep"
+# Linux installs this via `cargo install fd-find`, which provides the `fd`
+# binary; the brew formula is named "fd" directly.
+brew "fd"
+# Debian/Ubuntu apt package is "silversearcher-ag"; brew (and Arch/pacman)
+# use "the_silver_searcher".
+brew "the_silver_searcher"
+brew "zoxide"
+brew "eza"
+brew "neovim"
+brew "tmux"
+brew "just"
+brew "llvm"
+# macOS ships an old BSD-derived `less`; this pulls a current GNU less.
+brew "less"
+brew "lua"
+brew "libgit2"
+brew "gh"
+# Binary is `delta`; the formula name is "git-delta".
+brew "git-delta"
+brew "sd"
+brew "starship"
+brew "zellij"
+brew "tealdeer"
+# Ubuntu/Debian apt package is "golang"; the brew formula is "go".
+brew "go"
+
+# --- Formatters ---------------------------------------------------------
+# Every formatter pretty.lua drives and .githooks/pre-commit hard-requires.
+# "lua" is listed above already -- the pre-commit hook fails closed without
+# it (see scripts/setup-agent-env.sh), so it belongs to both groups.
+brew "shfmt"
+brew "stylua"
+brew "black"
+brew "taplo"
+brew "prettier"
+# Debian/Ubuntu pin "clang-format-15"; brew's "clang-format" tracks latest
+# and is a standalone formula, not bundled with the (also-installed) "llvm".
+brew "clang-format"
