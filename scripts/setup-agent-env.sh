@@ -18,7 +18,7 @@ fi
 
 # apt-installable tools: package name paired with the binary it provides.
 apt_missing=()
-for pkg_bin in shellcheck:shellcheck shfmt:shfmt zsh:zsh lua5.4:lua; do
+for pkg_bin in shellcheck:shellcheck shfmt:shfmt zsh:zsh lua5.4:lua python3-pytest:pytest; do
     pkg="${pkg_bin%%:*}"
     bin="${pkg_bin##*:}"
     command -v "$bin" >/dev/null 2>&1 || apt_missing+=("$pkg")
@@ -29,7 +29,7 @@ if [ "${#apt_missing[@]}" -gt 0 ]; then
     $SUDO apt-get update -qq
     $SUDO apt-get install -y --no-install-recommends "${apt_missing[@]}"
 else
-    echo "==> apt: shellcheck, shfmt, zsh, lua already present"
+    echo "==> apt: shellcheck, shfmt, zsh, lua, pytest already present"
 fi
 
 # stylua and taplo have no apt package; the *-bin npm packages ship the
