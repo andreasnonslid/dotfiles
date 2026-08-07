@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 8 / 45 complete**
+**Progress: 9 / 45 complete**
 
 ## Context
 
@@ -217,7 +217,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       Sources `core` → `git` → `tools` → `zsh/`. Wires starship, zoxide, mise. Symlinked
       by `symlink.py` on darwin. `zsh -n` clean. [dep: M06, M07]
 
-- [ ] **M09 — `tools/clipboard.sh` — `clip`/`paste` abstraction**
+- [x] **M09 — `tools/clipboard.sh` — `clip`/`paste` abstraction**
       Dispatch to `pbcopy`/`pbpaste` on darwin, `wl-copy`/`wl-paste` under Wayland,
       `xclip` under X11, `clip.exe` under WSL. Replace the raw `xclip` call in
       `ssh/setup_ssh_key.sh`. [dep: M01]
