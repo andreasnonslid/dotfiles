@@ -11,6 +11,10 @@
 # Options:
 #   --RSA - Use RSA key instead of Ed25519.
 
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+# shellcheck source=../bashrc/.shell_modules/tools/clipboard.sh
+. "$script_dir/../bashrc/.shell_modules/tools/clipboard.sh"
+
 function list_keys {
     echo "Listing available SSH keys:"
     ls ~/.ssh/id_* | grep -v ".pub$"
@@ -67,7 +71,7 @@ create)
     ssh-keygen -t "$key_type" -C "$name <$email>" -f "$key_file"
     eval "$(ssh-agent -s)"
     ssh-add "$key_file"
-    cat "$key_file".pub | xclip -sel clip
+    clip <"$key_file.pub"
     git config --global user.name "$name"
     git config --global user.email "$email"
     echo "SSH key created and added to ssh-agent. Public key copied to clipboard."
