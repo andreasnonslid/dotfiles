@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 11 / 45 complete**
+**Progress: 12 / 45 complete**
 
 ## Context
 
@@ -160,7 +160,7 @@ it work?").
       the repo_. Explicitly detect dangling links and files silently `.bak`-ed during
       bootstrap — the current backup behaviour is easy to miss. [dep: D01, M03]
 
-- [ ] **D03 — Toolchain & binary presence check**
+- [x] **D03 — Toolchain & binary presence check**
       Every assumed binary, with version reported — git, nvim, rg, fd, bat, eza, zoxide,
       fzf, jq, just, zellij, starship, gh, mise, lua. **Separately assert every formatter
       the pre-commit hook needs** (shfmt, stylua, black, taplo, prettier, clang-format,
