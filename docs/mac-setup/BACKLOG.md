@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 7 / 45 complete**
+**Progress: 8 / 45 complete**
 
 ## Context
 
@@ -155,7 +155,7 @@ it work?").
       Core checks: OS + arch (flag Rosetta/x86 emulation explicitly), PATH sanity,
       `$DOTFILES` resolution. [dep: M02]
 
-- [ ] **D02 — Symlink integrity check**
+- [x] **D02 — Symlink integrity check**
       Every link `symlink.py` should have created exists, is a symlink, and resolves _into
       the repo_. Explicitly detect dangling links and files silently `.bak`-ed during
       bootstrap — the current backup behaviour is easy to miss. [dep: D01, M03]
