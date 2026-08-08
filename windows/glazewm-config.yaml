@@ -23,10 +23,17 @@
 #   Q     terminal            -> shell-exec wezterm (already configured: windows/wezterm.lua)
 #   C     close window        -> close
 #   V     toggle floating     -> toggle-floating
-#   J     toggle split axis   -> toggle-tiling-direction (dwindle "togglesplit" equivalent)
 #   E     file manager        -> shell-exec explorer (Windows' own, in place of Hyprland's dolphin)
 #   arrows / shift+arrows     -> focus / move --direction (exact match)
 #   0-9 / shift+0-9           -> focus / move --workspace (exact match, 0 = workspace 10)
+#
+# Not a literal Hyprland mirror, added for ergonomics: hjkl bound alongside
+# arrows for focus/move (same commands, same GlazeWM sample-config
+# convention) since alt+arrows needs both hands on a split/layered board.
+# That frees h/j/k/l from the letter row, so Hyprland's SUPER+J
+# (togglesplit) moves here to alt+t instead of colliding with j = focus
+# down:
+#   J     toggle split axis   -> moved to alt+t: toggle-tiling-direction
 #   R     app launcher (rofi) -> repurposed: enter resize mode (no Windows launcher was
 #                                 bound here to begin with, and GlazeWM has no keyboard
 #                                 resize otherwise -- Hyprland does this via SUPER+drag)
@@ -79,31 +86,32 @@ keybindings:
     - commands: ["toggle-floating --centered"]
       bindings: ["alt+v"]
     - commands: ["toggle-tiling-direction"]
-      bindings: ["alt+j"]
+      bindings: ["alt+t"]
     - commands: ["shell-exec explorer"]
       bindings: ["alt+e"]
     - commands: ["toggle-fullscreen"]
       bindings: ["alt+f"]
 
-    # Focus with alt + arrow keys
+    # Focus with alt + arrow keys or alt + hjkl (vim-style, same commands --
+    # whichever's more reachable on the keyboard in hand)
     - commands: ["focus --direction left"]
-      bindings: ["alt+left"]
+      bindings: ["alt+left", "alt+h"]
     - commands: ["focus --direction right"]
-      bindings: ["alt+right"]
+      bindings: ["alt+right", "alt+l"]
     - commands: ["focus --direction up"]
-      bindings: ["alt+up"]
+      bindings: ["alt+up", "alt+k"]
     - commands: ["focus --direction down"]
-      bindings: ["alt+down"]
+      bindings: ["alt+down", "alt+j"]
 
-    # Move the active window with alt + shift + arrow keys
+    # Move the active window with alt + shift + arrow keys or alt + shift + hjkl
     - commands: ["move --direction left"]
-      bindings: ["alt+shift+left"]
+      bindings: ["alt+shift+left", "alt+shift+h"]
     - commands: ["move --direction right"]
-      bindings: ["alt+shift+right"]
+      bindings: ["alt+shift+right", "alt+shift+l"]
     - commands: ["move --direction up"]
-      bindings: ["alt+shift+up"]
+      bindings: ["alt+shift+up", "alt+shift+k"]
     - commands: ["move --direction down"]
-      bindings: ["alt+shift+down"]
+      bindings: ["alt+shift+down", "alt+shift+j"]
 
     # Switch workspaces with alt + [0-9]; 0 maps to workspace 10, matching
     # the Hyprland `i % 10` binding loop.
