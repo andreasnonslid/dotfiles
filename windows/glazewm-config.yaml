@@ -44,6 +44,18 @@ general:
     focus_follows_cursor: false
     toggle_workspace_on_refocus: false
 
+# No gaps -- GlazeWM's own built-in default (used whenever this section is
+# left out entirely) is a visible inner gap plus a large top outer gap, not
+# zero.
+gaps:
+    scale_with_dpi: true
+    inner_gap: "0px"
+    outer_gap:
+        top: "0px"
+        right: "0px"
+        bottom: "0px"
+        left: "0px"
+
 workspaces:
     - name: "1"
     - name: "2"
