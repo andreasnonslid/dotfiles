@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 20 / 45 complete**
+**Progress: 21 / 45 complete**
 
 ## Context
 
@@ -208,7 +208,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       parse under both `bash -n` and `zsh -n`. No behaviour change on Linux — verify the
       full alias/function list is unchanged. [dep: M02]
 
-- [ ] **M07 — Adopt starship, delete the hand-rolled PS1**
+- [x] **M07 — Adopt starship, delete the hand-rolled PS1**
       Remove `update_exit_status`/`parse_git_branch`/`setPS1`/`PROMPT_COMMAND` from
       `.bashrc`. Extend `starship.toml` to cover what the old prompt showed: exit-status
       glyph, cwd, git branch, clock. [dep: M06]

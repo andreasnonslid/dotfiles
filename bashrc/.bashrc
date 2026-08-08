@@ -49,63 +49,10 @@ if command -v pyenv >/dev/null 2>&1; then
     eval "$(pyenv init -)"
 fi
 
-# SHELL PROMPT
-# Initial values
-last_exit_status="✔ "
-exit_status_color="$LIGHT_GREEN"
-git_info=""
-
-# Function to get the return value of the last command
-update_exit_status() {
-    if [[ $? == 0 ]]; then
-        last_exit_status="✔ " # Green color for success
-        exit_status_color="$LIGHT_GREEN"
-    else
-        last_exit_status="✘ " # Red color for failure
-        exit_status_color="$LIGHT_RED"
-    fi
-}
-
-# Function to get git info
-parse_git_branch() {
-    git branch 2>/dev/null | sed -e '/^[^*]/d' -e 's/* \(.*\)/\1/'
-}
-
-# This function updates the prompt.
-update_git_info() {
-    local branch
-    branch=$(parse_git_branch)
-    if [[ -n $branch ]]; then
-        git_info="\[$YELLOW\]➜  \[$LIGHT_YELLOW\]$branch"
-        curBranch=$branch
-    else
-        git_info=""
-        curBranch=""
-    fi
-}
-
-# Set the prompt
-setPS1() {
-    PS1="\[$exit_status_color\]$last_exit_status \[$LIGHT_BLUE\]\w $git_info \[$CYAN\]🕒 \t\n\[$WHITE\]❯ "
-}
-
-# Main function which does everything in order
-updateStatusLine() {
-    update_exit_status
-    update_git_info
-    setPS1
-}
-
-# The commands which are run every time a command is entered in the shell
-PROMPT_COMMAND="updateStatusLine"
-
-# Optional: Use Starship prompt instead of custom prompt
-# Uncomment the following lines to enable Starship:
-# if command -v starship >/dev/null 2>&1; then
-#     eval "$(starship init bash)"
-#     # Disable custom prompt when using Starship
-#     unset PROMPT_COMMAND
-# fi
+# SHELL PROMPT (M07: starship replaces the hand-rolled PS1/PROMPT_COMMAND)
+if command -v starship >/dev/null 2>&1; then
+    eval "$(starship init bash)"
+fi
 
 # Helpful aliases
 alias cheat="curl cheat.sh/"

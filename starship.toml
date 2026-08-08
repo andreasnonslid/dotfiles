@@ -1,10 +1,12 @@
 # ~/.config/starship.toml
 
 format = """
+$status\
 $directory\
 $git_branch\
 $git_status\
 $cmd_duration\
+$time\
 $line_break\
 $character"""
 
@@ -24,6 +26,24 @@ style = "yellow"
 [cmd_duration]
 format = "took [($duration)]($style) "
 style = "red"
+
+# Exit-status glyph, replaces the old hand-rolled ✔/✘ PS1 prefix (M07).
+# success_symbol must be non-empty or the module stays hidden on exit 0.
+[status]
+disabled = false
+format = "[$symbol]($style)"
+symbol = "✘ "
+success_symbol = "✔ "
+style = "bold red"
+success_style = "bold green"
+failure_style = "bold red"
+
+# Clock, replaces the old "🕒 \t" PS1 suffix (M07).
+[time]
+disabled = false
+format = "🕒 [$time]($style) "
+style = "cyan"
+time_format = "%H:%M:%S"
 
 [character]
 success_symbol = "[❯](green)"
