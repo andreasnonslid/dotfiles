@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 14 / 45 complete**
+**Progress: 15 / 45 complete**
 
 ## Context
 
@@ -275,7 +275,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       scrollback, `macos-option-as-alt` set (needed for zellij/nvim alt-bindings). Linked
       on darwin only. [dep: M03]
 
-- [ ] **M18 — Zellij macOS adjustments**
+- [x] **M18 — Zellij macOS adjustments**
       Uncomment `copy_command "pbcopy"` for darwin. Decide auto-start behaviour under
       Ghostty. Verify the `clear-defaults=true` keybind set doesn't collide with macOS
       system shortcuts (Cmd-based, so likely clean — confirm and document). [dep: M09]
