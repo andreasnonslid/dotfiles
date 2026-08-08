@@ -72,9 +72,10 @@ create)
     eval "$(ssh-agent -s)"
     ssh-add "$key_file"
     clip <"$key_file.pub"
-    git config --global user.name "$name"
-    git config --global user.email "$email"
     echo "SSH key created and added to ssh-agent. Public key copied to clipboard."
+    echo "Note: this no longer sets git user.name/user.email globally -- that would"
+    echo "write straight into the tracked ~/.gitconfig. Set identity via"
+    echo "\$HOME/.local/secrets/git/{personal,work}.gitconfig instead (see README.md)."
     ;;
 delete)
     delete_key

@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 17 / 45 complete**
+**Progress: 18 / 45 complete**
 
 ## Context
 
@@ -354,7 +354,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
 
 ## E7 — Git identity, SSH, secrets
 
-- [ ] **M29 — Tracked `.gitconfig` with work/personal split**
+- [x] **M29 — Tracked `.gitconfig` with work/personal split**
       **There is currently no tracked gitconfig at all** — `user.name`/`user.email` are set
       as a side effect of `ssh/setup_ssh_key.sh create`. Add a tracked base config plus
       `includeIf gitdir:` sections so work repos get the work identity automatically and
