@@ -3,12 +3,13 @@
 #
 # Installs Xcode Command Line Tools, installs Homebrew, wires the Homebrew
 # shellenv so this script's own `brew` calls resolve, runs `brew bundle`
-# against macos/Brewfile, then runs macos/defaults.sh. Idempotent -- each
-# step checks first and is a no-op once satisfied, so re-running is fast.
+# against macos/Brewfile and macos/Brewfile.casks, then runs
+# macos/defaults.sh. Idempotent -- each step checks first and is a no-op
+# once satisfied, so re-running is fast.
 #
 # Called from bootstrap.sh on darwin; not meant to be run on any other OS.
-# macos/Brewfile (M14) and macos/defaults.sh (M16) haven't landed yet, so
-# those two steps skip loudly with a pointer to the item that adds them.
+# macos/defaults.sh (M16) hasn't landed yet, so that step skips loudly with
+# a pointer to the item that adds it.
 set -euo pipefail
 
 root="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
@@ -52,11 +53,18 @@ fi
 # zsh adapter (M06/M08), not the provisioning orchestrator.
 eval "$("$brew_prefix/bin/brew" shellenv)"
 
-echo "==> brew bundle"
+echo "==> brew bundle (CLI formulae)"
 if [ -f "$root/macos/Brewfile" ]; then
     brew bundle --file "$root/macos/Brewfile"
 else
     echo "    SKIPPED: macos/Brewfile not found -- lands in M14." >&2
+fi
+
+echo "==> brew bundle (casks, fonts, GUI apps)"
+if [ -f "$root/macos/Brewfile.casks" ]; then
+    brew bundle --file "$root/macos/Brewfile.casks"
+else
+    echo "    SKIPPED: macos/Brewfile.casks not found -- lands in M15." >&2
 fi
 
 echo "==> macOS defaults"

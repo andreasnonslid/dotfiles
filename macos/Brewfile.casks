@@ -1,0 +1,31 @@
+# macos/Brewfile.casks -- casks, fonts and GUI apps (M15).
+#
+# Consumed by `brew bundle --file macos/Brewfile.casks` from macos/install.sh.
+# Kept separate from macos/Brewfile (M14) so that file stays a plain CLI
+# toolchain manifest -- see the note at the top of macos/Brewfile.
+#
+# AeroSpace, Karabiner-Elements and Raycast all need Accessibility and/or
+# Input Monitoring permission grants after install -- these cannot be
+# scripted (System Settings requires an interactive click). D06 (needs-mac)
+# verifies the grants hold; macos/RUNBOOK.md (M34, not yet landed) will
+# carry the step-by-step day-one checklist.
+
+# --- Window management & input ------------------------------------------
+tap "nikitabobko/tap"
+cask "nikitabobko/tap/aerospace"
+cask "raycast"
+cask "karabiner-elements"
+
+# --- Terminal & font ------------------------------------------------------
+cask "ghostty"
+# Matches the existing font choice in zed/settings.json
+# ("IosevkaTerm Nerd Font Mono") and windows/wezterm.lua ("Iosevka Nerd
+# Font Mono").
+cask "font-iosevka-term-nerd-font"
+
+# --- Optional: browser / editor / work-app casks -------------------------
+# Starting suggestions, not settled decisions -- prune or extend this
+# section before first run to match what the work machine actually needs.
+cask "google-chrome"
+cask "visual-studio-code"
+cask "docker"

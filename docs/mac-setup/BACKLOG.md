@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 12 / 45 complete**
+**Progress: 13 / 45 complete**
 
 ## Context
 
@@ -254,7 +254,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       black, taplo, prettier, clang-format, lua) — the hook breaks on the Mac otherwise.
       [dep: M13]
 
-- [ ] **M15 — `macos/Brewfile` — casks, fonts, GUI apps**
+- [x] **M15 — `macos/Brewfile` — casks, fonts, GUI apps**
       `ghostty`, `nikitabobko/tap/aerospace`, `raycast`, `karabiner-elements`,
       `font-iosevka-term-nerd-font` (matches the existing Zed + WezTerm font choice), plus
       browser/editor casks. Split into a clearly-marked optional section to prune.
