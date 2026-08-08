@@ -24,8 +24,12 @@ COMMON_TOP_LEVEL = {
     Path("z.sh"): REPO_ROOT / "bashrc" / "z.sh",
 }
 
+# clangd is deliberately absent from here: on Linux it's symlinked like any
+# other common config entry (added in expected_links() below), but on
+# darwin it's excluded from symlink.py entirely (M27) -- macos/embedded.sh
+# generates ~/.config/clangd/config.yaml itself once a toolchain is
+# installed, since the include paths depend on the xpm-picked version.
 COMMON_CONFIG_ENTRIES = {
-    Path(".config/clangd"): REPO_ROOT / "bashrc" / ".config" / "clangd",
     Path(".config/fd"): REPO_ROOT / "bashrc" / ".config" / "fd",
     Path(".config/gh"): REPO_ROOT / "bashrc" / ".config" / "gh",
     Path(".config/git"): REPO_ROOT / "bashrc" / ".config" / "git",
@@ -69,6 +73,7 @@ def expected_links(darwin):
         expected.update(DARWIN_ONLY_CONFIG_TARGETS)
     else:
         expected.update(WAYLAND_ONLY_CONFIG_TARGETS)
+        expected[Path(".config/clangd")] = REPO_ROOT / "bashrc" / ".config" / "clangd"
     expected.update(NVIM_ENTRIES)
     expected.update(CAVEMAN_ENTRIES)
     return expected
@@ -142,6 +147,22 @@ def test_darwin_includes_darwin_only_configs(monkeypatch, fake_home):
     run_symlink_main(monkeypatch, fake_home, "Darwin")
     for name in DARWIN_ONLY_CONFIG:
         assert (fake_home / ".config" / name).is_symlink()
+
+
+def test_darwin_excludes_clangd(monkeypatch, fake_home):
+    # M27: the tracked clangd/ directory holds both the static Linux config
+    # and the darwin template -- neither is what macos/embedded.sh wants
+    # symlinked wholesale, since it generates config.yaml itself once a
+    # toolchain is actually installed.
+    run_symlink_main(monkeypatch, fake_home, "Darwin")
+    entry = fake_home / ".config" / "clangd"
+    assert not entry.is_symlink()
+    assert not entry.exists()
+
+
+def test_linux_includes_clangd(monkeypatch, fake_home):
+    run_symlink_main(monkeypatch, fake_home, "Linux")
+    assert (fake_home / ".config" / "clangd").is_symlink()
 
 
 def test_config_dir_is_real_not_symlinked(monkeypatch, fake_home):

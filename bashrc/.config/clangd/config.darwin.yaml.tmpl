@@ -1,0 +1,25 @@
+# Template for the darwin clangd config (M27). macos/embedded.sh renders
+# this file into ~/.config/clangd/config.yaml with sed once an ARM
+# toolchain is actually installed, substituting the two placeholders below
+# for xpm's ".content" install directory and the GCC version that ended up
+# active -- see generate_clangd_config in macos/embedded.sh. sed only
+# touches those two tokens, so this comment block carries over verbatim
+# into the generated file too.
+#
+# clangd itself only ever reads the rendered output at
+# ~/.config/clangd/config.yaml, which lives outside the repo and isn't
+# tracked. The Linux config.yaml next to this file is static because the
+# Linux toolchain has a fixed /usr/local install path; the xpm layout on
+# macOS doesn't, since the version is picked interactively and each
+# version installs side by side under ~/.local/xPacks.
+If:
+    PathMatch: .*/ASMonoRepo/products/port/autocase/mcpu/.*
+
+CompileFlags:
+    Add:
+        - -isystem{{CONTENT_DIR}}/arm-none-eabi/include/c++/{{GCC_VERSION}}
+        - -isystem{{CONTENT_DIR}}/arm-none-eabi/include/c++/{{GCC_VERSION}}/arm-none-eabi
+        - -isystem{{CONTENT_DIR}}/arm-none-eabi/include/c++/{{GCC_VERSION}}/backward
+        - -isystem{{CONTENT_DIR}}/lib/gcc/arm-none-eabi/{{GCC_VERSION}}/include
+        - -isystem{{CONTENT_DIR}}/lib/gcc/arm-none-eabi/{{GCC_VERSION}}/include-fixed
+        - -isystem{{CONTENT_DIR}}/arm-none-eabi/include

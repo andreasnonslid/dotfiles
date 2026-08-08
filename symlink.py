@@ -31,6 +31,17 @@ LINUX_CONFIG_EXCLUDE = {
     "ghostty",
 }
 
+# darwin only: entries generated at toolchain-install time instead of
+# symlinked from the repo (M27). clangd's ARM toolchain include paths
+# depend on the xpm-installed version, which isn't known until
+# macos/embedded.sh actually installs one, so it renders
+# ~/.config/clangd/config.yaml itself rather than this script linking the
+# whole tracked directory (which holds the Linux config plus the darwin
+# template, neither of which macos/embedded.sh wants as-is).
+DARWIN_GENERATED_EXCLUDE = {
+    "clangd",
+}
+
 
 def create_symlink(target, link_name, auto_yes=False):
     try:
@@ -97,7 +108,9 @@ def main():
                 # real directory and link only the tracked configs into it.
                 config_dir.mkdir(parents=True, exist_ok=True)
                 config_exclude = (
-                    DARWIN_CONFIG_EXCLUDE if is_darwin else LINUX_CONFIG_EXCLUDE
+                    DARWIN_CONFIG_EXCLUDE | DARWIN_GENERATED_EXCLUDE
+                    if is_darwin
+                    else LINUX_CONFIG_EXCLUDE
                 )
                 symlink_dir_contents(
                     str(src_path),
