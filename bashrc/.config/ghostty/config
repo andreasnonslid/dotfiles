@@ -1,0 +1,58 @@
+# Ghostty config (M17). Darwin-only -- linked by symlink.py, excluded on
+# Linux by DARWIN_ONLY_CONFIG. Mirrors the minimal chrome of
+# windows/wezterm.lua (no tab bar, zero padding, SteadyBlock cursor) and the
+# noctishc.nvim colourscheme used in nvim/lua/plugins/theme.lua, so the
+# terminal matches the editor.
+
+# Matches the IosevkaTerm Nerd Font Mono family name already in
+# zed/settings.json. Sized to the WezTerm choice (14) rather than Zed's
+# (15) -- Ghostty is the terminal, WezTerm is the closer analogue.
+font-family = IosevkaTerm Nerd Font Mono
+font-size = 14
+
+# Colours pulled from github.com/iagorrr/noctishc.nvim (lua/noctishc/
+# palette.lua, lua/noctishc/theme.lua): Normal fg/bg, cursor fg/bg and the
+# Visual selection background, mapped onto the standard 16-colour ANSI set.
+background = #000000
+foreground = #f1f1f1
+cursor-color = #AEAFAD
+cursor-text = #515052
+selection-background = #444455
+
+palette = 0=#000000
+palette = 1=#D16969
+palette = 2=#6A9955
+palette = 3=#DCDCAA
+palette = 4=#569CD6
+palette = 5=#C586C0
+palette = 6=#4EC9B0
+palette = 7=#CCCCCC
+palette = 8=#808080
+palette = 9=#F44747
+palette = 10=#B5CEA8
+palette = 11=#D7BA7D
+palette = 12=#9CDCFE
+palette = 13=#D16D9E
+palette = 14=#4FC1FF
+palette = 15=#F1F1F1
+
+# SteadyBlock, matching the WezTerm default_cursor_style.
+cursor-style = block
+cursor-style-blink = false
+
+# Generous scrollback -- WezTerm is set to 10k lines; Ghostty sizes its
+# buffer in bytes instead, so this isn't a literal conversion, just "a lot".
+scrollback-limit-bytes = 10000000
+
+mouse-hide-while-typing = true
+
+# Alt-based keybindings (zellij, nvim) need Option to send Alt on macOS, or
+# they never reach the app.
+macos-option-as-alt = true
+
+# No tab bar: zellij owns pane/window multiplexing here, same as under
+# WezTerm. Ghostty only renders a tab bar once a second OS-level tab is
+# opened, which this workflow never does, so there's nothing to disable.
+window-decoration = auto
+window-padding-x = 0
+window-padding-y = 0

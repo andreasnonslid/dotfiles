@@ -12,6 +12,10 @@ REPO_ROOT = Path(symlink.__file__).resolve().parent
 # darwin/linux tests check against, not a re-import of the value under test.
 WAYLAND_ONLY_CONFIG = {"hypr", "waybar", "mako", "mimeapps.list"}
 
+# The reverse: config entries that only make sense on darwin (M03's
+# LINUX_CONFIG_EXCLUDE).
+DARWIN_ONLY_CONFIG = {"ghostty"}
+
 COMMON_TOP_LEVEL = {
     Path(".bashrc"): REPO_ROOT / "bashrc" / ".bashrc",
     Path(".profile"): REPO_ROOT / "bashrc" / ".profile",
@@ -40,6 +44,10 @@ WAYLAND_ONLY_CONFIG_TARGETS = {
     Path(".config/mimeapps.list"): REPO_ROOT / "bashrc" / ".config" / "mimeapps.list",
 }
 
+DARWIN_ONLY_CONFIG_TARGETS = {
+    Path(".config/ghostty"): REPO_ROOT / "bashrc" / ".config" / "ghostty",
+}
+
 NVIM_ENTRIES = {
     Path(".config/nvim/init.lua"): REPO_ROOT / "nvim" / "init.lua",
     Path(".config/nvim/lsp"): REPO_ROOT / "nvim" / "lsp",
@@ -57,7 +65,9 @@ CAVEMAN_ENTRIES = {
 def expected_links(darwin):
     expected = dict(COMMON_TOP_LEVEL)
     expected.update(COMMON_CONFIG_ENTRIES)
-    if not darwin:
+    if darwin:
+        expected.update(DARWIN_ONLY_CONFIG_TARGETS)
+    else:
         expected.update(WAYLAND_ONLY_CONFIG_TARGETS)
     expected.update(NVIM_ENTRIES)
     expected.update(CAVEMAN_ENTRIES)
@@ -117,6 +127,20 @@ def test_darwin_excludes_wayland_only_configs(monkeypatch, fake_home):
 def test_linux_includes_wayland_only_configs(monkeypatch, fake_home):
     run_symlink_main(monkeypatch, fake_home, "Linux")
     for name in WAYLAND_ONLY_CONFIG:
+        assert (fake_home / ".config" / name).is_symlink()
+
+
+def test_linux_excludes_darwin_only_configs(monkeypatch, fake_home):
+    run_symlink_main(monkeypatch, fake_home, "Linux")
+    for name in DARWIN_ONLY_CONFIG:
+        entry = fake_home / ".config" / name
+        assert not entry.is_symlink()
+        assert not entry.exists()
+
+
+def test_darwin_includes_darwin_only_configs(monkeypatch, fake_home):
+    run_symlink_main(monkeypatch, fake_home, "Darwin")
+    for name in DARWIN_ONLY_CONFIG:
         assert (fake_home / ".config" / name).is_symlink()
 
 
