@@ -15,6 +15,9 @@
 #   New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.glzr\glazewm\config.yaml" -Target "<path-to-this-repo>\windows\glazewm-config.yaml"
 # (symlink creation on Windows needs an elevated/Developer Mode shell.)
 #
+# GlazeWM does not watch config.yaml for changes -- after editing, press
+# alt+shift+r (bound below to wm-reload-config) or restart the app.
+#
 # Mapping from Hyprland's SUPER+<key> binds to GlazeWM's alt+<key>, and
 # what deliberately isn't carried over:
 #   Q     terminal            -> shell-exec wezterm (already configured: windows/wezterm.lua)
@@ -149,6 +152,13 @@ keybindings:
 
     - commands: ["wm-enable-binding-mode --name resize"]
       bindings: ["alt+r"]
+
+    # GlazeWM doesn't watch config.yaml for changes -- this is the only way
+    # to pick up an edit short of fully restarting the app. Not a Hyprland
+    # mirror (hyprctl reload has no bind either); explicit because it's the
+    # first thing you need while iterating on this file.
+    - commands: ["wm-reload-config"]
+      bindings: ["alt+shift+r"]
 
 # Keyboard-driven resize, entered via alt+r above -- the closest GlazeWM
 # equivalent to Hyprland's SUPER+drag live resize. hjkl and arrows both

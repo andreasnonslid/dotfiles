@@ -27,6 +27,12 @@ New-Item -ItemType SymbolicLink -Path "$env:USERPROFILE\.glzr\glazewm\config.yam
 Or just copy the file if you'd rather not symlink — re-copy after editing
 either side.
 
+## Applying changes
+
+GlazeWM does not watch `config.yaml` for changes. After editing it, press
+`alt+shift+r` (bound to `wm-reload-config`) or restart the app — neither
+happens automatically on save.
+
 ## Not yet verified
 
 Written against GlazeWM's documented config schema, never run for real —
