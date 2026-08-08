@@ -67,6 +67,20 @@ else
     echo "    SKIPPED: macos/Brewfile.casks not found -- lands in M15." >&2
 fi
 
+echo "==> zellij macOS copy_command"
+zellij_config="$root/bashrc/.config/zellij/config.kdl"
+if [ -f "$zellij_config" ]; then
+    # Activates the commented-out darwin copy_command directive in the
+    # tracked config itself (it's the same file ~/.config/zellij/config.kdl
+    # ends up symlinked to). Idempotent: the anchored pattern only matches
+    # the commented form, so re-running is a no-op once active. Mirrors
+    # linux/arch.sh's equivalent sed for pane_frames on config.kdl.
+    sed -i.bak -e 's|^// copy_command "pbcopy"$|copy_command "pbcopy"|' "$zellij_config"
+    rm -f "$zellij_config.bak"
+else
+    echo "    SKIPPED: $zellij_config not found." >&2
+fi
+
 echo "==> macOS defaults"
 if [ -x "$root/macos/defaults.sh" ]; then
     "$root/macos/defaults.sh"
