@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 15 / 45 complete**
+**Progress: 16 / 45 complete**
 
 ## Context
 
@@ -324,7 +324,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
 
 ## E6 — Embedded toolchain on macOS
 
-- [ ] **M25 — `macos/embedded.sh` — ARM toolchain via xpm**
+- [x] **M25 — `macos/embedded.sh` — ARM toolchain via xpm**
       Port `compilers/arm_gcc.sh` to darwin: keep the xpm + fzf version-picker flow (xPack
       ships native macOS arm64 builds and pins exact versions, e.g.
       `@xpack-dev-tools/arm-none-eabi-gcc@11.3.1-1.1.2` to match the current 11.3).
