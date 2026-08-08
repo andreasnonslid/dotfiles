@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 13 / 45 complete**
+**Progress: 14 / 45 complete**
 
 ## Context
 
@@ -270,7 +270,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
 
 ## E3 — Terminal & multiplexer
 
-- [ ] **M17 — Ghostty config at `bashrc/.config/ghostty/config`**
+- [x] **M17 — Ghostty config at `bashrc/.config/ghostty/config`**
       Iosevka Term Nerd Font Mono, theme matching the nvim `noctishc` colours, sensible
       scrollback, `macos-option-as-alt` set (needed for zellij/nvim alt-bindings). Linked
       on darwin only. [dep: M03]

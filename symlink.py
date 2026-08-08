@@ -17,15 +17,18 @@ EXCLUDE = {
 }
 
 # Wayland/Linux-only entries under bashrc/.config/ that have no meaning on
-# macOS. Ghostty (M17) and AeroSpace (M19) configs are darwin-only in the
-# other direction, but need no entry here: they aren't excluded by default,
-# so once their config dirs land under bashrc/.config/ this same loop picks
-# them up automatically.
+# macOS.
 DARWIN_CONFIG_EXCLUDE = {
     "hypr",
     "waybar",
     "mako",
     "mimeapps.list",
+}
+
+# The other direction: darwin-only entries under bashrc/.config/ that have
+# no meaning on Linux/WSL. AeroSpace (M19) joins this set once it lands.
+LINUX_CONFIG_EXCLUDE = {
+    "ghostty",
 }
 
 
@@ -93,7 +96,9 @@ def main():
                 # up writing straight into this git repo. Keep ~/.config a
                 # real directory and link only the tracked configs into it.
                 config_dir.mkdir(parents=True, exist_ok=True)
-                config_exclude = DARWIN_CONFIG_EXCLUDE if is_darwin else None
+                config_exclude = (
+                    DARWIN_CONFIG_EXCLUDE if is_darwin else LINUX_CONFIG_EXCLUDE
+                )
                 symlink_dir_contents(
                     str(src_path),
                     str(config_dir),
