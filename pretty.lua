@@ -4,6 +4,11 @@
 
 local exclude = {
     "*/z.sh",
+    -- pytest's own gitignored cache dir. Never mattered while
+    -- executable_exists() silently skipped every formatter; now that it
+    -- actually runs, check.sh's own pytest stage (which runs first) leaves
+    -- this behind every time, and prettier picks up its README.md.
+    "*/.pytest_cache/*",
 }
 
 local formatters = {
@@ -72,7 +77,12 @@ end
 
 local function executable_exists(cmd)
     local bin = cmd:match("^(%S+)")
-    return os.execute("command -v " .. bin .. " >/dev/null 2>&1") == 0
+    local ok = os.execute("command -v " .. bin .. " >/dev/null 2>&1")
+    -- Lua 5.1/LuaJIT (nvim -l) returns the raw status as a number, 0 on
+    -- success; Lua 5.2+ (the standalone `lua` this repo's tooling uses)
+    -- returns a boolean instead. Same dual check already used below for
+    -- the formatter run itself -- this function just missed it.
+    return ok == true or ok == 0
 end
 
 local function ext_pattern(exts)

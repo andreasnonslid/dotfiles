@@ -126,9 +126,9 @@ def test_link_set_matches_expected(monkeypatch, fake_home, system, darwin):
         f"unexpected={set(actual) - set(expected)}"
     )
     for rel, target in expected.items():
-        assert actual[rel] == target.resolve(), (
-            f"{rel} -> {actual[rel]}, expected {target.resolve()}"
-        )
+        assert (
+            actual[rel] == target.resolve()
+        ), f"{rel} -> {actual[rel]}, expected {target.resolve()}"
 
 
 def test_darwin_excludes_wayland_only_configs(monkeypatch, fake_home):
@@ -215,9 +215,9 @@ def test_every_link_resolves_into_repo(monkeypatch, fake_home, system):
     links = links_under(fake_home)
     assert links, "expected at least one symlink to be created"
     for rel, target in links.items():
-        assert target == REPO_ROOT or REPO_ROOT in target.parents, (
-            f"{rel} resolves outside the repo: {target}"
-        )
+        assert (
+            target == REPO_ROOT or REPO_ROOT in target.parents
+        ), f"{rel} resolves outside the repo: {target}"
 
 
 def test_existing_real_file_is_backed_up(monkeypatch, fake_home):
