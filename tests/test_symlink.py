@@ -40,6 +40,14 @@ COMMON_CONFIG_ENTRIES = {
     # the explicit starship block later in main() so it ends up pointing at
     # the real top-level starship.toml. The second write wins.
     Path(".config/starship.toml"): REPO_ROOT / "starship.toml",
+    Path(".ssh/config"): REPO_ROOT / "bashrc" / ".ssh" / "config",
+}
+
+# config.darwin (M30) carries the one ssh_config keyword (UseKeychain) that
+# only Apple's OpenSSH fork understands -- linked in on darwin only, same as
+# DARWIN_ONLY_CONFIG_TARGETS below but under .ssh/ rather than .config/.
+DARWIN_ONLY_SSH_TARGETS = {
+    Path(".ssh/config.darwin"): REPO_ROOT / "bashrc" / ".ssh" / "config.darwin",
 }
 
 WAYLAND_ONLY_CONFIG_TARGETS = {
@@ -72,6 +80,7 @@ def expected_links(darwin):
     expected.update(COMMON_CONFIG_ENTRIES)
     if darwin:
         expected.update(DARWIN_ONLY_CONFIG_TARGETS)
+        expected.update(DARWIN_ONLY_SSH_TARGETS)
     else:
         expected.update(WAYLAND_ONLY_CONFIG_TARGETS)
         expected[Path(".config/clangd")] = REPO_ROOT / "bashrc" / ".config" / "clangd"
@@ -174,6 +183,30 @@ def test_config_dir_is_real_not_symlinked(monkeypatch, fake_home):
     config_dir = fake_home / ".config"
     assert config_dir.is_dir()
     assert not config_dir.is_symlink()
+
+
+@pytest.mark.parametrize("system", ["Linux", "Darwin"])
+def test_ssh_dir_is_real_not_symlinked(monkeypatch, fake_home, system):
+    # Same safety property as .config above, for the same reason: ~/.ssh
+    # holds real private keys and known_hosts, which must never end up
+    # inside the git repo (M30).
+    run_symlink_main(monkeypatch, fake_home, system)
+    ssh_dir = fake_home / ".ssh"
+    assert ssh_dir.is_dir()
+    assert not ssh_dir.is_symlink()
+    assert (ssh_dir.stat().st_mode & 0o777) == 0o700
+
+
+def test_linux_excludes_darwin_ssh_config(monkeypatch, fake_home):
+    run_symlink_main(monkeypatch, fake_home, "Linux")
+    entry = fake_home / ".ssh" / "config.darwin"
+    assert not entry.is_symlink()
+    assert not entry.exists()
+
+
+def test_darwin_includes_darwin_ssh_config(monkeypatch, fake_home):
+    run_symlink_main(monkeypatch, fake_home, "Darwin")
+    assert (fake_home / ".ssh" / "config.darwin").is_symlink()
 
 
 @pytest.mark.parametrize("system", ["Linux", "Darwin"])

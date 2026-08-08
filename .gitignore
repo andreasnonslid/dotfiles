@@ -16,6 +16,13 @@
 !/bashrc/.config/waybar
 !/bashrc/.config/zellij
 
+# Same reasoning for bashrc/.ssh: it mirrors ~/.ssh (M30), but symlink.py
+# only ever links the tracked config file(s) in, never the directory
+# wholesale -- a real private key must never end up here by accident.
+/bashrc/.ssh/*
+!/bashrc/.ssh/config
+!/bashrc/.ssh/config.darwin
+
 .DS_Store
 __pycache__/
 
