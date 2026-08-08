@@ -18,6 +18,7 @@ DARWIN_ONLY_CONFIG = {"ghostty"}
 
 COMMON_TOP_LEVEL = {
     Path(".bashrc"): REPO_ROOT / "bashrc" / ".bashrc",
+    Path(".gitconfig"): REPO_ROOT / "bashrc" / ".gitconfig",
     Path(".profile"): REPO_ROOT / "bashrc" / ".profile",
     Path(".ripgreprc"): REPO_ROOT / "bashrc" / ".ripgreprc",
     Path(".shell_modules"): REPO_ROOT / "bashrc" / ".shell_modules",

@@ -21,10 +21,11 @@ cd ~/dotfiles && ./bootstrap.sh
 
 `bootstrap.sh` is idempotent. It:
 
-1. Runs `configure_git.sh` (sets `core.autocrlf`, enables commit-msg hooks).
-2. Runs `symlink.py -y` — links bashrc, nvim, configs, starship, and the
-   always-on **caveman** rule into `~/.cursor/rules/caveman.mdc` (Cursor IDE +
-   CLI) and `~/.claude/CLAUDE.md` (Claude Code).
+1. Runs `configure_git.sh` (enables commit-msg hooks via `core.hooksPath`).
+2. Runs `symlink.py -y` — links bashrc (including the tracked `.gitconfig`),
+   nvim, configs, starship, and the always-on **caveman** rule into
+   `~/.cursor/rules/caveman.mdc` (Cursor IDE + CLI) and `~/.claude/CLAUDE.md`
+   (Claude Code).
 3. Reminds you about machine-local secrets in `~/.local/secrets/` (never
    tracked; linked in automatically when present).
 
@@ -37,6 +38,35 @@ mkdir -p ~/.local/secrets/autostore
 echo 'export GITLAB_ACCESS_KEY=...' > ~/.local/secrets/autostore/gitlab-npm.env
 ./bootstrap.sh   # re-run to link it into ~/.config/autostore/
 ```
+
+### Git identity
+
+`.gitconfig` is tracked (symlinked to `~/.gitconfig`), so it deliberately has
+no `[user]` section — a hardcoded name/email would leak into commit history.
+It includes identity from machine-local files instead, one for the default
+(personal) identity and one that overrides it for anything cloned under
+`~/work/`:
+
+```sh
+mkdir -p ~/.local/secrets/git
+cat > ~/.local/secrets/git/personal.gitconfig <<'EOF'
+[user]
+    name = Your Name
+    email = you@example.com
+EOF
+
+cat > ~/.local/secrets/git/work.gitconfig <<'EOF'
+[user]
+    name = Your Name
+    email = you@work-domain.com
+EOF
+```
+
+Clone work repos under `~/work/` so the `includeIf "gitdir:~/work/"` rule
+picks up the work identity automatically; everything else falls back to the
+personal one. Missing files are silently ignored by git (no identity set,
+not an error) — `./scripts/doctor.sh` flags that instead of leaving it to a
+failed commit to surface it.
 
 ## Agent / formatter tooling
 

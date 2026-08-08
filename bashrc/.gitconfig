@@ -1,0 +1,21 @@
+# Base git config, symlinked to ~/.gitconfig by symlink.py.
+#
+# No [user] section here on purpose: this file is tracked in git, so a
+# hardcoded name/email would leak into commit history the moment it's
+# committed. Both the personal (default) and work identities instead come
+# from machine-local files under ~/.local/secrets/git/, included below --
+# see README.md's "Git identity" section for how to create them. Missing
+# include files are silently ignored by git, not an error; scripts/doctor.d
+# has a check that flags it instead.
+
+[core]
+    autocrlf = input
+
+[include]
+    path = ~/.local/secrets/git/personal.gitconfig
+
+# Work identity override: anything cloned under ~/work/ picks up
+# ~/.local/secrets/git/work.gitconfig instead of the personal identity
+# above. Clone work repos there for this to take effect.
+[includeIf "gitdir:~/work/"]
+    path = ~/.local/secrets/git/work.gitconfig
