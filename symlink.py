@@ -181,7 +181,9 @@ def main():
     # nothing real would be clobbered (don't overwrite existing user memory).
     claude_md = home / ".claude" / "CLAUDE.md"
     if claude_md.is_symlink() or not claude_md.exists():
-        create_symlink(str(caveman_dir / "CLAUDE.md"), str(claude_md), auto_yes=args.yes)
+        create_symlink(
+            str(caveman_dir / "CLAUDE.md"), str(claude_md), auto_yes=args.yes
+        )
     else:
         print(
             f"Skipping {claude_md}: real file exists. "

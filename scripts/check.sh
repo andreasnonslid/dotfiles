@@ -32,6 +32,15 @@ while IFS= read -r -d ''; do
     sh_files+=("$REPLY")
 done < <(find . -path ./.git -prune -o -type f -name '*.sh' -print0)
 
+# Extension-less shell scripts the *.sh glob above can't see: dotfiles meant
+# to be sourced, not executed (.bashrc, .profile), plus the pre-commit hook
+# itself. Listed explicitly rather than sniffed by shebang, since this repo
+# also has extension-less non-shell files (.githooks/commit-msg is Perl,
+# bashrc/.ssh/config is an ssh_config) that must stay out of this list.
+for f in bashrc/.bashrc bashrc/.profile .githooks/pre-commit; do
+    [ -f "$f" ] && sh_files+=("$f")
+done
+
 lua_files=()
 while IFS= read -r -d ''; do
     lua_files+=("$REPLY")
