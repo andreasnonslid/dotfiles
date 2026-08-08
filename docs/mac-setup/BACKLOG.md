@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 16 / 45 complete**
+**Progress: 17 / 45 complete**
 
 ## Context
 
@@ -339,7 +339,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       STM32CubeProgrammer is a manual ST download (native Apple Silicon build exists, Java
       installer, login required) → RUNBOOK entry. [dep: M25]
 
-- [ ] **M27 — Make `clangd/config.yaml` toolchain path OS-aware**
+- [x] **M27 — Make `clangd/config.yaml` toolchain path OS-aware**
       Currently hardcodes `/usr/local/arm-gnu-toolchain-11.3.rel1-x86_64-arm-none-eabi/…` —
       an x86_64 Linux path with no Darwin equivalent. Either generate it at bootstrap or
       template it per-OS. `--query-driver=**` behaviour must be preserved. [dep: M25]
