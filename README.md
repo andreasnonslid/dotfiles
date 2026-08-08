@@ -68,6 +68,17 @@ personal one. Missing files are silently ignored by git (no identity set,
 not an error) — `./scripts/doctor.sh` flags that instead of leaving it to a
 failed commit to surface it.
 
+### SSH config
+
+`~/.ssh/config` is tracked the same way — no host- or identity-specific
+entries live in it, only defaults. Per-host blocks (git hosts, VPN jump
+hosts, ...) go in `~/.local/secrets/ssh/*.conf` instead, pulled in via an
+`Include` line. Use `ssh/setup_git_host.sh <host> <key-domain>` to add one —
+it picks the right key by matching `<key-domain>` against each
+`~/.ssh/*.pub` comment. On macOS, key passphrases are also kept in the login
+Keychain (`UseKeychain`) via `~/.ssh/config.darwin`, linked in only on
+darwin since that keyword doesn't exist outside Apple's OpenSSH fork.
+
 ## Agent / formatter tooling
 
 `.githooks/pre-commit` runs `lua pretty.lua -l`, which needs `shellcheck`,

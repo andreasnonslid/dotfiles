@@ -118,6 +118,23 @@ def main():
                     auto_yes=args.yes,
                     extra_exclude=config_exclude,
                 )
+            elif item == ".ssh":
+                # Never symlink ~/.ssh wholesale: private keys, known_hosts
+                # and agent state must never live inside the git repo. Same
+                # carve-out as ~/.config above -- link only the tracked
+                # config file(s) in. config.darwin (M30's macOS-only
+                # UseKeychain block) is linked in only on darwin; the base
+                # config's Include silently skips it otherwise.
+                ssh_dir = home / ".ssh"
+                ssh_dir.mkdir(parents=True, exist_ok=True)
+                os.chmod(ssh_dir, 0o700)
+                ssh_exclude = set() if is_darwin else {"config.darwin"}
+                symlink_dir_contents(
+                    str(src_path),
+                    str(ssh_dir),
+                    auto_yes=args.yes,
+                    extra_exclude=ssh_exclude,
+                )
             else:
                 create_symlink(str(src_path), str(home / item), auto_yes=args.yes)
     else:

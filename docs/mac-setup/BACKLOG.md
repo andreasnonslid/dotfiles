@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 18 / 45 complete**
+**Progress: 19 / 45 complete**
 
 ## Context
 
@@ -361,7 +361,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       personal repos don't. Preserve `core.autocrlf input` and the `.githooks` path.
       [dep: M03]
 
-- [ ] **M30 — `~/.ssh/config` template + macOS agent integration**
+- [x] **M30 — `~/.ssh/config` template + macOS agent integration**
       Generalise `ssh/setup_AS_git.sh` (which appends the AutoStore host block). Add
       `UseKeychain yes` + `AddKeysToAgent yes` for macOS. Use the M09 `clip` abstraction
       instead of raw `xclip`. [dep: M09, M29]
