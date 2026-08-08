@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 19 / 45 complete**
+**Progress: 20 / 45 complete**
 
 ## Context
 
@@ -203,7 +203,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
 
 ## E1 — Shell: hybrid core + adapters
 
-- [ ] **M06 — Split `.shell_modules` into agnostic core + `bash/` and `zsh/` adapters**
+- [x] **M06 — Split `.shell_modules` into agnostic core + `bash/` and `zsh/` adapters**
       Move `bind`/`shopt`/readline out of `core/settings.sh` into `bash/`. `core/` must
       parse under both `bash -n` and `zsh -n`. No behaviour change on Linux — verify the
       full alias/function list is unchanged. [dep: M02]

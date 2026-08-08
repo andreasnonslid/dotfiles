@@ -27,6 +27,11 @@ for config_file in ~/.shell_modules/tools/*.sh; do
     source "$config_file"
 done
 
+# Source the bash adapter (shopt/bind settings that don't exist in zsh, M06)
+for config_file in ~/.shell_modules/bash/*.sh; do
+    source "$config_file"
+done
+
 # Source any remaining scripts
 # for config_file in ~/.shell_modules/scripts/*.sh; do
 #     source "$config_file"
