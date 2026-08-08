@@ -1,27 +1,8 @@
 # History settings
 HISTCONTROL=ignoreboth:erasedups
-shopt -s histappend
 HISTSIZE=100000
 HISTFILESIZE=200000
 HISTTIMEFORMAT="%F %T "
-
-# Shell behavior
-shopt -s checkwinsize
-shopt -s globstar 2>/dev/null # Enable ** globbing
-shopt -s extglob              # Enable extended globbing
-
-# Completion settings
-if ! shopt -oq posix; then
-    shopt -s progcomp
-    bind 'set show-all-if-ambiguous on'
-    bind 'set completion-ignore-case on'
-    bind '"\t": menu-complete'
-    bind '"\e[Z": menu-complete-backward'
-fi
-
-# History search with up/down arrows
-bind '"\e[A": history-search-backward'
-bind '"\e[B": history-search-forward'
 
 # GCC colors for better error messages
 export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quote=01'
