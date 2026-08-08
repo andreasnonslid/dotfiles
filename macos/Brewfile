@@ -1,8 +1,8 @@
 # macos/Brewfile -- CLI formulae (M14).
 #
 # Consumed by `brew bundle --file macos/Brewfile` from macos/install.sh.
-# Casks, fonts and GUI apps live in a separate file (M15) so this one stays
-# a plain CLI toolchain manifest.
+# Casks, fonts and GUI apps live in macos/Brewfile.casks (M15) so this one
+# stays a plain CLI toolchain manifest.
 #
 # The list is the union of linux/{ubuntu,debian,arch,opensuse}.sh plus every
 # formatter pretty.lua/.githooks/pre-commit need. Where a Homebrew formula
