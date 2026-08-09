@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 26 / 45 complete**
+**Progress: 27 / 45 complete**
 
 ## Context
 
@@ -382,7 +382,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       `core/fn_wrapper.sh`. Point at the chosen shell instead. Verify clipboard integration
       and that the `<F13>`/`<F14>` jumplist maps work with M21. [dep: M21]
 
-- [ ] **M33 — Wire Zed settings into the link map**
+- [x] **M33 — Wire Zed settings into the link map**
       `zed/settings.json` is **orphaned** — `symlink.py` never links it and
       `bashrc/.gitignore` ignores `.config/zed/`. It has been tracked since commit
       `acc5bdc` and never deployed anywhere. Resolve the contradiction and link it to

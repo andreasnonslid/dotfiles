@@ -18,7 +18,7 @@ cask "karabiner-elements"
 
 # --- Terminal & font ------------------------------------------------------
 cask "ghostty"
-# Matches the existing font choice in zed/settings.json
+# Matches the existing font choice in bashrc/.config/zed/settings.json
 # ("IosevkaTerm Nerd Font Mono") and windows/wezterm.lua ("Iosevka Nerd
 # Font Mono").
 cask "font-iosevka-term-nerd-font"

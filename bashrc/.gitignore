@@ -9,7 +9,11 @@ auth.sh
 
 # Machine-specific / app-managed state (not worth versioning)
 .config/jgit/
-.config/zed/
+
+# Zed (M33): settings.json is the tracked source symlink.py deploys;
+# everything else it writes into this dir (workspace/session state) isn't.
+.config/zed/*
+!.config/zed/settings.json
 
 # Install-target symlinks created by symlink.py (real source lives at nvim/).
 # Note: .config/starship.toml is tracked on purpose (it is the install symlink).
