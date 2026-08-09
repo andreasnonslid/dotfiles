@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 28 / 45 complete**
+**Progress: 29 / 45 complete**
 
 ## Context
 
@@ -306,7 +306,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
 
 ## E5 — Toolchains: mise migration
 
-- [ ] **M22 — `tools/mise.sh` + remove pyenv/nvm init blocks**
+- [x] **M22 — `tools/mise.sh` + remove pyenv/nvm init blocks**
       Single `mise activate` line per shell. Delete the `PYENV_ROOT`/`pyenv init -` and
       `NVM_DIR` blocks from `.bashrc`. rustup and `~/.cargo/env` stay as-is. [dep: M06,
       M08]

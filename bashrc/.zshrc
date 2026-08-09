@@ -48,10 +48,8 @@ if command -v zoxide &>/dev/null; then
     eval "$(zoxide init zsh)"
 fi
 
-# mise (M22 adds per-tool pins in mise.toml; replaces pyenv/nvm)
-if command -v mise &>/dev/null; then
-    eval "$(mise activate zsh)"
-fi
+# mise activation lives in tools/mise.sh (M22), sourced by the tools/ loop
+# above -- shared with .bashrc rather than duplicated here.
 
 # SHELL PROMPT (starship, matching the bash M07 setup)
 if command -v starship >/dev/null 2>&1; then
