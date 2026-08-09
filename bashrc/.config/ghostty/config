@@ -5,8 +5,8 @@
 # terminal matches the editor.
 
 # Matches the IosevkaTerm Nerd Font Mono family name already in
-# zed/settings.json. Sized to the WezTerm choice (14) rather than Zed's
-# (15) -- Ghostty is the terminal, WezTerm is the closer analogue.
+# bashrc/.config/zed/settings.json. Sized to the WezTerm choice (14) rather
+# than Zed's (15) -- Ghostty is the terminal, WezTerm is the closer analogue.
 font-family = IosevkaTerm Nerd Font Mono
 font-size = 14
 
