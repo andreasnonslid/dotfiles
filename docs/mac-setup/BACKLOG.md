@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 25 / 45 complete**
+**Progress: 26 / 45 complete**
 
 ## Context
 
@@ -166,7 +166,7 @@ it work?").
       the pre-commit hook needs** (shfmt, stylua, black, taplo, prettier, clang-format,
       lua) and assert `core.hooksPath` is set. [dep: D01, M14]
 
-- [ ] **D04 — Shell health check**
+- [x] **D04 — Shell health check**
       Login shell is the intended one; every `.shell_modules` file sources without error;
       the alias + function inventory matches a committed expected list (catches a module
       silently failing to load); starship, zoxide and mise all initialise; `clip`/`paste`
