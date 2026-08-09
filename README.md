@@ -39,6 +39,21 @@ echo 'export GITLAB_ACCESS_KEY=...' > ~/.local/secrets/autostore/gitlab-npm.env
 ./bootstrap.sh   # re-run to link it into ~/.config/autostore/
 ```
 
+This same scheme carries the work GitLab npm token: `GITLAB_ACCESS_KEY` from
+`gitlab-npm.env` is sourced by the active shell init (`bashrc/.bashrc`
+today) and consumed by `~/.npmrc`'s `_authToken=${GITLAB_ACCESS_KEY}` line
+for the `@autostore`-scoped registry. `~/.npmrc` itself is **not** tracked
+here — its registry URL and scope are set up per your team's npm docs, same
+as any other machine-specific `.npmrc`.
+
+**macOS:** this scheme needs no changes. `symlink.py`'s `secret_links` and
+`secrets_root` lookup use `pathlib` exclusively with no OS-specific
+branches, so the instructions above apply as-is. Plain files in
+`~/.local/secrets/` (rather than macOS Keychain) remain the right call
+here too: it's the same mechanism already used for git identity and SSH
+host config below, so there's one place to look across every OS instead of
+a Mac-only exception.
+
 ### Git identity
 
 `.gitconfig` is tracked (symlinked to `~/.gitconfig`), so it deliberately has
