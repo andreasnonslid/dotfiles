@@ -42,6 +42,12 @@ DARWIN_GENERATED_EXCLUDE = {
     "clangd",
 }
 
+# darwin only: the zsh entrypoint (M08). Linux/WSL keep bash as the login
+# shell, so there is nothing to link ~/.zshrc to there.
+DARWIN_ONLY_TOP_LEVEL = {
+    ".zshrc",
+}
+
 
 def create_symlink(target, link_name, auto_yes=False):
     try:
@@ -99,6 +105,8 @@ def main():
     if bashrc_source.exists() and bashrc_source.is_dir():
         for item in os.listdir(bashrc_source):
             if item in EXCLUDE:
+                continue
+            if item in DARWIN_ONLY_TOP_LEVEL and not is_darwin:
                 continue
             src_path = bashrc_source / item
             if item == ".config":

@@ -41,6 +41,12 @@ for f in bashrc/.bashrc bashrc/.profile .githooks/pre-commit; do
     [ -f "$f" ] && sh_files+=("$f")
 done
 
+# .zshrc (M08) uses zsh-only syntax (setopt, the (N) glob qualifier) that
+# neither shellcheck nor bash -n understand, so it gets its own list checked
+# only by zsh -n below -- not folded into sh_files.
+zsh_only_files=()
+[ -f bashrc/.zshrc ] && zsh_only_files+=(bashrc/.zshrc)
+
 lua_files=()
 while IFS= read -r -d ''; do
     lua_files+=("$REPLY")
@@ -71,7 +77,7 @@ if ! command -v zsh >/dev/null 2>&1; then
     missing zsh "zsh -n"
 else
     zsh_ok=0
-    for f in "${sh_files[@]}"; do
+    for f in "${sh_files[@]}" "${zsh_only_files[@]}"; do
         zsh -n "$f" || zsh_ok=1
     done
     if [ "$zsh_ok" -eq 0 ]; then pass "zsh -n"; else fail "zsh -n"; fi
