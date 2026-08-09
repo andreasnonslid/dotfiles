@@ -3,7 +3,6 @@
 --   Also: nvim -l pretty.lua [-w|--write] [-l|--list]
 
 local exclude = {
-    "*/z.sh",
     -- pytest's own gitignored cache dir. Never mattered while
     -- executable_exists() silently skipped every formatter; now that it
     -- actually runs, check.sh's own pytest stage (which runs first) leaves

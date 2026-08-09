@@ -22,7 +22,6 @@ COMMON_TOP_LEVEL = {
     Path(".profile"): REPO_ROOT / "bashrc" / ".profile",
     Path(".ripgreprc"): REPO_ROOT / "bashrc" / ".ripgreprc",
     Path(".shell_modules"): REPO_ROOT / "bashrc" / ".shell_modules",
-    Path("z.sh"): REPO_ROOT / "bashrc" / "z.sh",
 }
 
 # clangd is deliberately absent from here: on Linux it's symlinked like any
@@ -235,13 +234,13 @@ def test_existing_real_file_is_backed_up(monkeypatch, fake_home):
 
 
 def test_existing_symlink_is_replaced_without_backup(monkeypatch, fake_home):
-    decoy_target = fake_home / "elsewhere.sh"
-    decoy_target.write_text("not the real z.sh\n")
-    (fake_home / "z.sh").symlink_to(decoy_target)
+    decoy_target = fake_home / "elsewhere"
+    decoy_target.write_text("not the real .ripgreprc\n")
+    (fake_home / ".ripgreprc").symlink_to(decoy_target)
 
     run_symlink_main(monkeypatch, fake_home, "Linux")
 
-    assert not list(fake_home.glob("z.sh.bak-*"))
-    z_link = fake_home / "z.sh"
-    assert z_link.is_symlink()
-    assert z_link.resolve() == (REPO_ROOT / "bashrc" / "z.sh").resolve()
+    assert not list(fake_home.glob(".ripgreprc.bak-*"))
+    ripgreprc_link = fake_home / ".ripgreprc"
+    assert ripgreprc_link.is_symlink()
+    assert ripgreprc_link.resolve() == (REPO_ROOT / "bashrc" / ".ripgreprc").resolve()
