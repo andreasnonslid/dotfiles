@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 24 / 45 complete**
+**Progress: 25 / 45 complete**
 
 ## Context
 
@@ -213,7 +213,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       `.bashrc`. Extend `starship.toml` to cover what the old prompt showed: exit-status
       glyph, cwd, git branch, clock. [dep: M06]
 
-- [ ] **M08 — `bashrc/.zshrc`**
+- [x] **M08 — `bashrc/.zshrc`**
       Sources `core` → `git` → `tools` → `zsh/`. Wires starship, zoxide, mise. Symlinked
       by `symlink.py` on darwin. `zsh -n` clean. [dep: M06, M07]
 

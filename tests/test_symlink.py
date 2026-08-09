@@ -49,6 +49,12 @@ DARWIN_ONLY_SSH_TARGETS = {
     Path(".ssh/config.darwin"): REPO_ROOT / "bashrc" / ".ssh" / "config.darwin",
 }
 
+# The zsh entrypoint (M08) -- darwin only, same reasoning as the ssh target
+# above: Linux/WSL keep bash as the login shell.
+DARWIN_ONLY_TOP_LEVEL_TARGETS = {
+    Path(".zshrc"): REPO_ROOT / "bashrc" / ".zshrc",
+}
+
 WAYLAND_ONLY_CONFIG_TARGETS = {
     Path(".config/hypr"): REPO_ROOT / "bashrc" / ".config" / "hypr",
     Path(".config/waybar"): REPO_ROOT / "bashrc" / ".config" / "waybar",
@@ -80,6 +86,7 @@ def expected_links(darwin):
     if darwin:
         expected.update(DARWIN_ONLY_CONFIG_TARGETS)
         expected.update(DARWIN_ONLY_SSH_TARGETS)
+        expected.update(DARWIN_ONLY_TOP_LEVEL_TARGETS)
     else:
         expected.update(WAYLAND_ONLY_CONFIG_TARGETS)
         expected[Path(".config/clangd")] = REPO_ROOT / "bashrc" / ".config" / "clangd"
@@ -206,6 +213,18 @@ def test_linux_excludes_darwin_ssh_config(monkeypatch, fake_home):
 def test_darwin_includes_darwin_ssh_config(monkeypatch, fake_home):
     run_symlink_main(monkeypatch, fake_home, "Darwin")
     assert (fake_home / ".ssh" / "config.darwin").is_symlink()
+
+
+def test_linux_excludes_zshrc(monkeypatch, fake_home):
+    run_symlink_main(monkeypatch, fake_home, "Linux")
+    entry = fake_home / ".zshrc"
+    assert not entry.is_symlink()
+    assert not entry.exists()
+
+
+def test_darwin_includes_zshrc(monkeypatch, fake_home):
+    run_symlink_main(monkeypatch, fake_home, "Darwin")
+    assert (fake_home / ".zshrc").is_symlink()
 
 
 @pytest.mark.parametrize("system", ["Linux", "Darwin"])
