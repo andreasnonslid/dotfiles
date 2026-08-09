@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 22 / 45 complete**
+**Progress: 23 / 45 complete**
 
 ## Context
 
@@ -232,7 +232,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       Custom completions for `gcmp`, `rs`, `rh` preserved. Bash version stays untouched
       under `bash/`. [dep: M06]
 
-- [ ] **M12 — Drop vendored `bashrc/z.sh`**
+- [x] **M12 — Drop vendored `bashrc/z.sh`**
       Superseded by zoxide, already initialised in `.bashrc` and the `cd` override in
       `tools/navigation.sh`. Remove file, remove from link map, confirm nothing references
       it. Note `pretty.lua` has an explicit exclude for it that should also go. [dep: M06]
