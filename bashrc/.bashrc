@@ -54,13 +54,6 @@ if command -v zoxide &>/dev/null; then
     eval "$(zoxide init bash)"
 fi
 
-# Pyenv initialization
-if command -v pyenv >/dev/null 2>&1; then
-    export PYENV_ROOT="$HOME/.pyenv"
-    export PATH="$PYENV_ROOT/bin:$PATH"
-    eval "$(pyenv init -)"
-fi
-
 # SHELL PROMPT (M07: starship replaces the hand-rolled PS1/PROMPT_COMMAND)
 if command -v starship >/dev/null 2>&1; then
     eval "$(starship init bash)"
@@ -72,10 +65,6 @@ alias help="tldr"
 
 # PATH settings
 export PATH="$HOME/.cargo/bin:$PATH"
-
-export NVM_DIR="$HOME/.nvm"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
-[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 
 # /opt/nvim-linux-x86_64 doesn't exist on macOS (M10).
 if command -v is_linux >/dev/null 2>&1 && is_linux; then
