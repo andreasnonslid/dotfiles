@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 23 / 45 complete**
+**Progress: 24 / 45 complete**
 
 ## Context
 
@@ -366,7 +366,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       `UseKeychain yes` + `AddKeysToAgent yes` for macOS. Use the M09 `clip` abstraction
       instead of raw `xclip`. [dep: M09, M29]
 
-- [ ] **M31 — Secrets story for the Mac**
+- [x] **M31 — Secrets story for the Mac**
       Keep the existing `~/.local/secrets/` + `symlink.py` `secret_links` scheme — it works
       fine on macOS. Document the work GitLab npm token (`GITLAB_ACCESS_KEY`) setup path.
       Confirm the root `.gitignore` allowlist still holds after the new `.config` entries
