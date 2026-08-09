@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 21 / 45 complete**
+**Progress: 22 / 45 complete**
 
 ## Context
 
@@ -227,7 +227,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       `/home/anh/...` path — fix or drop), `tools/wsl.sh`, zellij auto-start. Each guarded
       by `lib/os.sh` predicates, not silent failure. [dep: M01, M06]
 
-- [ ] **M11 — Port `tools/completion.sh` to zsh compsys**
+- [x] **M11 — Port `tools/completion.sh` to zsh compsys**
       All ~45 `__git_complete` aliases get `compdef` equivalents in `zsh/completion.sh`.
       Custom completions for `gcmp`, `rs`, `rh` preserved. Bash version stays untouched
       under `bash/`. [dep: M06]
