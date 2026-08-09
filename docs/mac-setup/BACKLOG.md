@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 27 / 45 complete**
+**Progress: 28 / 45 complete**
 
 ## Context
 
@@ -222,7 +222,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       `xclip` under X11, `clip.exe` under WSL. Replace the raw `xclip` call in
       `ssh/setup_ssh_key.sh`. [dep: M01]
 
-- [ ] **M10 — Guard all Linux-only bits in shared config**
+- [x] **M10 — Guard all Linux-only bits in shared config**
       `/opt/nvim-linux-x86_64` PATH entry, `STM32_PRG_PATH` (currently hardcoded to a wrong
       `/home/anh/...` path — fix or drop), `tools/wsl.sh`, zellij auto-start. Each guarded
       by `lib/os.sh` predicates, not silent failure. [dep: M01, M06]

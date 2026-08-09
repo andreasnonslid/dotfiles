@@ -6,6 +6,12 @@ esac
 
 export DOTFILES="$HOME/dotfiles"
 
+# OS predicates (is_linux, is_wsl, ...) used below to guard Linux/WSL-only
+# bits (M10) instead of the silent command -v fallbacks that used to hide
+# them being wrong on other platforms.
+# shellcheck source=/dev/null
+[ -r "$DOTFILES/lib/os.sh" ] && . "$DOTFILES/lib/os.sh"
+
 # Source non-git-tracked auth/secrets if present
 [ -f "$DOTFILES/bashrc/auth.sh" ] && source "$DOTFILES/bashrc/auth.sh"
 
@@ -22,10 +28,16 @@ for config_file in ~/.shell_modules/git/*.sh; do
     source "$config_file"
 done
 
-# Source tool configurations
+# Source tool configurations. wsl.sh is WSL-only (M10) -- sourced
+# separately below via is_wsl instead of unconditionally here.
 for config_file in ~/.shell_modules/tools/*.sh; do
+    [ "$(basename "$config_file")" = wsl.sh ] && continue
     source "$config_file"
 done
+
+if command -v is_wsl >/dev/null 2>&1 && is_wsl; then
+    source ~/.shell_modules/tools/wsl.sh
+fi
 
 # Source the bash adapter (shopt/bind settings that don't exist in zsh, M06)
 for config_file in ~/.shell_modules/bash/*.sh; do
@@ -65,7 +77,10 @@ export NVM_DIR="$HOME/.nvm"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"                   # This loads nvm
 [ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" # This loads nvm bash_completion
 
-export PATH="/opt/nvim-linux-x86_64/bin:$PATH"
+# /opt/nvim-linux-x86_64 doesn't exist on macOS (M10).
+if command -v is_linux >/dev/null 2>&1 && is_linux; then
+    export PATH="/opt/nvim-linux-x86_64/bin:$PATH"
+fi
 
 # Call Fish for interactive shells
 # if [[ $- == *i* ]]; then
@@ -73,8 +88,6 @@ export PATH="/opt/nvim-linux-x86_64/bin:$PATH"
 #         exec fish
 #     fi
 # fi
-
-export STM32_PRG_PATH=/home/anh/STMicroelectronics/STM32Cube/STM32CubeProgrammer/bin
 
 # ST-Link WSL bridge: interceptor must come before /usr/bin/openocd
 export PATH="$HOME/.local/bin:$PATH"
@@ -92,4 +105,3 @@ if [[ $- == *i* ]]; then
 fi
 
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
-export PATH=~/.npm-global/bin:$PATH
