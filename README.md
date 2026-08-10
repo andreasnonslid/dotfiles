@@ -177,16 +177,21 @@ and folding it in is a separate change to those scripts, out of scope here.
 
 Two scripts, two different jobs — run the right one for what you're checking:
 
-| Tool                  | Runs where                                     | Runs when                                                                                                                                                                                                             | Answers |
-| --------------------- | ---------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------- |
-| `./scripts/check.sh`  | Any dev machine / CI, before every commit      | "Is the repo internally consistent?" — shellcheck, `bash -n`/`zsh -n`, `stylua --check`, the symlink pytest suite, `lua pretty.lua -l`.                                                                               |
-| `./scripts/doctor.sh` | The real target machine, day one and on demand | "Does _this_ machine actually work?" — runtime diagnostics (auto-discovered checks under `scripts/doctor.d/`), each `PASS`/`WARN`/`FAIL` with a remediation hint. Supports `--verbose`, `--json`, `--only <section>`. |
+| Tool                  | Runs where              | Runs when              | Answers                                                                                                                                                                                                               |
+| --------------------- | ----------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `./scripts/check.sh`  | Any dev machine / CI    | Before every commit    | "Is the repo internally consistent?" — shellcheck, `bash -n`/`zsh -n`, `stylua --check`, the symlink pytest suite, `lua pretty.lua -l`.                                                                               |
+| `./scripts/doctor.sh` | The real target machine | Day one, and on demand | "Does _this_ machine actually work?" — runtime diagnostics (auto-discovered checks under `scripts/doctor.d/`), each `PASS`/`WARN`/`FAIL` with a remediation hint. Supports `--verbose`, `--json`, `--only <section>`. |
 
 `check.sh` can't see whether Homebrew installed correctly or whether AeroSpace has its
 Accessibility grant — that's what `doctor.sh` is for. `doctor.sh` runs both pre-flight
 (on a bare machine, to see what's missing before `bootstrap.sh`) and post-flight (as
 the acceptance gate after). See `macos/RUNBOOK.md` for the full day-one macOS sequence
 built around both scripts.
+
+`--json` is the machine-readable form of `doctor.sh`'s output, meant to be handed back
+to an agent rather than read by a human: run `./scripts/doctor.sh --json`, save the
+output, and pass it along to drive M36, the final reconciliation that folds real-hardware
+findings back into the scripts. See step 10 of `macos/RUNBOOK.md` for the exact command.
 
 ## Agent / formatter tooling
 

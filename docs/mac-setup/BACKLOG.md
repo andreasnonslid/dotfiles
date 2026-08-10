@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 32 / 45 complete**
+**Progress: 33 / 45 complete**
 
 ## Context
 
@@ -192,7 +192,7 @@ it work?").
       since non-root ST-Link access on Apple Silicon is a known pain point. Skip cleanly
       with `WARN` when no probe is plugged in. [dep: D01, M26]
 
-- [ ] **D08 — Wire doctor into RUNBOOK and README**
+- [x] **D08 — Wire doctor into RUNBOOK and README**
       RUNBOOK's day-one sequence ends with `./scripts/doctor.sh`; README documents both
       scripts and when to use which. [dep: D01, M35]
 
