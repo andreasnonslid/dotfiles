@@ -1,0 +1,28 @@
+# ~/.config/mise/config.toml
+#
+# Global tool versions (M23). Activated by
+# bashrc/.shell_modules/tools/mise.sh (M22), which just runs
+# `mise activate` -- this file is what that activation resolves against.
+#
+# Add a tool locally with `mise use -g <tool>@<version>`; it edits this
+# file in place. Re-run `mise install` after pulling a change here so the
+# new pin is actually downloaded, not just declared -- `mise current`
+# stays blank otherwise.
+
+[tools]
+# linux/{ubuntu,debian,opensuse}.sh already pyenv-global to 3.13.0 (with
+# 3.8.12 also installed but unused); only linux/arch.sh diverged at
+# 3.11.13. 3.13 is both newer and the existing majority, so it wins
+# outright instead of carrying two versions forward like pyenv did. Pinned
+# to a concrete patch, not a bare "3.13", so `mise install` is
+# reproducible instead of picking up whichever 3.13.x is newest on
+# install day.
+python = "3.13.15"
+
+# Every distro script ran `nvm install --lts`, a floating alias that
+# silently changes meaning every time a new line goes Active LTS. Node 24
+# is Active LTS as of August 2026 (22 is Maintenance, 26 is Current, not
+# LTS until October 2026); pinned to a concrete patch for the same
+# reproducibility reason as python above. Bump deliberately with
+# `mise use -g node@<version>` when 26 takes over -- not by drift.
+node = "24.18.1"

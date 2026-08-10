@@ -33,6 +33,7 @@ COMMON_CONFIG_ENTRIES = {
     Path(".config/fd"): REPO_ROOT / "bashrc" / ".config" / "fd",
     Path(".config/gh"): REPO_ROOT / "bashrc" / ".config" / "gh",
     Path(".config/git"): REPO_ROOT / "bashrc" / ".config" / "git",
+    Path(".config/mise"): REPO_ROOT / "bashrc" / ".config" / "mise",
     Path(".config/zed"): REPO_ROOT / "bashrc" / ".config" / "zed",
     Path(".config/zellij"): REPO_ROOT / "bashrc" / ".config" / "zellij",
     # Linked twice by main(): first by the bashrc/.config loop (pointing at

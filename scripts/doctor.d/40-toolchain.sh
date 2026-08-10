@@ -62,6 +62,26 @@ while IFS=: read -r tc_name tc_flag; do
     tc_report_binary "$tc_name" "$tc_flag"
 done <<<"$tc_formatters"
 
+# mise-pinned tool versions (M23): `mise current <tool>` resolves against
+# ~/.config/mise/config.toml, but resolving is not the same as installed --
+# if `mise install` was never run, it prints nothing instead of failing,
+# and every python/node invocation silently falls through to whatever
+# happens to be on PATH instead of the pinned version.
+if command -v mise >/dev/null 2>&1; then
+    for tc_mise_tool in python node; do
+        tc_mise_ver="$(mise current "$tc_mise_tool" 2>/dev/null)"
+        if [ -n "$tc_mise_ver" ]; then
+            doctor_pass "mise-$tc_mise_tool" "active: $tc_mise_ver"
+        else
+            doctor_fail "mise-$tc_mise_tool" "no active version resolved" \
+                "Run: mise install"
+        fi
+    done
+else
+    doctor_warn "mise-tools" "mise not installed, skipping version check" \
+        "Install via macos/Brewfile, then run 'mise install'."
+fi
+
 # core.hooksPath: .githooks/pre-commit and commit-msg silently never run
 # without this being set to .githooks (see scripts/setup-agent-env.sh).
 # shellcheck disable=SC2154  # $root: set by scripts/doctor.sh before sourcing.

@@ -11,6 +11,7 @@
 !/bashrc/.config/hypr
 !/bashrc/.config/mako
 !/bashrc/.config/mimeapps.list
+!/bashrc/.config/mise
 !/bashrc/.config/nvim
 !/bashrc/.config/starship.toml
 !/bashrc/.config/waybar
