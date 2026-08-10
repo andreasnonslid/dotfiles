@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 31 / 45 complete**
+**Progress: 32 / 45 complete**
 
 ## Context
 
@@ -398,7 +398,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       these — they cannot be scripted), ST download for CubeProgrammer, work VPN/SSO. Every
       `needs-mac` item accumulates a checklist entry here. [dep: M05]
 
-- [ ] **M35 — README rewrite**
+- [x] **M35 — README rewrite**
       Current README opens with stale Chocolatey notes. Restructure: per-OS setup, the
       shell architecture, the secrets scheme, the two verification tools. Also fix two
       stale docs found during survey: `nvim/README.md` still says "LazyVim starter
