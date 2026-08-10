@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 30 / 45 complete**
+**Progress: 31 / 45 complete**
 
 ## Context
 
@@ -392,7 +392,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
 
 ## E9 — Documentation & closing the loop
 
-- [ ] **M34 — `macos/RUNBOOK.md`**
+- [x] **M34 — `macos/RUNBOOK.md`**
       The ordered day-one manual sequence: sign in, Xcode CLT, clone, bootstrap, grant
       Accessibility/Input-Monitoring permissions (AeroSpace, Karabiner and Raycast all need
       these — they cannot be scripted), ST download for CubeProgrammer, work VPN/SSO. Every
