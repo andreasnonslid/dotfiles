@@ -94,6 +94,33 @@ it picks the right key by matching `<key-domain>` against each
 Keychain (`UseKeychain`) via `~/.ssh/config.darwin`, linked in only on
 darwin since that keyword doesn't exist outside Apple's OpenSSH fork.
 
+### Toolchains (mise)
+
+`mise` replaces `pyenv` + `nvm`. Global versions are pinned in
+`bashrc/.config/mise/config.toml` (symlinked to
+`~/.config/mise/config.toml`) rather than left to drift per distro script,
+which is what happened before M23: Ubuntu/Debian/openSUSE pyenv-globaled
+3.13.0, Arch pyenv-globaled 3.11.13, and every script ran `nvm install --lts`
+— a floating alias that silently changes meaning each time a new Node line
+goes Active LTS. `rustup`/`~/.cargo/env` is unaffected; mise adds nothing
+there.
+
+Add or bump a global tool:
+
+```sh
+mise use -g node@22        # edits ~/.config/mise/config.toml in place
+mise install                # actually downloads the pinned versions
+```
+
+Commit the resulting change to `bashrc/.config/mise/config.toml` so every
+machine picks it up on the next `git pull`.
+
+`xpm` (used by `compilers/arm_gcc.sh` and `macos/embedded.sh` for the ARM
+toolchain, M25) stays a plain `npm install --global xpm` rather than moving
+under mise's npm backend — it needs to be resolvable regardless of which
+Node version mise has active, and folding it in is a separate change to
+those scripts, out of scope here.
+
 ## Agent / formatter tooling
 
 `.githooks/pre-commit` runs `lua pretty.lua -l`, which needs `shellcheck`,

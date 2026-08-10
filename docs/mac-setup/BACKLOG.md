@@ -3,7 +3,7 @@
 Source-of-truth backlog for bringing macOS support to this repo. One deliverable per
 agent run. Tick the box, close the issue, stop.
 
-**Progress: 29 / 45 complete**
+**Progress: 30 / 45 complete**
 
 ## Context
 
@@ -311,7 +311,7 @@ machine could plausibly get wrong, it also adds the matching check to `scripts/d
       `NVM_DIR` blocks from `.bashrc`. rustup and `~/.cargo/env` stay as-is. [dep: M06,
       M08]
 
-- [ ] **M23 — `mise.toml` with pinned global tool versions**
+- [x] **M23 — `mise.toml` with pinned global tool versions**
       Python and Node pinned to match current usage (Python 3.11/3.13, Node LTS). Add
       `mise` to the Brewfile. Document the `mise use -g` workflow. [dep: M22]
 
