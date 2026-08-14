@@ -38,15 +38,18 @@ vim.keymap.set("n", "<C-s>", "<cmd>w<CR>", { desc = "Save File" })
 vim.keymap.set("v", "<leader>y", '"+y', { desc = "Yank to Clipboard" })
 vim.keymap.set("n", "<leader>p", '"+p', { desc = "Paste from Clipboard" })
 
--- Folding
-vim.keymap.set("n", "<CR>", "za", { desc = "Toggle Fold" })
+-- Folding (<CR> is too easy to hit by accident)
+vim.keymap.set("n", "<C-CR>", "za", { desc = "Toggle Fold" })
+vim.keymap.set("n", "<leader>z", "za", { desc = "Toggle Fold" })
+vim.keymap.set("n", "<leader>zR", "zR", { desc = "Open All Folds" })
+vim.keymap.set("n", "<leader>zM", "zM", { desc = "Close All Folds" })
 
 -- Utility
 vim.keymap.set("n", "<leader>cm", ":let @/ = ''<CR>:%s/\\r//g<CR>", { desc = "Remove Windows Line Endings" })
 vim.keymap.set("n", "<leader>ybn", ":let @+ = expand('%')<CR>", { desc = "Yank Buffer Name" })
 vim.keymap.set("n", "<leader>yfp", ":let @+ = expand('%:p')<CR>", { desc = "Yank Full Path" })
 
--- LSP
+-- LSP (native vim.lsp.config + vim.lsp.enable; see lsp/*.lua)
 local lsp_servers = { "clangd", "pyright", "lua_ls", "ruff", "bashls" }
 local function load_lsp_config(name)
   local rtp = vim.api.nvim_get_runtime_file("lsp/" .. name .. ".lua", false)
@@ -81,27 +84,51 @@ vim.diagnostic.config({
   severity_sort = true,
 })
 
+-- Native LSP completion (0.11+). Global defaults cover gra/gri/grn/grr/grt/K.
 vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(ev)
-    local map = function(keys, func, desc)
-      vim.keymap.set("n", keys, func, { buffer = ev.buf, desc = "LSP: " .. desc })
+  callback = function(args)
+    local bufnr = args.buf
+    local client = vim.lsp.get_client_by_id(args.data.client_id)
+    if not client then
+      return
     end
+
+    if client:supports_method("textDocument/completion") then
+      vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
+    end
+
+    local map = function(keys, func, desc)
+      vim.keymap.set("n", keys, func, { buffer = bufnr, desc = "LSP: " .. desc })
+    end
+
+    -- Keep gd/gD — common convention; core defaults use tagfunc / gr* instead.
     map("gd", vim.lsp.buf.definition, "Go to Definition")
     vim.keymap.set("n", "<2-LeftMouse>", function()
       vim.lsp.buf.definition()
-    end, { buffer = ev.buf, desc = "LSP: Go to Definition (double-click)" })
+    end, { buffer = bufnr, desc = "LSP: Go to Definition (double-click)" })
     map("gD", vim.lsp.buf.declaration, "Go to Declaration")
-    map("gr", vim.lsp.buf.references, "Go to References")
-    map("gi", vim.lsp.buf.implementation, "Go to Implementation")
-    map("gy", vim.lsp.buf.type_definition, "Go to Type Definition")
-    map("K", vim.lsp.buf.hover, "Hover Documentation")
-    map("<leader>ca", vim.lsp.buf.code_action, "Code Action")
+
+    map("<leader>cr", vim.lsp.buf.rename, "Rename")
+    map("<leader>cd", vim.diagnostic.open_float, "Show Diagnostic")
     map("[d", function()
       vim.diagnostic.goto_prev()
     end, "Prev Diagnostic")
     map("]d", function()
       vim.diagnostic.goto_next()
     end, "Next Diagnostic")
-    map("<leader>cd", vim.diagnostic.open_float, "Show Diagnostic")
   end,
 })
+
+-- Snippet tab stops after LSP completion
+vim.keymap.set({ "i", "s" }, "<Tab>", function()
+  if vim.snippet.active({ direction = 1 }) then
+    return vim.snippet.jump(1)
+  end
+  return "<Tab>"
+end, { expr = true })
+vim.keymap.set({ "i", "s" }, "<S-Tab>", function()
+  if vim.snippet.active({ direction = -1 }) then
+    return vim.snippet.jump(-1)
+  end
+  return "<S-Tab>"
+end, { expr = true })

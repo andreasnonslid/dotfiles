@@ -6,13 +6,37 @@ return {
     animate = { enabled = false },
     scroll = { enabled = false },
     dashboard = { enabled = false },
-    notifier = { enabled = true },
+    notifier = {
+      enabled = true,
+      -- Background picker scans (rg with no matches, etc.) still land in history.
+      filter = function(notif)
+        return not require("config.picker_errors").is_suppressed(notif)
+      end,
+    },
     bigfile = { enabled = true },
     quickfile = { enabled = true },
     statuscolumn = { enabled = false },
     words = { enabled = false },
+    terminal = { enabled = true },
+    picker = {
+      sources = {
+        files = { notify = false },
+        grep = { notify = false },
+        explorer = { notify = false },
+      },
+    },
   },
-  keys = {
+  config = function(_, opts)
+    require("snacks").setup(opts)
+    require("config.picker_errors").setup()
+  end,
+  keys = (function()
+    local function ws_pick(picker, extra)
+      return function()
+        require("snacks").picker[picker](require("config.workspaces").picker_opts(extra))
+      end
+    end
+    return {
     -- Find (repo root)
     {
       "<leader>Ff",
@@ -43,27 +67,22 @@ return {
       end,
       desc = "Git Files (repo)",
     },
-    -- Find (cwd)
+    -- Find (workspace: root + extra search dirs; LSP/compile stay on root)
     {
       "<leader>ff",
-      function()
-        require("snacks").picker.files({ root = false })
-      end,
-      desc = "Find Files (cwd)",
+      ws_pick("files"),
+      desc = "Find Files (workspace)",
     },
     {
       "<leader>fg",
-      function()
-        require("snacks").picker.grep({ root = false })
-      end,
-      desc = "Grep (cwd)",
+      ws_pick("grep"),
+      desc = "Grep (workspace)",
+      mode = { "n", "v" },
     },
     {
       "<leader>fw",
-      function()
-        require("snacks").picker.grep_word({ root = false })
-      end,
-      desc = "Grep Word (cwd)",
+      ws_pick("grep_word"),
+      desc = "Grep Word (workspace)",
     },
     -- General find
     {
@@ -195,6 +214,13 @@ return {
       desc = "Notifications",
     },
     {
+      "<leader>fE",
+      function()
+        require("config.picker_errors").show_errors()
+      end,
+      desc = "Search/Picker Errors",
+    },
+    {
       "<leader>sq",
       function()
         require("snacks").picker.qflist()
@@ -204,9 +230,49 @@ return {
     {
       "<leader>st",
       function()
-        require("snacks").picker.todo_comments()
+        require("snacks").picker.grep({
+          search = "TODO|FIXME|HACK|NOTE|XXX",
+          title = "Todo comments",
+        })
       end,
       desc = "Todo Comments",
+    },
+    {
+      "<leader>sR",
+      function()
+        require("snacks").picker.grep({ title = "Project search (cfdo %s/old/new/g)" })
+      end,
+      mode = "n",
+      desc = "Project Grep",
+    },
+    {
+      "<leader>xx",
+      function()
+        require("snacks").picker.diagnostics()
+      end,
+      desc = "Diagnostics (project)",
+    },
+    {
+      "<leader>xX",
+      function()
+        require("snacks").picker.diagnostics({ filter = { buf = 0 } })
+      end,
+      desc = "Diagnostics (buffer)",
+    },
+    {
+      "<F4>",
+      function()
+        require("snacks").terminal()
+      end,
+      desc = "Terminal (toggle)",
+    },
+    {
+      "<leader>gg",
+      function()
+        local root = require("snacks").git.get_root()
+        require("snacks").terminal("lazygit", { cwd = root })
+      end,
+      desc = "Lazygit",
     },
     {
       "<leader>sw",
@@ -216,5 +282,6 @@ return {
       desc = "Search Word",
       mode = "v",
     },
-  },
+    }
+  end)(),
 }

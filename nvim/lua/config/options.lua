@@ -41,11 +41,34 @@ vim.opt.scrolloff = 10
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
--- Folding (treesitter-based, all closed by default)
+-- Statusline (native; lualine removed)
+vim.opt.laststatus = 3
+vim.opt.ruler = false
+vim.opt.showmode = false
+function _G.dotfiles_statusline()
+  local mode = vim.api.nvim_get_mode().mode
+  local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":~:.")
+  if name == "" then
+    name = "[No Name]"
+  end
+  local diag = ""
+  local counts = vim.diagnostic.count(0)
+  local total = 0
+  for _, n in pairs(counts) do
+    total = total + n
+  end
+  if total > 0 then
+    diag = string.format(" 󰅙%d", total)
+  end
+  return string.format(" %s │ %s%s ", mode, name, diag)
+end
+vim.opt.statusline = "%{v:lua._G.dotfiles_statusline()}"
+
+-- Folding (treesitter-based; open expanded, toggle on <C-CR>)
 vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldlevel = 99
-vim.opt.foldlevelstart = 0
+vim.opt.foldlevelstart = 99
 vim.opt.foldenable = true
 vim.opt.foldtext = "" -- show actual line content when folded (nvim 0.10+)
 

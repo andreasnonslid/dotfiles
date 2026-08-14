@@ -8,16 +8,4 @@ return {
       vim.cmd.colorscheme("noctishc")
     end,
   },
-  {
-    "nvim-lualine/lualine.nvim",
-    event = "VeryLazy",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
-    opts = {
-      options = {
-        theme = "noctishc",
-        component_separators = "|",
-        section_separators = "",
-      },
-    },
-  },
 }
