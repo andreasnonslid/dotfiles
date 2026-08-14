@@ -17,7 +17,7 @@ sudo zypper install pyenv
 pyenv install -s 3.8.12
 pyenv install -s 3.13.0
 pyenv global 3.13.0
-sudo zypper install -y xclip ripgrep bat curl jq zoxide just tar update-alternatives
+sudo zypper install -y xclip ripgrep fd bat curl jq zoxide just tar update-alternatives
 sudo zypper install -y exa
 
 function confirm_and_execute {

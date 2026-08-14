@@ -66,9 +66,16 @@ alias help="tldr"
 # PATH settings
 export PATH="$HOME/.cargo/bin:$PATH"
 
-# /opt/nvim-linux-x86_64 doesn't exist on macOS (M10).
+# Prefer release tarball over distro neovim (M10: skip on macOS).
 if command -v is_linux >/dev/null 2>&1 && is_linux; then
-    export PATH="/opt/nvim-linux-x86_64/bin:$PATH"
+    for _nvim_bin in \
+        "$HOME/.local/opt/nvim-linux-x86_64/bin/nvim" \
+        "/opt/nvim-linux-x86_64/bin/nvim"; do
+        if [ -x "$_nvim_bin" ]; then
+            export PATH="$(dirname "$_nvim_bin"):$PATH"
+            break
+        fi
+    done
 fi
 
 # Call Fish for interactive shells

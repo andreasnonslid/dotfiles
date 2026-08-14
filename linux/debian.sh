@@ -8,7 +8,7 @@ sudo apt upgrade -y
 sudo apt install -y \
     git git-lfs curl build-essential make automake cmake ninja-build \
     libgmp-dev libmpfr-dev libmpc-dev flex bison texinfo unzip wget jq \
-    fzf bat ripgrep silversearcher-ag zoxide tldr secure-delete openssh-client \
+    fzf bat ripgrep fd-find silversearcher-ag zoxide tldr secure-delete openssh-client \
     tmux xclip libgit2-dev software-properties-common \
     libbz2-dev libncurses5-dev libncursesw5-dev libreadline-dev \
     libsqlite3-dev libffi-dev liblzma-dev tk-dev zlib1g-dev golang fish \
