@@ -8,9 +8,9 @@ return {
     dashboard = { enabled = false },
     notifier = {
       enabled = true,
-      -- Background picker scans (rg with no matches, etc.) still land in history.
-      filter = function(notif)
-        return not require("config.picker_errors").is_suppressed(notif)
+      filter = function(n)
+        local msg = n.msg or ""
+        return not msg:match("^Command failed:")
       end,
     },
     bigfile = { enabled = true },
@@ -28,15 +28,8 @@ return {
   },
   config = function(_, opts)
     require("snacks").setup(opts)
-    require("config.picker_errors").setup()
   end,
-  keys = (function()
-    local function ws_pick(picker, extra)
-      return function()
-        require("snacks").picker[picker](require("config.workspaces").picker_opts(extra))
-      end
-    end
-    return {
+  keys = {
     -- Find (repo root)
     {
       "<leader>Ff",
@@ -70,18 +63,24 @@ return {
     -- Find (workspace: root + extra search dirs; LSP/compile stay on root)
     {
       "<leader>ff",
-      ws_pick("files"),
+      function()
+        require("config.workspaces").pick_files()
+      end,
       desc = "Find Files (workspace)",
     },
     {
       "<leader>fg",
-      ws_pick("grep"),
+      function()
+        require("config.workspaces").pick_grep()
+      end,
       desc = "Grep (workspace)",
       mode = { "n", "v" },
     },
     {
       "<leader>fw",
-      ws_pick("grep_word"),
+      function()
+        require("config.workspaces").pick_grep_word()
+      end,
       desc = "Grep Word (workspace)",
     },
     -- General find
@@ -112,6 +111,13 @@ return {
         require("snacks").picker.diagnostics()
       end,
       desc = "Find Diagnostics",
+    },
+    {
+      "<leader>fD",
+      function()
+        require("snacks").picker.diagnostics({ filter = { buf = 0 } })
+      end,
+      desc = "Find Diagnostics (buffer)",
     },
     {
       "<leader>fr",
@@ -214,13 +220,6 @@ return {
       desc = "Notifications",
     },
     {
-      "<leader>fE",
-      function()
-        require("config.picker_errors").show_errors()
-      end,
-      desc = "Search/Picker Errors",
-    },
-    {
       "<leader>sq",
       function()
         require("snacks").picker.qflist()
@@ -231,33 +230,11 @@ return {
       "<leader>st",
       function()
         require("snacks").picker.grep({
-          search = "TODO|FIXME|HACK|NOTE|XXX",
+          search = "TODO|FIXME|HACK|XXX",
           title = "Todo comments",
         })
       end,
       desc = "Todo Comments",
-    },
-    {
-      "<leader>sR",
-      function()
-        require("snacks").picker.grep({ title = "Project search (cfdo %s/old/new/g)" })
-      end,
-      mode = "n",
-      desc = "Project Grep",
-    },
-    {
-      "<leader>xx",
-      function()
-        require("snacks").picker.diagnostics()
-      end,
-      desc = "Diagnostics (project)",
-    },
-    {
-      "<leader>xX",
-      function()
-        require("snacks").picker.diagnostics({ filter = { buf = 0 } })
-      end,
-      desc = "Diagnostics (buffer)",
     },
     {
       "<F4>",
@@ -270,7 +247,7 @@ return {
       "<leader>gg",
       function()
         local root = require("snacks").git.get_root()
-        require("snacks").terminal("lazygit", { cwd = root })
+        require("snacks").terminal("lazygit", { cwd = root or vim.fn.getcwd() })
       end,
       desc = "Lazygit",
     },
@@ -282,6 +259,5 @@ return {
       desc = "Search Word",
       mode = "v",
     },
-    }
-  end)(),
+  },
 }
