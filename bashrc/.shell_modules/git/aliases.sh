@@ -227,8 +227,7 @@ ___anh___wait_for_locks() {
 }
 
 # git clean -x removes gitignored paths too. Exclude install-target dirs that
-# symlink.py creates (bashrc/.gitignore) so gxcl can't wipe nvim/autostore/etc.
-# on machines that still have ~/.config -> bashrc/.config wholesale symlink.
+# symlink.py creates (bashrc/.gitignore) so gxcl cannot wipe nvim/autostore/etc.
 ___anh___gxcl_clean_excludes=(
     -e .local/
     -e 'bashrc/.config/nvim/'
@@ -237,10 +236,14 @@ ___anh___gxcl_clean_excludes=(
     -e 'bashrc/.config/jgit/'
 )
 
+___anh___gxcl_clean() {
+    git clean -ffdx "${___anh___gxcl_clean_excludes[@]}"
+}
+
 gxcl() {
     ___anh___wait_for_locks
     git reset --hard &&
-        git clean -ffdx "${___anh___gxcl_clean_excludes[@]}" &&
+        ___anh___gxcl_clean &&
         git submodule sync --recursive &&
         ___anh___wait_for_locks
     git submodule update --init --recursive --force &&
@@ -257,7 +260,7 @@ gxclfull() {
         git lfs prune &&
         git add --renormalize . &&
         git stash --include-untracked &&
-        git clean -ffdx "${___anh___gxcl_clean_excludes[@]}" &&
+        ___anh___gxcl_clean &&
         git reflog expire --all --expire='2.weeks.ago' --expire-unreachable='now' &&
         git gc --prune=now &&
         ___anh___wait_for_locks
@@ -274,7 +277,7 @@ wfn gxclfull "Aggressive git clean with LFS, reflog, gc"
 gxclreset() {
     ___anh___wait_for_locks
     git reset --hard &&
-        git clean -ffdx "${___anh___gxcl_clean_excludes[@]}" &&
+        ___anh___gxcl_clean &&
         git submodule sync --recursive &&
         ___anh___wait_for_locks
     git submodule update --init --recursive --force &&
