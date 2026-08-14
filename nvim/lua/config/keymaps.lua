@@ -30,105 +30,17 @@ vim.keymap.set("v", ">", ">gv", { desc = "Indent Right" })
 vim.keymap.set("n", "<leader>qq", "<cmd>qa<CR>", { desc = "Quit All" })
 vim.keymap.set("n", "<leader>L", "<cmd>Lazy<CR>", { desc = "Lazy" })
 
--- Save
-vim.keymap.set("n", "<leader>w", "<cmd>w<CR>", { desc = "Write Buffer" })
+-- Save (<leader>w is workspace prefix: we/wo)
 vim.keymap.set("n", "<C-s>", "<cmd>w<CR>", { desc = "Save File" })
 
 -- Clipboard
 vim.keymap.set("v", "<leader>y", '"+y', { desc = "Yank to Clipboard" })
 vim.keymap.set("n", "<leader>p", '"+p', { desc = "Paste from Clipboard" })
 
--- Folding (<CR> is too easy to hit by accident)
-vim.keymap.set("n", "<C-CR>", "za", { desc = "Toggle Fold" })
+-- Folding (open by default via foldlevelstart=99; zR/zM remain builtins)
 vim.keymap.set("n", "<leader>z", "za", { desc = "Toggle Fold" })
-vim.keymap.set("n", "<leader>zR", "zR", { desc = "Open All Folds" })
-vim.keymap.set("n", "<leader>zM", "zM", { desc = "Close All Folds" })
 
 -- Utility
 vim.keymap.set("n", "<leader>cm", ":let @/ = ''<CR>:%s/\\r//g<CR>", { desc = "Remove Windows Line Endings" })
 vim.keymap.set("n", "<leader>ybn", ":let @+ = expand('%')<CR>", { desc = "Yank Buffer Name" })
 vim.keymap.set("n", "<leader>yfp", ":let @+ = expand('%:p')<CR>", { desc = "Yank Full Path" })
-
--- LSP (native vim.lsp.config + vim.lsp.enable; see lsp/*.lua)
-local lsp_servers = { "clangd", "pyright", "lua_ls", "ruff", "bashls" }
-local function load_lsp_config(name)
-  local rtp = vim.api.nvim_get_runtime_file("lsp/" .. name .. ".lua", false)
-  if #rtp > 0 then
-    return rtp[1]
-  end
-  local fallback = vim.fn.stdpath("config") .. "/lsp/" .. name .. ".lua"
-  if vim.uv.fs_stat(fallback) then
-    return fallback
-  end
-end
-for _, name in ipairs(lsp_servers) do
-  local path = load_lsp_config(name)
-  if not path then
-    vim.notify("LSP config file missing: " .. name, vim.log.levels.WARN)
-  else
-    local ok, cfg = pcall(dofile, path)
-    if ok and type(cfg) == "table" then
-      vim.lsp.config(name, cfg)
-    else
-      vim.notify("LSP config load failed: " .. name .. " (" .. tostring(cfg) .. ")", vim.log.levels.ERROR)
-    end
-  end
-end
-vim.lsp.enable(lsp_servers)
-
-vim.diagnostic.config({
-  virtual_text = true,
-  signs = true,
-  underline = true,
-  update_in_insert = false,
-  severity_sort = true,
-})
-
--- Native LSP completion (0.11+). Global defaults cover gra/gri/grn/grr/grt/K.
-vim.api.nvim_create_autocmd("LspAttach", {
-  callback = function(args)
-    local bufnr = args.buf
-    local client = vim.lsp.get_client_by_id(args.data.client_id)
-    if not client then
-      return
-    end
-
-    if client:supports_method("textDocument/completion") then
-      vim.lsp.completion.enable(true, client.id, bufnr, { autotrigger = true })
-    end
-
-    local map = function(keys, func, desc)
-      vim.keymap.set("n", keys, func, { buffer = bufnr, desc = "LSP: " .. desc })
-    end
-
-    -- Keep gd/gD — common convention; core defaults use tagfunc / gr* instead.
-    map("gd", vim.lsp.buf.definition, "Go to Definition")
-    vim.keymap.set("n", "<2-LeftMouse>", function()
-      vim.lsp.buf.definition()
-    end, { buffer = bufnr, desc = "LSP: Go to Definition (double-click)" })
-    map("gD", vim.lsp.buf.declaration, "Go to Declaration")
-
-    map("<leader>cr", vim.lsp.buf.rename, "Rename")
-    map("<leader>cd", vim.diagnostic.open_float, "Show Diagnostic")
-    map("[d", function()
-      vim.diagnostic.goto_prev()
-    end, "Prev Diagnostic")
-    map("]d", function()
-      vim.diagnostic.goto_next()
-    end, "Next Diagnostic")
-  end,
-})
-
--- Snippet tab stops after LSP completion
-vim.keymap.set({ "i", "s" }, "<Tab>", function()
-  if vim.snippet.active({ direction = 1 }) then
-    return vim.snippet.jump(1)
-  end
-  return "<Tab>"
-end, { expr = true })
-vim.keymap.set({ "i", "s" }, "<S-Tab>", function()
-  if vim.snippet.active({ direction = -1 }) then
-    return vim.snippet.jump(-1)
-  end
-  return "<S-Tab>"
-end, { expr = true })

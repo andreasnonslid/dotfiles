@@ -36,35 +36,17 @@ vim.opt.swapfile = false
 -- Behavior
 vim.opt.mouse = "a"
 vim.opt.updatetime = 200
-vim.opt.timeoutlen = 300
+vim.opt.timeoutlen = 400
 vim.opt.scrolloff = 10
 vim.opt.splitright = true
 vim.opt.splitbelow = true
 
--- Statusline (native; lualine removed)
+-- Statusline (Neovim 0.12 default: filename, mode, diagnostics, LSP progress)
 vim.opt.laststatus = 3
 vim.opt.ruler = false
 vim.opt.showmode = false
-function _G.dotfiles_statusline()
-  local mode = vim.api.nvim_get_mode().mode
-  local name = vim.fn.fnamemodify(vim.api.nvim_buf_get_name(0), ":~:.")
-  if name == "" then
-    name = "[No Name]"
-  end
-  local diag = ""
-  local counts = vim.diagnostic.count(0)
-  local total = 0
-  for _, n in pairs(counts) do
-    total = total + n
-  end
-  if total > 0 then
-    diag = string.format(" 󰅙%d", total)
-  end
-  return string.format(" %s │ %s%s ", mode, name, diag)
-end
-vim.opt.statusline = "%{v:lua._G.dotfiles_statusline()}"
 
--- Folding (treesitter-based; open expanded, toggle on <C-CR>)
+-- Folding (treesitter-based; open expanded, toggle with <leader>z)
 vim.opt.foldmethod = "expr"
 vim.opt.foldexpr = "v:lua.vim.treesitter.foldexpr()"
 vim.opt.foldlevel = 99
