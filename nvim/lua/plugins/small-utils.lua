@@ -8,7 +8,7 @@ return {
       indent = { char = "│", tab_char = "│" },
       scope = { enabled = false },
       exclude = {
-        filetypes = { "help", "lazy", "notify", "snacks_terminal" },
+        filetypes = { "help", "lazy", "notify", "toggleterm" },
       },
     },
   },

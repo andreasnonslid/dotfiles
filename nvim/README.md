@@ -26,12 +26,12 @@ Config lives **outside repos**: `~/.local/state/nvim/workspaces.json`.
 
 ```jsonc
 {
-  "FirmwareApp": {
-    "root": "/home/anh/fw/app",
-    "dirs": [
-      // extra search/LSP dirs, e.g. "/abs/path/to/lib"
-    ]
-  }
+    "FirmwareApp": {
+        "root": "/home/anh/fw/app",
+        "dirs": [
+            // extra search/LSP dirs, e.g. "/abs/path/to/lib"
+        ],
+    },
 }
 ```
 
@@ -39,29 +39,30 @@ Config lives **outside repos**: `~/.local/state/nvim/workspaces.json`.
 workspace folders. Active title is stored in `workspaces-meta.json` next to it
 (not in the file you edit).
 
-| Key | Action |
-|-----|--------|
-| `<leader>wo` | Open picker (titles only) |
-| `<leader>we` | Edit `workspaces.json` |
-| `<leader>wa` | Oil: add this directory to the current workspace |
-| `<leader>ff` / `fg` / `fw` | Files / grep / word in workspace dirs |
-| `<leader>Ff` / `Fg` / `Fw` | Same, git repo root only |
+| Key                        | Action                                           |
+| -------------------------- | ------------------------------------------------ |
+| `<leader>wo`               | Open picker (titles only)                        |
+| `<leader>we`               | Edit `workspaces.json`                           |
+| `<leader>wa`               | Oil: add this directory to the current workspace |
+| `<leader>ff` / `fg` / `fw` | Files / grep / word in workspace dirs            |
+| `<leader>Ff` / `Fg` / `Fw` | Same, git repo root only                         |
 
 ## Plugins (minimal set)
 
-| Plugin | Role |
-|--------|------|
-| snacks.nvim | picker, grep, terminal, notifications |
-| oil.nvim | file browser |
-| gitsigns.nvim | git gutter / hunks |
-| conform.nvim | format-on-save (`ruff`, `clang-format`, `stylua`, …) |
-| nvim-treesitter + textobjects | parsers + `af`/`if`/`]f` |
-| mini.* | icons, pairs, ai, surround |
-| flash.nvim | jump labels |
-| justlists | personal list workflow |
-| persistence.nvim | sessions |
-| indent-blankline | indent guides |
-| noctishc | colorscheme |
+| Plugin                        | Role                                                 |
+| ----------------------------- | ---------------------------------------------------- |
+| snacks.nvim                   | picker, grep, notifications                          |
+| toggleterm.nvim               | floating terminal (`<F4>`), lazygit (`<leader>gg`)   |
+| oil.nvim                      | file browser                                         |
+| gitsigns.nvim                 | git gutter / hunks                                   |
+| conform.nvim                  | format-on-save (`ruff`, `clang-format`, `stylua`, …) |
+| nvim-treesitter + textobjects | parsers + `af`/`if`/`]f`                             |
+| mini.\*                       | icons, pairs, ai, surround                           |
+| flash.nvim                    | jump labels                                          |
+| justlists                     | personal list workflow                               |
+| persistence.nvim              | sessions                                             |
+| indent-blankline              | indent guides                                        |
+| noctishc                      | colorscheme                                          |
 
 Install `fd` (`zypper install fd` / `apt install fd-find`) so the file picker
 does not fall back to `rg`. Notification history: `<leader>sn`.

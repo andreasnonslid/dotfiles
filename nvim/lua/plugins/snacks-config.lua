@@ -17,7 +17,7 @@ return {
     quickfile = { enabled = true },
     statuscolumn = { enabled = false },
     words = { enabled = false },
-    terminal = { enabled = true },
+    terminal = { enabled = false },
     picker = {
       sources = {
         files = { notify = false },
@@ -235,21 +235,6 @@ return {
         })
       end,
       desc = "Todo Comments",
-    },
-    {
-      "<F4>",
-      function()
-        require("snacks").terminal()
-      end,
-      desc = "Terminal (toggle)",
-    },
-    {
-      "<leader>gg",
-      function()
-        local root = require("snacks").git.get_root()
-        require("snacks").terminal("lazygit", { cwd = root or vim.fn.getcwd() })
-      end,
-      desc = "Lazygit",
     },
     {
       "<leader>sw",
