@@ -334,7 +334,7 @@ function M.pick_grep_word()
 end
 
 ---@param title string
----@param opts? {silent?: boolean}
+---@param opts? {silent?: boolean, no_cd?: boolean}
 function M.activate(title, opts)
   opts = opts or {}
   local ws = entries[title]
@@ -351,7 +351,7 @@ function M.activate(title, opts)
     vim.notify("Workspace root missing: " .. ws.root, vim.log.levels.WARN)
     return
   end
-  if vim.fn.getcwd() ~= ws.root then
+  if not opts.no_cd and vim.fn.getcwd() ~= ws.root then
     vim.cmd.cd(vim.fn.fnameescape(ws.root))
   end
   sync_lsp_folders(ws)
@@ -391,19 +391,13 @@ end
 function M.edit()
   load_user()
   local cwd = normalize(vim.fn.getcwd())
-  local title
-  for t, ws in pairs(entries) do
-    if ws.root == cwd then
-      title = t
-      break
-    end
-  end
+  local title = find_title_for_path(cwd)
   if not title then
     title = unique_title(default_title(cwd))
     entries[title] = { title = title, root = cwd, dirs = {} }
     save_user()
-    M.activate(title, { silent = true })
   end
+  M.activate(title, { silent = true, no_cd = true })
 
   vim.cmd.split()
   vim.cmd.edit(vim.fn.fnameescape(user_file))
@@ -444,8 +438,14 @@ end
 function M.setup()
   load_meta()
   load_user()
-  if active_title and entries[active_title] then
-    M.activate(active_title, { silent = true })
+  local cwd = normalize(vim.fn.getcwd())
+  local cwd_title = find_title_for_path(cwd)
+  if cwd_title then
+    M.activate(cwd_title, { silent = true, no_cd = true })
+  else
+    -- Started outside any saved workspace: keep cwd, don't restore last active root.
+    active_title = nil
+    save_meta()
   end
 
   vim.api.nvim_create_autocmd("BufWritePost", {
