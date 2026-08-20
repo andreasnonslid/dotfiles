@@ -13,6 +13,31 @@ return {
     },
   },
 
+  -- Which-key
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    opts = {},
+    config = function(_, opts)
+      local wk = require("which-key")
+      wk.setup(opts)
+      wk.add({
+        { "<leader>F", group = "Find (repo)" },
+        { "<leader>f", group = "Find" },
+        { "<leader>g", group = "Git" },
+        { "<leader>s", group = "Search" },
+        { "<leader>c", group = "Code" },
+        { "<leader>l", group = "Lists" },
+        { "<leader>L", group = "Lazy" },
+        { "<leader>q", group = "Quit/Session" },
+        { "<leader>W", group = "Workspace" },
+        { "<leader>w", group = "Workspace" },
+        { "<leader>y", group = "Yank" },
+        { "<leader>b", group = "Buffer" },
+      })
+    end,
+  },
+
   -- Flash (jump anywhere on screen)
   {
     "folke/flash.nvim",

@@ -1,5 +1,5 @@
 return {
-  -- Icons (used by snacks, oil, etc.)
+  -- Icons (used by which-key, snacks, oil, etc.)
   { "echasnovski/mini.icons", lazy = false, opts = {} },
 
   -- Auto-close brackets, quotes, etc.
