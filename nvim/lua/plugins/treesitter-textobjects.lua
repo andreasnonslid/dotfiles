@@ -34,6 +34,19 @@ return {
       local move = require("nvim-treesitter-textobjects.move")
       local swap = require("nvim-treesitter-textobjects.swap")
 
+      -- ]c/[c are the built-in next/prev diff change. Hand them back while a
+      -- window is in diff mode -- same guard gitsigns uses for ]H/[H -- so
+      -- reviewing a diff does not silently jump by class instead of by hunk.
+      local function diff_aware(key, fn)
+        return function()
+          if vim.wo.diff then
+            vim.cmd.normal({ key, bang = true })
+          else
+            fn()
+          end
+        end
+      end
+
       -- Select
       vim.keymap.set({ "x", "o" }, "af", function()
         select.select_textobject("@function.outer", "textobjects")
@@ -61,12 +74,22 @@ return {
       vim.keymap.set({ "n", "x", "o" }, "[f", function()
         move.goto_previous_start("@function.outer")
       end, { desc = "Prev function" })
-      vim.keymap.set({ "n", "x", "o" }, "]c", function()
-        move.goto_next_start("@class.outer")
-      end, { desc = "Next class" })
-      vim.keymap.set({ "n", "x", "o" }, "[c", function()
-        move.goto_previous_start("@class.outer")
-      end, { desc = "Prev class" })
+      vim.keymap.set(
+        { "n", "x", "o" },
+        "]c",
+        diff_aware("]c", function()
+          move.goto_next_start("@class.outer")
+        end),
+        { desc = "Next class / diff change" }
+      )
+      vim.keymap.set(
+        { "n", "x", "o" },
+        "[c",
+        diff_aware("[c", function()
+          move.goto_previous_start("@class.outer")
+        end),
+        { desc = "Prev class / diff change" }
+      )
       vim.keymap.set({ "n", "x", "o" }, "]a", function()
         move.goto_next_start("@parameter.inner")
       end, { desc = "Next argument" })

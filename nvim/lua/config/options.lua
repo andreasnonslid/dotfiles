@@ -54,6 +54,22 @@ vim.opt.foldlevelstart = 99
 vim.opt.foldenable = true
 vim.opt.foldtext = "" -- show actual line content when folded (nvim 0.10+)
 
+-- Diff (built-in engine; diffview.nvim drives it, see lua/plugins/diff.lua)
+-- linematch re-aligns lines inside a changed hunk so a one-word edit highlights
+-- as one word instead of two whole replaced lines; histogram + indent-heuristic
+-- pick hunk boundaries that follow code structure rather than the first match.
+vim.opt.diffopt = {
+  "internal",
+  "filler",
+  "closeoff",
+  "vertical",
+  "algorithm:histogram",
+  "indent-heuristic",
+  "linematch:60",
+  "context:6",
+}
+vim.opt.fillchars:append({ diff = "╱" })
+
 -- Disable animations
 vim.opt.smoothscroll = false
 vim.g.snacks_animate = false
