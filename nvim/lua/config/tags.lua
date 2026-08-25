@@ -9,8 +9,9 @@
 --- LSP-backed buffer `<C-]>` resolves through the language server and never looks
 --- at a tags file. The ctags index is what covers everything else: filetypes with
 --- no server in lsp/*.lua, files outside the server's root, and the "just index
---- this pile of C" case. M.jump()/M.pick() below force the ctags path by
---- suspending 'tagfunc' for the duration of the jump.
+--- this pile of C" case. M.jump() forces that path by suspending 'tagfunc' for
+--- the duration of the jump; M.pick() lists through vim.fn.taglist(), which
+--- reads 'tags' directly and never consults 'tagfunc' in the first place.
 local M = {}
 
 local cache_dir = vim.fs.joinpath(vim.fn.stdpath("cache"), "tags")
@@ -33,10 +34,6 @@ local EXCLUDE = {
   "target",
   "venv",
 }
-
---- Tag files larger than this are not parsed for the picker; `<C-]>` still works
---- (that lookup is binary-searched in C, this one is a Lua scan).
-local PICKER_LINE_LIMIT = 200000
 
 local DEBOUNCE_MS = 2000
 
@@ -97,6 +94,16 @@ function M.refresh()
   entries[#entries + 1] = "./tags;"
   entries[#entries + 1] = "tags"
   vim.o.tags = table.concat(entries, ",")
+end
+
+--- Whether any workspace root has an index on disk yet.
+function M.has_index()
+  for _, root in ipairs(roots()) do
+    if vim.fn.filereadable(tagfile(root)) == 1 then
+      return true
+    end
+  end
+  return false
 end
 
 --- Resolve ctags once. Universal Ctags only: Exuberant takes different flags and
@@ -289,12 +296,20 @@ end
 
 --- Run fn with 'tagfunc' suspended, so tag commands consult the ctags index
 --- instead of being answered by the language server.
+---
+--- 'tagfunc' is buffer-local and a successful jump lands in a *different*
+--- buffer, so the restore has to name the buffer it saved from. Restoring via
+--- plain `vim.bo` would strip tagfunc off the buffer jumped away from and stamp
+--- it onto the one jumped into.
 ---@param fn fun()
 local function with_ctags(fn)
-  local saved = vim.bo.tagfunc
-  vim.bo.tagfunc = ""
+  local buf = vim.api.nvim_get_current_buf()
+  local saved = vim.bo[buf].tagfunc
+  vim.bo[buf].tagfunc = ""
   local ok, err = pcall(fn)
-  vim.bo.tagfunc = saved
+  if vim.api.nvim_buf_is_valid(buf) then
+    vim.bo[buf].tagfunc = saved
+  end
   if not ok then
     vim.notify(tostring(err), vim.log.levels.WARN)
   end
@@ -313,67 +328,16 @@ function M.jump(name)
   end)
 end
 
---- Parse the workspace tag files into one entry per tag name.
----@return {name: string, file: string, line: integer}[]
-local function read_tags()
-  local seen, items, total = {}, {}, 0
-  for _, root in ipairs(roots()) do
-    local file = tagfile(root)
-    if vim.fn.filereadable(file) == 1 then
-      local ok, lines = pcall(vim.fn.readfile, file)
-      if ok then
-        for _, line in ipairs(lines) do
-          total = total + 1
-          if total > PICKER_LINE_LIMIT then
-            return items
-          end
-          -- name<TAB>file<TAB>address;"<TAB>...<TAB>line:N
-          if line:sub(1, 2) ~= "!_" then
-            local name, path = line:match("^([^\t]+)\t([^\t]+)\t")
-            if name and not seen[name] then
-              seen[name] = true
-              items[#items + 1] = {
-                name = name,
-                file = path,
-                line = tonumber(line:match("\tline:(%d+)")) or 1,
-              }
-            end
-          end
-        end
-      end
-    end
-  end
-  return items
-end
-
---- Pick a tag by name. Confirming runs :tjump, so an ambiguous name still gets
---- the native selection list and the tag stack still records the jump.
+--- Pick a tag. The list comes from Snacks' own `tags` source, which calls
+--- vim.fn.taglist() -- a C-side read of &tags that also carries each tag's kind
+--- (rendered as an LSP symbol icon) and its search pattern (so the preview lands
+--- on the right line). No point parsing the tag files in Lua to do it worse.
 function M.pick()
-  local entries = read_tags()
-  if #entries == 0 then
-    vim.notify("tags: no index yet — <leader>ct regenerates it", vim.log.levels.WARN)
+  if not M.has_index() then
+    vim.notify("tags: no index yet -- <leader>ct regenerates it", vim.log.levels.WARN)
     return
   end
-  local items = vim.tbl_map(function(entry)
-    return {
-      text = entry.name,
-      name = entry.name,
-      file = entry.file,
-      pos = { entry.line, 0 },
-    }
-  end, entries)
-
-  require("snacks").picker.pick({
-    title = "Tags",
-    items = items,
-    format = "text",
-    confirm = function(picker, item)
-      picker:close()
-      if item and item.name then
-        M.jump(item.name)
-      end
-    end,
-  })
+  require("snacks").picker.tags()
 end
 
 function M.setup()

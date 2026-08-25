@@ -51,10 +51,23 @@ workspace folders. Active title is stored in `workspaces-meta.json` next to it
 
 ## Tags
 
-`lua/config/tags.lua` is a native replacement for
-[vim-gutentags](https://github.com/ludovicchabant/vim-gutentags) — about 300 lines of
-Lua on `vim.system()`, with no plugin and no VimScript. There is no maintained Lua port
-of gutentags; this config keeps its own rather than pulling in the VimL one.
+`lua/config/tags.lua` does the gutentags job natively — `vim.system()`, no plugin, no
+VimScript.
+
+Lua alternatives do exist, contrary to what this file said first:
+[gentags.nvim](https://github.com/linrongbin16/gentags.nvim) (~24 stars, last touched
+Aug 2025) and [ctags.nvim](https://github.com/wsdjeg/ctags.nvim) (~15 stars);
+[vim-gutentags](https://github.com/ludovicchabant/vim-gutentags) itself has had no
+commit since April 2023. The native module was kept because it is roughly the same
+size as the config needed to wire either of those up, it hooks straight into
+`config.workspaces` for its scope, and it adds no dependency to a config that has
+deliberately shed lspconfig, mason and nvim-cmp. That is a preference, not a verdict —
+gentags.nvim is a reasonable swap, and it does one thing this does not (below).
+
+**Known limitation:** every regeneration is a full rebuild. gutentags and gentags.nvim
+do incremental per-file updates instead. On a repo of a few thousand files a rebuild is
+cheap and cannot drift out of sync, which is the trade made here; on a very large
+monorepo the incremental approach is the better one and this module is the wrong tool.
 
 Tag files live **outside** the repo, in `~/.cache/nvim/tags/{dirname}-{hash}.tags`, one
 per **workspace search dir** — so `<C-]>` reaches the extra `dirs` a workspace pulls in,
@@ -76,8 +89,10 @@ Neovim's `lsp-defaults` set buffer-local `'tagfunc'` to `vim.lsp.tagfunc` when a
 attaches. So on a buffer backed by one of `lsp/*.lua`, **`<C-]>` is answered by the
 language server and never opens a tags file**. The ctags index covers what is left:
 filetypes with no server configured here, files outside a server's root, and any
-"just index this pile of source" case. `<leader>fT` and `<leader>ft` suspend
-`'tagfunc'` for the duration of the jump to force the ctags path.
+"just index this pile of source" case. `<leader>fT` suspends `'tagfunc'` for the
+duration of the jump to force the ctags path (buffer-local, and restored on the buffer
+it was saved from — a successful jump lands in a different one). `<leader>ft` lists via
+`vim.fn.taglist()`, which reads `'tags'` directly and never consults `'tagfunc'`.
 
 ### Keys
 
@@ -97,7 +112,7 @@ Added on top, for what has no native key:
 
 | Key          | Action                                                    |
 | ------------ | --------------------------------------------------------- |
-| `<leader>ft` | Pick a tag (snacks); confirms via `:tjump`                |
+| `<leader>ft` | Pick a tag — `Snacks.picker.tags()`, kind icons + preview |
 | `<leader>fT` | Tag under cursor via **ctags**, bypassing LSP `'tagfunc'` |
 | `<leader>ct` | `:TagsUpdate` — regenerate every workspace dir            |
 
@@ -105,8 +120,17 @@ Added on top, for what has no native key:
 
 ## Diff review
 
-[diffview.nvim](https://github.com/sindrets/diffview.nvim) — the file-set-level tool,
-where gitsigns stays the hunk-level one for the buffer being edited.
+[diffview-plus.nvim](https://github.com/dlyongemallo/diffview-plus.nvim) — the
+file-set-level tool, where gitsigns stays the hunk-level one for the buffer being
+edited.
+
+This is the maintained fork. Upstream `sindrets/diffview.nvim` has had no commit since
+June 2024 and its author has been unreachable; `dlyongemallo` picked it up, is hundreds
+of commits ahead, and other projects (Neogit among them) have moved their
+recommendation across. It is a drop-in — same commands, same option table. The fork
+also adds a unified inline-diff layout, Jujutsu support, and a review workflow the
+original lacks: `w` marks files reviewed, `H` hides the ones already done so the panel
+shows only what is left.
 
 It implements no diff algorithm of its own. It asks git for the file list
 (`git diff --name-status <rev>`), fills a scratch buffer per side with
