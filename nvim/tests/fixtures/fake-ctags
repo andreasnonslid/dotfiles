@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+# Stand-in for Universal Ctags: same CLI surface config.tags drives, deterministic
+# output. Lets the tag specs run on a machine with no ctags installed.
+out=""; files=(); use_stdin=0; recurse_dir=""
+slug() { local s; s=$(basename "$1"); s=${s//[^a-zA-Z0-9]/_}; printf '%s' "$s"; }
+while [ $# -gt 0 ]; do
+  case "$1" in
+    --version) echo "Universal Ctags 6.1.0, Copyright (C) 2015 Universal Ctags Team"; exit 0 ;;
+    -f) out="$2"; shift 2 ;;
+    -L) [ "$2" = "-" ] && use_stdin=1; shift 2 ;;
+    -R) recurse_dir="$2"; shift 2 ;;
+    *) shift ;;
+  esac
+done
+[ "$use_stdin" = 1 ] && mapfile -t files
+{
+  printf '!_TAG_FILE_FORMAT\t2\t/extended format/\n'
+  printf '!_TAG_FILE_SORTED\t0\t/0=unsorted/\n'
+  if [ -n "$recurse_dir" ]; then
+    while IFS= read -r f; do
+      printf 'recursed_%s\t%s\t/^int /;"\tv\tline:1\n' "$(slug "$f")" "$f"
+    done < <(find "$recurse_dir" -type f -name '*.c')
+  fi
+  for f in "${files[@]}"; do
+    [ -n "$f" ] || continue
+    printf 'sym_%s\t%s\t/^int /;"\tv\tline:1\n' "$(slug "$f")" "$f"
+  done
+} > "$out"

@@ -49,6 +49,23 @@ else
     echo "==> npm: stylua, taplo already present"
 fi
 
+# Neovim: nvim/tests/run.sh needs 0.11+, which is newer than the apt package on
+# every distro this repo targets, so it comes from the release tarball -- the
+# same source linux/ubuntu.sh uses and the same path bashrc/.bashrc prepends.
+nvim_prefix="$HOME/.local/opt/nvim-linux-x86_64"
+if ! command -v nvim >/dev/null 2>&1; then
+    echo "==> neovim: installing release tarball to $nvim_prefix"
+    mkdir -p "$(dirname "$nvim_prefix")"
+    tmp_tarball="$(mktemp -d)/nvim.tar.gz"
+    curl -fsSL -o "$tmp_tarball" \
+        https://github.com/neovim/neovim/releases/download/stable/nvim-linux-x86_64.tar.gz
+    tar -xzf "$tmp_tarball" -C "$(dirname "$nvim_prefix")"
+    rm -rf "$(dirname "$tmp_tarball")"
+    export PATH="$nvim_prefix/bin:$PATH"
+else
+    echo "==> neovim: already present ($(nvim --version | head -1))"
+fi
+
 # lua gets its own hard check: .githooks/pre-commit fails closed without it,
 # blocking every commit with a misleading "Files need formatting" message.
 echo "==> Verifying lua"
@@ -69,4 +86,4 @@ else
 fi
 
 echo
-echo "==> Done. shellcheck, shfmt, stylua, taplo, lua, zsh ready."
+echo "==> Done. shellcheck, shfmt, stylua, taplo, lua, zsh, nvim ready."

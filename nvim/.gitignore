@@ -1,5 +1,6 @@
-# nvim.lock file
-lazy-lock.json
+# lazy-lock.json is deliberately NOT ignored: it pins every plugin to an exact
+# commit, which is the whole point of tracking an editor config in a dotfiles
+# repo. Refresh it with :Lazy sync and commit the result.
 
 # Compiled Lua sources
 luac.out

@@ -96,8 +96,10 @@ it was saved from — a successful jump lands in a different one). `<leader>ft` 
 
 ### Keys
 
-Every native tag key is **unmapped by this config and left alone** — nothing below
-replaces them:
+Native tag keys are left alone, with one exception — `g]` is taken by `mini.ai`
+(its "go to right edge of textobject" mapping). `g<C-]>` is the better key anyway:
+`:tjump` jumps straight through when a name is unique and only shows the list when it
+is not. `nvim/tests/keymaps_spec.lua` asserts all of this, in both directions.
 
 | Key      | Action                                     |
 | -------- | ------------------------------------------ |

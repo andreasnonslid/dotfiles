@@ -2,7 +2,8 @@
 # scripts/check.sh -- static verification harness, run before every commit.
 #
 # Runs, in order: shellcheck on every .sh, bash -n / zsh -n syntax checks,
-# stylua --check, the symlink pytest suite, and lua pretty.lua -l. A missing
+# stylua --check, the symlink pytest suite, the nvim config tests, and lua
+# pretty.lua -l. A missing
 # tool is its own loud failure, never a silent skip -- it must not be
 # mistaken for "the check passed". Exits non-zero if any stage fails.
 #
@@ -105,6 +106,15 @@ elif python3 -m pytest tests/; then
     pass "pytest (symlink tests)"
 else
     fail "pytest (symlink tests)"
+fi
+
+echo "==> nvim config tests"
+if ! command -v nvim >/dev/null 2>&1; then
+    missing nvim "nvim config tests"
+elif nvim/tests/run.sh; then
+    pass "nvim config tests"
+else
+    fail "nvim config tests"
 fi
 
 echo "==> lua pretty.lua -l"
