@@ -5,7 +5,8 @@ if command -v zoxide >/dev/null 2>&1; then
             return 0
         fi
 
-        local zpath=$(zoxide query "$1" 2>/dev/null)
+        local zpath
+        zpath=$(zoxide query "$1" 2>/dev/null)
         if [ -n "$zpath" ]; then
             builtin cd "$zpath" && zoxide add "$zpath" 2>/dev/null
             return 0
@@ -21,6 +22,6 @@ alias ...='cd ../..'
 alias ....='cd ../../..'
 
 mkcd() {
-    mkdir -p "$1" && cd "$1"
+    mkdir -p "$1" && cd "$1" || return 1
 }
 wfn mkcd "Create directory and cd into it"

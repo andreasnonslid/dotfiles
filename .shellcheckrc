@@ -5,3 +5,17 @@
 # POSIX sh (e.g. lib/os.sh) override this with an inline
 # `# shellcheck shell=sh` directive.
 shell=bash
+
+# Follow sourced files where that is possible, resolving relative paths from the
+# sourcing script rather than the caller's cwd -- so a real error inside, say,
+# lib/os.sh still surfaces when macos/install.sh sources it.
+source-path=SCRIPTDIR
+external-sources=true
+
+# ...but do not report the ones that cannot be followed. Every unresolvable
+# source here is either a runtime path that only exists on a live machine
+# ($HOME/.cargo/env, nvm.sh, /etc/bash_completion) or a computed one
+# ($script_dir, the ~/.local/secrets/*.env glob). No directive fixes those;
+# they only bury the findings that matter, which is how a check suite stops
+# being read at all.
+disable=SC1090,SC1091

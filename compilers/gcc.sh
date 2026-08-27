@@ -17,11 +17,11 @@ GCC_PREFIX="$DEV_DIR/gcc-$VERSION"
 GCC_REPO="https://gcc.gnu.org/git/gcc.git"
 
 function add_to_path {
-    echo "export PATH=$GCC_PREFIX/bin:\$PATH" >>$HOME/.profile
+    echo "export PATH=$GCC_PREFIX/bin:\$PATH" >>"$HOME/.profile"
 }
 
-mkdir -p $DEV_DIR
-cd $DEV_DIR
+mkdir -p "$DEV_DIR"
+cd "$DEV_DIR" || exit 1
 
 if [ -d "$GCC_PREFIX" ]; then
     echo "GCC version $VERSION is already installed."
@@ -32,21 +32,21 @@ if [ -d "$GCC_PREFIX" ]; then
 fi
 
 if [ ! -d "gcc" ]; then
-    git clone $GCC_REPO
+    git clone "$GCC_REPO"
 fi
 
-cd gcc
+cd gcc || exit 1
 git fetch --tags
 git checkout "releases/gcc-$VERSION" || exit 1
 ./contrib/download_prerequisites
 mkdir -p build
-cd build
-../configure --prefix=$GCC_PREFIX --enable-languages=c,c++ --disable-multilib
-make -j$(nproc)
+cd build || exit 1
+../configure --prefix="$GCC_PREFIX" --enable-languages=c,c++ --disable-multilib
+make -j"$(nproc)"
 sudo make install
 export PATH=$GCC_PREFIX/bin:$PATH
 add_to_path
-sudo update-alternatives --install /usr/bin/gcc gcc $GCC_PREFIX/bin/gcc 60 --slave /usr/bin/g++ g++ $GCC_PREFIX/bin/g++
+sudo update-alternatives --install /usr/bin/gcc gcc "$GCC_PREFIX/bin/gcc" 60 --slave /usr/bin/g++ g++ "$GCC_PREFIX/bin/g++"
 sudo update-alternatives --config gcc
 set_version
 echo "GCC version $VERSION installed successfully and set as default."

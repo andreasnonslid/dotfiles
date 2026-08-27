@@ -1,4 +1,10 @@
 # Bash completion setup
+#
+# COMPREPLY=( $(compgen ...) ) is the documented bash-completion idiom: the word
+# splitting SC2207 warns about is exactly how compgen's newline-separated output
+# becomes one array element per candidate. mapfile would need every completion
+# function below rewritten to gain nothing.
+# shellcheck disable=SC2207
 
 # Enable programmable completion
 if ! shopt -oq posix; then

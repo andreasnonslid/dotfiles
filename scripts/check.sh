@@ -96,13 +96,25 @@ else
 fi
 
 echo "==> pytest (symlink tests)"
+# The `pytest` executable is tried before `python3 -m pytest`. They are not
+# interchangeable: apt's python3-pytest installs the module under /usr/bin/
+# python3, while PATH may well resolve python3 to a pyenv/uv/venv interpreter
+# that has no pytest at all -- which reports "missing pytest" on a machine that
+# has it, and quietly turns a real test stage into a permanent non-result. The
+# executable carries its own shebang, so it always points at an interpreter
+# where pytest is importable.
+pytest_cmd=()
+if command -v pytest >/dev/null 2>&1; then
+    pytest_cmd=(pytest)
+elif command -v python3 >/dev/null 2>&1 && python3 -m pytest --version >/dev/null 2>&1; then
+    pytest_cmd=(python3 -m pytest)
+fi
+
 if [ ! -d tests ] || ! find tests -name 'test_symlink*.py' -print -quit | grep -q .; then
     skip "pytest (symlink tests)" "tests/test_symlink.py not present yet -- lands in M04"
-elif ! command -v python3 >/dev/null 2>&1; then
-    missing python3 "pytest (symlink tests)"
-elif ! python3 -m pytest --version >/dev/null 2>&1; then
+elif [ "${#pytest_cmd[@]}" -eq 0 ]; then
     missing pytest "pytest (symlink tests)"
-elif python3 -m pytest tests/; then
+elif "${pytest_cmd[@]}" tests/; then
     pass "pytest (symlink tests)"
 else
     fail "pytest (symlink tests)"

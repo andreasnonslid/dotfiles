@@ -70,10 +70,14 @@ DARWIN_ONLY_CONFIG_TARGETS = {
 
 NVIM_ENTRIES = {
     Path(".config/nvim/init.lua"): REPO_ROOT / "nvim" / "init.lua",
+    # lazy.nvim reads the lockfile from stdpath("config"), so this link is what
+    # makes the tracked plugin pins actually apply on a real machine.
+    Path(".config/nvim/lazy-lock.json"): REPO_ROOT / "nvim" / "lazy-lock.json",
     Path(".config/nvim/lsp"): REPO_ROOT / "nvim" / "lsp",
     Path(".config/nvim/lua"): REPO_ROOT / "nvim" / "lua",
     Path(".config/nvim/stylua.toml"): REPO_ROOT / "nvim" / "stylua.toml",
     Path(".config/nvim/testfiles"): REPO_ROOT / "nvim" / "testfiles",
+    Path(".config/nvim/tests"): REPO_ROOT / "nvim" / "tests",
 }
 
 CAVEMAN_ENTRIES = {

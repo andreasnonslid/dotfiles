@@ -49,6 +49,8 @@ replace() {
     local new_escaped
     new_escaped=$(printf '%s' "$new" | sed 's/\\/\\\\/g; s/\$/\\$/g')
     export REPLACE_OLD="$old" REPLACE_NEW="$new_escaped"
+    # $ENV{...} is Perl, not shell -- single quotes are mandatory here.
+    # shellcheck disable=SC2016
     search "$old" "${extra[@]}" --null | xargs -0 perl -i -pe 's/\Q$ENV{REPLACE_OLD}\E/$ENV{REPLACE_NEW}/g'
 }
 wfn replace "Find and replace text across files"

@@ -24,7 +24,7 @@ function confirm_and_execute {
     local command_to_run="$1"
     echo "Command to run: $command_to_run"
 
-    read -p "Do you want to run this? (y/n): " user_response
+    read -r -p "Do you want to run this? (y/n): " user_response
 
     case "$user_response" in
     [Yy]*)
@@ -40,7 +40,7 @@ function confirm_and_execute {
     esac
 }
 
-confirm_and_execute "~/dotfiles/arm11.3.sh"
+confirm_and_execute "$HOME/dotfiles/compilers/arm11.3.sh"
 
 sudo zypper update
 

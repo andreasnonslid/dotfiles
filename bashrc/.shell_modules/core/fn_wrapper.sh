@@ -50,5 +50,8 @@ wfn() {
         __fn_descriptions["$fn_name"]="$description"
     fi
 
+    # Expanding at definition time is required: every alias has to carry its
+    # own function name, which is what the trailing "$fn_name" bakes in.
+    # shellcheck disable=SC2139
     alias "$fn_name"='__fn_wrapper '"$fn_name"
 }

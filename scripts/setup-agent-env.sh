@@ -62,6 +62,14 @@ if ! command -v nvim >/dev/null 2>&1; then
     tar -xzf "$tmp_tarball" -C "$(dirname "$nvim_prefix")"
     rm -rf "$(dirname "$tmp_tarball")"
     export PATH="$nvim_prefix/bin:$PATH"
+    # Exporting PATH only reaches this script. Agents run each command in a
+    # fresh shell that never sources .bashrc, so without a link on the default
+    # PATH check.sh reports "missing nvim" on a machine that just installed it
+    # -- the exact silent-red failure this stage exists to avoid. Interactive
+    # shells still prefer the .bashrc-prepended copy, which is this same binary.
+    if [ -w /usr/local/bin ] || [ -n "$SUDO" ]; then
+        $SUDO ln -sf "$nvim_prefix/bin/nvim" /usr/local/bin/nvim
+    fi
 else
     echo "==> neovim: already present ($(nvim --version | head -1))"
 fi

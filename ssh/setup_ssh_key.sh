@@ -17,11 +17,16 @@ script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 function list_keys {
     echo "Listing available SSH keys:"
-    ls ~/.ssh/id_* | grep -v ".pub$"
+    for _key in "$HOME"/.ssh/id_*; do
+        case "$_key" in
+        *.pub) continue ;;
+        esac
+        [ -e "$_key" ] && echo "$_key"
+    done
 }
 
 function delete_key {
-    read -p "Enter the key filename to delete (e.g., id_rsa): " key_filename
+    read -r -p "Enter the key filename to delete (e.g., id_rsa): " key_filename
     key_path="$HOME/.ssh/$key_filename"
     if [[ -f "$key_path" ]]; then
         ssh-add -d "$key_path"
@@ -33,8 +38,8 @@ function delete_key {
 }
 
 function rename_key {
-    read -p "Enter the current key filename (e.g., id_rsa): " current_filename
-    read -p "Enter the new key filename (e.g., id_rsa_new): " new_filename
+    read -r -p "Enter the current key filename (e.g., id_rsa): " current_filename
+    read -r -p "Enter the new key filename (e.g., id_rsa_new): " new_filename
     current_path="$HOME/.ssh/$current_filename"
     new_path="$HOME/.ssh/$new_filename"
     if [[ -f "$current_path" ]]; then
@@ -65,7 +70,7 @@ create)
     key_file="$HOME/.ssh/id_$key_type"
     i=1
     while [ -e "$key_file" ]; do
-        key_file="$HOME/.ssh/id_$key_type_$i"
+        key_file="$HOME/.ssh/id_${key_type}_$i"
         i=$((i + 1))
     done
     ssh-keygen -t "$key_type" -C "$name <$email>" -f "$key_file"

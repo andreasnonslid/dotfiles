@@ -3,7 +3,8 @@
 # Usage: ./arm_gcc.sh
 function install_version() {
     echo "Fetching available versions of ARM None-EABI GCC using xpm..."
-    local versions=$(npm view @xpack-dev-tools/arm-none-eabi-gcc versions --json | jq -r '.[]')
+    local versions
+    versions=$(npm view @xpack-dev-tools/arm-none-eabi-gcc versions --json | jq -r '.[]')
     if [ -z "$versions" ]; then
         echo "No available versions found. Exiting."
         exit 1
@@ -14,7 +15,7 @@ function install_version() {
             echo "Setting ARM None-EABI GCC version $version..."
             if [ ! -d "$install_path" ]; then
                 echo "Installing using xpm..."
-                xpm install --global @xpack-dev-tools/arm-none-eabi-gcc@$version
+                xpm install --global @xpack-dev-tools/arm-none-eabi-gcc@"$version"
             else
                 echo "The selected version is already installed."
             fi

@@ -72,7 +72,8 @@ if command -v is_linux >/dev/null 2>&1 && is_linux; then
         "$HOME/.local/opt/nvim-linux-x86_64/bin/nvim" \
         "/opt/nvim-linux-x86_64/bin/nvim"; do
         if [ -x "$_nvim_bin" ]; then
-            export PATH="$(dirname "$_nvim_bin"):$PATH"
+            _nvim_dir="$(dirname "$_nvim_bin")"
+            export PATH="$_nvim_dir:$PATH"
             break
         fi
     done

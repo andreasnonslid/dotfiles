@@ -1,5 +1,11 @@
 # Jira time logging aliases. Requires 'jiralog' command.
 # Customize via env vars, e.g. export JIRA_LOGCH=TIME-123
+#
+# Definition-time expansion is the point: the ':=' defaults below resolve each
+# ticket when this file is sourced, and every alias carries that value. Escaping
+# them per SC2139 would defer to use-time and break the documented "export
+# JIRA_* before sourcing" override.
+# shellcheck disable=SC2139
 : "${JIRA_LOGCH:=TIME-195}"
 : "${JIRA_ASIOS:=TIME-164}"
 : "${JIRA_ASIO3:=TIME-76}"
