@@ -29,3 +29,7 @@ __pycache__/
 
 # Personal Claude Code overrides (permissions etc.) — not shared repo config.
 /.claude/settings.local.json
+
+# Shortcut usage log, if DOTFILES_USAGE_LOG is ever pointed inside the repo.
+# It defaults to ~/.local/state/dotfiles/ precisely so this never triggers.
+usage.tsv

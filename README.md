@@ -193,6 +193,57 @@ to an agent rather than read by a human: run `./scripts/doctor.sh --json`, save 
 output, and pass it along to drive M36, the final reconciliation that folds real-hardware
 findings back into the scripts. See step 10 of `macos/RUNBOOK.md` for the exact command.
 
+## Shortcut usage tracking
+
+This repo declares ~126 aliases and functions. Nobody remembers which of those
+they still use, and guessing produces the two usual outcomes: deleting something
+load-bearing, or keeping everything forever. So usage is measured instead.
+
+`bashrc/.shell_modules/core/usage_tracking.sh` loads automatically in both shells
+(it lives in `core/`, which `.bashrc` and `.zshrc` both source) and appends one
+TSV line per command: `epoch`, shell, command.
+
+**It records the first word only, never arguments.** Arguments here routinely
+carry Jira ticket ids, ssh key names, hostnames and absolute paths, and none of
+that is needed to answer "do I still use this alias?". A shell history quietly
+duplicated into a second file is a liability nobody asked for.
+`tests/test_usage_tracking.py` asserts this against both shells, with real
+secret-shaped strings.
+
+The log lives at `~/.local/state/dotfiles/usage.tsv`, deliberately outside the
+repo: inside a git work tree it would dirty `git status` on every command and
+put the pre-commit hook in a fight with the shell.
+
+```sh
+export DOTFILES_USAGE_TRACK=0                    # opt out entirely
+export DOTFILES_USAGE_LOG=/some/other/path.tsv   # or move it
+```
+
+Mechanism differs by shell because bash has no `preexec`: zsh uses the real hook,
+bash reads the last history entry at the next prompt. The bash path therefore
+records one command per prompt, so a compound line (`a; b`) logs only `a` --
+which is fine for the question being asked, and far cheaper than a `DEBUG` trap
+firing per pipeline element.
+
+### Reading the results
+
+```sh
+./scripts/usage-report.sh              # summary + what has never been used
+./scripts/usage-report.sh --used       # what has, by frequency
+./scripts/usage-report.sh --all
+./scripts/usage-report.sh --json       # for an agent
+./scripts/usage-report.sh --dead-files # static: files nothing references
+```
+
+`doctor.sh` reports the summary under its `usage` section and starts nagging
+about unused shortcuts once there are 30+ days of data. Below 14 days the report
+says so outright — a shortcut unused for three days is not evidence.
+
+Names declared more than once are counted once: `ff`/`ll`/`la` each have two
+declarations because `tools/search.sh` and `tools/eza.sh` define them in
+`if`/`else` fallback branches (fd vs find, eza vs ls). That is not duplication to
+clean up, and the report marks it `(+1 more)` rather than inflating the totals.
+
 ## Agent / formatter tooling
 
 `.githooks/pre-commit` runs `lua pretty.lua -l`, which needs `shellcheck`, `shfmt`,
