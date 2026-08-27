@@ -2,7 +2,10 @@
 --- tag files kept outside the repo under stdpath("cache")/tags/.
 ---
 --- Scope follows config.workspaces: one tag file per workspace search dir, so
---- `<C-]>` reaches the extra dirs a workspace pulls in, not just cwd.
+--- `<C-]>` reaches the extra dirs a workspace pulls in, not just cwd. Those dirs
+--- are routinely subdirectories of a larger repo rather than repo roots -- one
+--- product plus the shared libs tree it links against -- and are indexed per
+--- subtree, gitignore honoured, without ever indexing the whole monorepo.
 ---
 --- This complements LSP rather than competing with it. Neovim's lsp-defaults set
 --- buffer-local 'tagfunc' to vim.lsp.tagfunc when a client attaches, so on an
@@ -68,12 +71,6 @@ local function roots()
     return workspaces.search_dirs()
   end
   return { normalize(vim.fn.getcwd()) }
-end
-
-local function is_git_root(root)
-  -- A worktree or submodule has .git as a file, not a directory.
-  return vim.fn.isdirectory(vim.fs.joinpath(root, ".git")) == 1
-    or vim.fn.filereadable(vim.fs.joinpath(root, ".git")) == 1
 end
 
 --- 'tags' is comma-separated; spaces and commas inside a path need escaping.
@@ -224,11 +221,12 @@ function M.generate(root)
     return
   end
 
-  if not is_git_root(root) then
-    run_ctags(root, nil)
-    return
-  end
-
+  -- `git ls-files` is asked first for *every* root, not just ones holding a
+  -- .git. Run from a subdirectory it lists that subtree only, still honouring
+  -- .gitignore -- which is the common case in a monorepo, where a workspace
+  -- root is one product directory and an extra search dir is the shared libs
+  -- tree, and neither is the repo root. Testing for .git here instead would
+  -- drop both to a raw recursive scan and pull in build output.
   running[root] = true
   vim.system({
     "git",
@@ -241,14 +239,16 @@ function M.generate(root)
   }, { text = true }, function(res)
     vim.schedule(function()
       running[root] = nil
-      if res.code ~= 0 then
-        -- Not actually a usable git dir after all; fall back to a plain scan.
+      local files = {}
+      if res.code == 0 then
+        for _, rel in ipairs(vim.split(res.stdout or "", "\n", { trimempty = true })) do
+          files[#files + 1] = vim.fs.joinpath(root, rel)
+        end
+      end
+      if #files == 0 then
+        -- Not under git, or git has nothing to say about this dir. Scan it.
         run_ctags(root, nil)
         return
-      end
-      local files = {}
-      for _, rel in ipairs(vim.split(res.stdout or "", "\n", { trimempty = true })) do
-        files[#files + 1] = vim.fs.joinpath(root, rel)
       end
       run_ctags(root, files)
     end)

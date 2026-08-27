@@ -40,6 +40,43 @@ t.check("git root indexed a nested file", blob:find("sym_b_c", 1, true) ~= nil)
 t.check("gitignored file stayed out of the index", blob:find("junk_log", 1, true) == nil)
 t.check("non-git root fell back to a recursive scan", blob:find("recursed_c_c", 1, true) ~= nil)
 
+-- A workspace dir is usually a subdirectory of a bigger repo, not a repo root:
+-- one product plus the shared libs tree it links against. Such a dir must be
+-- indexed per subtree and still honour .gitignore -- not fall back to a raw
+-- recursive scan, and not drag in the rest of the monorepo.
+local gitsubdir = assert(os.getenv("NVIM_TEST_GITSUBDIR"), "run via tests/run.sh")
+package.loaded["config.workspaces"].search_dirs = function()
+  return { gitsubdir }
+end
+tags.generate_all()
+local subindex
+t.check(
+  "a subdirectory root gets its own index",
+  t.wait_for(function()
+    for _, f in ipairs(tagfiles()) do
+      if vim.fn.fnamemodify(f, ":t"):find("^sub%-") then
+        subindex = f
+        return true
+      end
+    end
+    return false
+  end, 20000),
+  tagfiles()
+)
+
+if subindex then
+  local sub = table.concat(vim.fn.readfile(subindex), "\n")
+  t.check("subdirectory index has the file in that subtree", sub:find("sym_b_c", 1, true) ~= nil)
+  t.check("subdirectory index stops at the subtree", sub:find("sym_a_c", 1, true) == nil, sub)
+  t.check("subdirectory index still honours .gitignore", sub:find("junk_log", 1, true) == nil, sub)
+  t.check("subdirectory root did not fall back to a raw scan", sub:find("recursed_", 1, true) == nil, sub)
+end
+
+-- Restore the two-root scope for the checks below.
+package.loaded["config.workspaces"].search_dirs = function()
+  return { gitproj, plaindir }
+end
+
 tags.refresh()
 t.check("'tags' lists both indexes", select(2, vim.o.tags:gsub("%.tags", "")) == 2, vim.o.tags)
 t.check("'tags' keeps the builtin tail", vim.o.tags:find("./tags;", 1, true) ~= nil, vim.o.tags)

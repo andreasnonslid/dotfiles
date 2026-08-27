@@ -81,6 +81,48 @@ Needs **Universal Ctags** on `PATH` (`apt install universal-ctags`,
 `brew install universal-ctags`, `zypper install ctags`). Exuberant Ctags is rejected
 rather than used with the wrong flags — the index would silently be worse.
 
+### The monorepo case
+
+The layout this is actually built for: a huge monorepo you never open at the root,
+opened one product at a time, where the product statically links libraries living
+elsewhere in the tree.
+
+```
+<monorepo>/libs/…                 ← shared, linked in
+<monorepo>/products/foo/…         ← what you actually open
+```
+
+clangd handles this badly, and it is worth knowing exactly how badly. Rooted at
+`products/foo`, its compilation database describes that product. Lib **headers** resolve
+because they are on the include path, so `<C-]>` onto a declaration works. Lib
+**definitions** do not: those `.c` files never appear in this product's
+`compile_commands.json`, so clangd never indexed them and cannot jump into them.
+Nor can extra workspace folders help — clangd
+[has no multi-root support](https://github.com/clangd/clangd/issues/1549); it infers one
+compilation database from the first source file opened and ignores the rest. Which means
+`<leader>wa` genuinely does nothing for clangd, though it works for `lua_ls` and
+`pyright`.
+
+That gap is the whole reason the ctags index exists here. Add the libs tree as an extra
+search dir and it is covered:
+
+```jsonc
+{
+    "foo": {
+        "root": "/abs/path/monorepo/products/foo",
+        "dirs": ["/abs/path/monorepo/libs"],
+    },
+}
+```
+
+Either `<leader>wa` from an oil buffer in `libs/`, or `<leader>we` to edit it directly.
+Both dirs then get their own index and `'tags'` lists both, so `<leader>fT` on a lib
+function reaches its definition where clangd stops at the declaration.
+
+Neither dir is a git _root_, and that is handled: `git ls-files` is asked from the
+directory itself, which lists that subtree only and still honours `.gitignore`. The
+monorepo is never indexed whole, and build output never lands in the index.
+
 ### Tags vs LSP
 
 They do not overlap, and the split is worth knowing:

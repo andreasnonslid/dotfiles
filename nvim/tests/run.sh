@@ -46,6 +46,7 @@ mkdir -p "$gitproj/sub" "$plaindir"
 printf 'int a;\n' >"$gitproj/a.c"
 printf 'int b;\n' >"$gitproj/sub/b.c"
 printf 'noise\n' >"$gitproj/junk.log"
+printf 'noise\n' >"$gitproj/sub/junk.log"
 printf 'junk.log\n' >"$gitproj/.gitignore"
 printf 'int c;\n' >"$plaindir/c.c"
 git -C "$gitproj" init -q .
@@ -84,6 +85,7 @@ for spec in "${specs[@]}"; do
         XDG_CACHE_HOME="$state/cache" \
         NVIM_TEST_GITPROJ="$gitproj" \
         NVIM_TEST_PLAINDIR="$plaindir" \
+        NVIM_TEST_GITSUBDIR="$gitproj/sub" \
         nvim --headless \
         --cmd "set noswapfile" \
         --cmd "luafile $run_root/config/nvim/tests/preamble.lua" \
