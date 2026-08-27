@@ -32,10 +32,17 @@ __fn_wrapper() {
 # Without this, re-sourcing a file containing both `rs() { ... }` and `wfn rs`
 # would fail because bash expands the existing `rs` alias during parsing of `rs() {`.
 # Uses -gA so the array stays global even when sourced from inside a function.
-for __fn_key in $(alias -p | sed -n "s/^alias \([^=]*\)='__fn_wrapper .*/\1/p"); do
+# `alias -p` is bash-only and errors under zsh; `alias -L` is zsh's equivalent
+# and prints the identical "alias name='value'" form, so one sed handles both.
+if [ -n "${ZSH_VERSION:-}" ]; then
+    __fn_alias_dump="$(alias -L 2>/dev/null)"
+else
+    __fn_alias_dump="$(alias -p 2>/dev/null)"
+fi
+for __fn_key in $(printf '%s\n' "$__fn_alias_dump" | sed -n "s/^alias \([^=]*\)='__fn_wrapper .*/\1/p"); do
     unalias "$__fn_key" 2>/dev/null
 done
-unset __fn_key __fn_descriptions 2>/dev/null
+unset __fn_key __fn_alias_dump __fn_descriptions 2>/dev/null
 declare -gA __fn_descriptions
 
 __fn_desc() {

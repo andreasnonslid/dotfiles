@@ -59,12 +59,7 @@ if command -v starship >/dev/null 2>&1; then
     eval "$(starship init bash)"
 fi
 
-# Helpful aliases
-alias cheat="curl cheat.sh/"
-alias help="tldr"
-
 # PATH settings
-export PATH="$HOME/.cargo/bin:$PATH"
 
 # Prefer release tarball over distro neovim (M10: skip on macOS).
 if command -v is_linux >/dev/null 2>&1 && is_linux; then
@@ -101,4 +96,8 @@ if [[ $- == *i* ]]; then
     fi
 fi
 
+# .cargo/env owns $HOME/.cargo/bin. It used to also be exported by hand earlier
+# in this file, which duplicated the entry on rustup versions whose env file is
+# unguarded; this is now the single place it enters PATH.
+# shellcheck source=/dev/null
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"

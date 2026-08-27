@@ -67,7 +67,9 @@ functions and tool wiring work whether the login shell is bash (Linux/WSL) or zs
 - `bashrc/.shell_modules/core/` — shared settings, aliases and functions. Must parse
   under both `bash -n` and `zsh -n`; no bashisms.
 - `bashrc/.shell_modules/bash/` — bash-only surface: the `bind`/`shopt`/readline block
-  and bash-completion (`__git_complete` for ~45 git aliases).
+  and `completion.sh` (`__git_complete` for ~45 git aliases). That file lived in
+  `tools/` until it was noticed that zsh sourced it from the shared loop and printed
+  `command not found: shopt` on every macOS shell start.
 - `bashrc/.shell_modules/zsh/` — zsh equivalents, including `compdef`-based completion
   for the same aliases.
 - `bashrc/.shell_modules/git/`, `tools/`, `toolchains/`, `scripts/` — OS-agnostic
@@ -179,8 +181,16 @@ Two scripts, two different jobs — run the right one for what you're checking:
 
 | Tool                  | Runs where              | Runs when              | Answers                                                                                                                                                                                                               |
 | --------------------- | ----------------------- | ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `./scripts/check.sh`  | Any dev machine / CI    | Before every commit    | "Is the repo internally consistent?" — shellcheck, `bash -n`/`zsh -n`, `stylua --check`, the symlink pytest suite, `lua pretty.lua -l`.                                                                               |
+| `./scripts/check.sh`  | Any dev machine / CI    | Before every commit    | "Is the repo internally consistent?" — shellcheck, `bash -n`/`zsh -n`, `stylua --check`, the pytest suites (symlinks, shell startup, usage tracking), the nvim config tests, `lua pretty.lua -l`.                     |
 | `./scripts/doctor.sh` | The real target machine | Day one, and on demand | "Does _this_ machine actually work?" — runtime diagnostics (auto-discovered checks under `scripts/doctor.d/`), each `PASS`/`WARN`/`FAIL` with a remediation hint. Supports `--verbose`, `--json`, `--only <section>`. |
+
+`bash -n`/`zsh -n` only prove the shell files _parse_. What actually breaks is a
+module that parses but errors while sourcing, or drifts between the two shells --
+so `tests/test_shell_startup.py` starts a real interactive shell of each kind
+against a staged `HOME` and asserts the things syntax cannot: startup is silent on
+stderr, `PATH` has no duplicate entries, the `core/` surface is live, and every
+shared shortcut exists in _both_ shells. It found the two bugs above on its first
+run.
 
 `check.sh` can't see whether Homebrew installed correctly or whether AeroSpace has its
 Accessibility grant — that's what `doctor.sh` is for. `doctor.sh` runs both pre-flight

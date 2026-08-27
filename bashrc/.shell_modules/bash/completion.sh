@@ -1,4 +1,9 @@
-# Bash completion setup
+# Bash completion setup.
+#
+# Lives in bash/ rather than tools/ because shopt, complete -F and COMPREPLY
+# are bash builtins: zsh sourced this from the shared tools/ loop and printed
+# "command not found: shopt" on every macOS shell start. zsh/completion.sh is
+# the compsys equivalent.
 #
 # COMPREPLY=( $(compgen ...) ) is the documented bash-completion idiom: the word
 # splitting SC2207 warns about is exactly how compgen's newline-separated output

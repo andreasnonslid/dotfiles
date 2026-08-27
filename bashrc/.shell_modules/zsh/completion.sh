@@ -1,6 +1,6 @@
-# zsh completion adapter: compsys equivalents of tools/completion.sh.
+# zsh completion adapter: compsys equivalents of bash/completion.sh.
 #
-# bash-completion's __git_complete/complete builtins (tools/completion.sh)
+# bash-completion's __git_complete/complete builtins (bash/completion.sh)
 # have no zsh equivalent -- zsh uses its own compsys (compinit/compdef).
 # This mirrors every git alias completion plus the gcmp/rs/rh custom
 # completions so tab-completion isn't lost when a shell moves to zsh.

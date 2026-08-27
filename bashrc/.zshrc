@@ -56,16 +56,15 @@ if command -v starship >/dev/null 2>&1; then
     eval "$(starship init zsh)"
 fi
 
-# Helpful aliases
-alias cheat="curl cheat.sh/"
-alias help="tldr"
-
 # PATH settings -- macOS/zsh subset of .bashrc's list. Linux-only entries
 # (/opt/nvim-linux-x86_64, STM32_PRG_PATH, the WSL openocd interceptor
 # ordering) are guarded by lib/os.sh in M10 and have no place in this file.
-export PATH="$HOME/.cargo/bin:$PATH"
 export PATH="$HOME/.local/bin:$PATH"
 export PATH="$HOME/.npm-global/bin:$PATH"
 export PATH="$PATH:$HOME/tools/scripts"
 
+# .cargo/env owns $HOME/.cargo/bin. It used to also be exported by hand earlier
+# in this file, which duplicated the entry on rustup versions whose env file is
+# unguarded; this is now the single place it enters PATH.
+# shellcheck source=/dev/null
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
