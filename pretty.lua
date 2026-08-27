@@ -8,6 +8,11 @@ local exclude = {
     -- actually runs, check.sh's own pytest stage (which runs first) leaves
     -- this behind every time, and prettier picks up its README.md.
     "*/.pytest_cache/*",
+    -- lazy.nvim owns this file's formatting: one line per plugin, rewritten on
+    -- every :Lazy sync. Running prettier over it expands it four-fold and turns
+    -- a one-line pin bump into a whole-file diff, so the two fight on every
+    -- update. lazy's format is the readable one for a lockfile; leave it.
+    "*/lazy-lock.json",
 }
 
 local formatters = {

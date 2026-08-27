@@ -1,7 +1,9 @@
 -- Oil.nvim - A vim-like file manager
 return {
   "stevearc/oil.nvim",
-  dependencies = { "nvim-tree/nvim-web-devicons" },
+  -- Icons come from mini.icons, which mocks the nvim-web-devicons interface
+  -- (see plugins/mini.lua). No second icon plugin needed.
+  dependencies = { "echasnovski/mini.icons" },
   config = function()
     require("oil").setup({
       -- Configuration options here

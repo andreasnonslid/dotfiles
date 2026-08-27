@@ -29,6 +29,15 @@ t.check("folds are treesitter", vim.o.foldexpr:find("treesitter", 1, true) ~= ni
 t.check("folds start open", vim.o.foldlevelstart >= 99, vim.o.foldlevelstart)
 t.check("termguicolors on", vim.o.termguicolors == true)
 
+-- One icon provider, not two. mini.icons mocks the nvim-web-devicons interface,
+-- so oil (and anything else that probes for it) is served without a second
+-- plugin being installed. Asserted in both directions: the mock has to actually
+-- answer, or oil loses its icons silently.
+t.check("nvim-web-devicons is not installed", plugins["nvim-web-devicons"] == nil)
+local devicons_ok, devicons = pcall(require, "nvim-web-devicons")
+t.check("the nvim-web-devicons interface still resolves", devicons_ok, devicons)
+t.check("...and it answers get_icon", devicons_ok and type(devicons.get_icon) == "function")
+
 -- Every server named in config.lsp has a config file that loads.
 for _, name in ipairs({ "clangd", "pyright", "lua_ls", "ruff", "bashls" }) do
   local found = vim.api.nvim_get_runtime_file("lsp/" .. name .. ".lua", false)[1]
