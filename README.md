@@ -254,6 +254,47 @@ declarations because `tools/search.sh` and `tools/eza.sh` define them in
 `if`/`else` fallback branches (fd vs find, eza vs ls). That is not duplication to
 clean up, and the report marks it `(+1 more)` rather than inflating the totals.
 
+## Tests
+
+`./scripts/check.sh` runs everything in ~17s. Four suites, split by what they
+need to run inside:
+
+| Suite          | Lives in                       | Runs in                           | Covers                                                                                 |
+| -------------- | ------------------------------ | --------------------------------- | -------------------------------------------------------------------------------------- |
+| symlinks       | `tests/test_symlink.py`        | pytest                            | the exact link set `symlink.py` produces, per OS                                       |
+| shell startup  | `tests/test_shell_startup.py`  | pytest, real `bash -i` / `zsh -i` | rc files source silently, no duplicate `PATH`, `core/` surface live, both shells agree |
+| usage tracking | `tests/test_usage_tracking.py` | pytest, both shells               | the logger records names and never arguments; the report's maths                       |
+| repo contracts | `tests/test_repo_contracts.py` | pytest                            | pairs that drift quietly: the inventory floor, every `doctor.d` module still reporting |
+| nvim config    | `nvim/tests/*_spec.lua`        | headless Neovim                   | plugins load, keymaps hold, lockfile pinned, tags and diff behave                      |
+
+### What is covered without writing a test
+
+Most additions are picked up by an existing assertion, which is the point:
+
+- **A plugin** — `config_spec` asserts every plugin in the lazy spec is installed
+  and loads clean; `lockfile_spec` asserts it is pinned to a full sha.
+- **An LSP server** — `config.lsp` returns its server list, and `config_spec`
+  checks it against `lsp/*.lua` in both directions. A config file with no entry,
+  or an entry with no file, fails.
+- **An alias or function in `core/`, `git/` or `tools/`** — the shell-startup
+  suite requires it to resolve in _both_ shells, and usage tracking starts
+  counting it.
+- **An alias in `.bashrc` or `.zshrc`** — actively rejected. Shared shortcuts
+  belong in `core/`, shell-specific ones in `bash/` or `zsh/`.
+- **A `doctor.d` check** — must report at least one result, or it counts as a
+  silent hole.
+
+### What still needs one
+
+Behaviour beyond "it loads": a new module's actual logic, a new script's
+contract. Add a `*_spec.lua` under `nvim/tests/` (the harness is `tests/init.lua`
+— `t.check(name, ok, detail)`, `t.finish()`, and `run.sh` discovers it), or a
+`test_*.py` under `tests/`.
+
+**Write the test so it fails first.** Every check in these suites was confirmed
+against a deliberately broken config before being kept — a test that has never
+failed is a test that has never been shown to work.
+
 ## Agent / formatter tooling
 
 `.githooks/pre-commit` runs `lua pretty.lua -l`, which needs `shellcheck`, `shfmt`,

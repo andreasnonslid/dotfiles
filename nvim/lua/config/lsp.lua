@@ -1,5 +1,13 @@
 -- Native vim.lsp.config + vim.lsp.enable; see lsp/*.lua
+--
+-- The server list is returned at the bottom of this file so it can be asserted
+-- against the lsp/ directory. vim.lsp.config[name] resolves for any name,
+-- enabled or not, so there is no way to ask Neovim which servers this config
+-- actually turned on.
+local M = {}
+
 local lsp_servers = { "clangd", "pyright", "lua_ls", "ruff", "bashls" }
+M.servers = lsp_servers
 
 local function load_lsp_config(name)
   local rtp = vim.api.nvim_get_runtime_file("lsp/" .. name .. ".lua", false)
@@ -96,3 +104,5 @@ vim.keymap.set({ "i", "s" }, "<S-Tab>", function()
   end
   return "<S-Tab>"
 end, { expr = true })
+
+return M

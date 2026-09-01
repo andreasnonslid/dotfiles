@@ -2,9 +2,14 @@
 # scripts/gen-shell-inventory.sh -- regenerate scripts/shell-inventory.expected.
 #
 # core/, git/ and tools/ are the shell-agnostic modules .bashrc and .zshrc
-# both source; the bash/ and zsh/ adapters add no new alias or function
-# names of their own (bash/ is shopt/bind, zsh/ is compdef registrations).
-# So there is one floor, not one per shell -- see scripts/doctor.d/22-shell.sh.
+# both source, so there is one floor, not one per shell -- see
+# scripts/doctor.d/22-shell.sh.
+#
+# The bash/ and zsh/ adapters are deliberately excluded. They hold the surface
+# that only one shell can have: bash/ is shopt/bind plus bash-completion
+# (_gcmp/_rs/_rh, which zsh cannot load at all), zsh/ is the compdef
+# equivalents. Names defined there are not part of a shared floor by
+# definition, and asserting them would fail on whichever shell is not running.
 #
 # Sources core/git/tools in a clean, non-interactive, rc-file-free bash and
 # prints every alias and function name that comes out the other side.

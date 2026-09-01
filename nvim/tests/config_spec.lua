@@ -38,14 +38,36 @@ local devicons_ok, devicons = pcall(require, "nvim-web-devicons")
 t.check("the nvim-web-devicons interface still resolves", devicons_ok, devicons)
 t.check("...and it answers get_icon", devicons_ok and type(devicons.get_icon) == "function")
 
--- Every server named in config.lsp has a config file that loads.
-for _, name in ipairs({ "clangd", "pyright", "lua_ls", "ruff", "bashls" }) do
-  local found = vim.api.nvim_get_runtime_file("lsp/" .. name .. ".lua", false)[1]
-  t.check(("lsp/%s.lua exists"):format(name), found ~= nil)
-  if found then
-    local ok, cfg = pcall(dofile, found)
+-- LSP servers, derived from the config rather than restated here. A hardcoded
+-- list is a list that goes stale: add a sixth server and a copy in this file
+-- would keep asserting the old five and report success.
+--
+-- Checked in both directions, because either half can drift alone: a config
+-- file with no entry in config.lsp is dead weight that never loads, and an
+-- entry with no file makes config.lsp warn at every startup.
+local declared = {}
+for _, name in ipairs(require("config.lsp").servers) do
+  declared[name] = true
+end
+t.check("config.lsp declares at least one server", next(declared) ~= nil)
+
+local lsp_dir = vim.fs.joinpath(vim.fn.stdpath("config"), "lsp")
+local on_disk = {}
+for name, kind in vim.fs.dir(lsp_dir) do
+  if kind == "file" and name:match("%.lua$") then
+    on_disk[name:gsub("%.lua$", "")] = true
+  end
+end
+
+for name in pairs(declared) do
+  t.check(("config.lsp %q has an lsp/%s.lua"):format(name, name), on_disk[name] == true)
+  if on_disk[name] then
+    local ok, cfg = pcall(dofile, vim.fs.joinpath(lsp_dir, name .. ".lua"))
     t.check(("lsp/%s.lua returns a table"):format(name), ok and type(cfg) == "table", cfg)
   end
+end
+for name in pairs(on_disk) do
+  t.check(("lsp/%s.lua is declared in config.lsp"):format(name), declared[name] == true)
 end
 
 t.finish()

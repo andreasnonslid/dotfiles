@@ -21,6 +21,7 @@ alias c
 alias ca
 alias cf
 alias ch
+alias cheat
 alias cl
 alias clip
 alias cm
@@ -43,6 +44,7 @@ alias gsquash
 alias gxcl
 alias gxclfull
 alias gxclreset
+alias help
 alias i
 alias j
 alias jb
@@ -108,14 +110,14 @@ alias wsl_clean
 alias wt
 alias wtl
 alias wtr
+func ___anh___gxcl_clean
 func ___anh___wait_for_locks
 func __fn_desc
 func __fn_wrapper
 func __gr-reset
 func __gr-upstream-ref
-func _gcmp
-func _rh
-func _rs
+func __usage_prompt
+func __usage_record
 func aac
 func clip
 func commit_types
