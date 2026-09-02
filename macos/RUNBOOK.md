@@ -143,6 +143,30 @@ before calling the machine done.
 - [ ] Raycast's hotkey responds and clipboard history works
 - [ ] Karabiner remaps take effect (mouse side-buttons, Caps→Ctrl/Esc if configured)
 
+## 9b. Editor spot-checks
+
+Neovim is the one part `doctor.sh` cannot fully vouch for, because a language
+server that never starts looks identical to one with nothing to say.
+
+- [ ] `nvim --version` reports **0.12+**. `nvim-treesitter`'s `main` branch calls
+      0.12-only APIs (`vim.list.*`) and hard-fails below it. `brew "neovim"`
+      tracks stable, so this should be satisfied by step 4.
+- [ ] Open a C file in a real project and run `:checkhealth vim.lsp`. clangd
+      must be **attached**, not merely configured. It comes from the keg-only
+      `llvm` formula, which Homebrew does not symlink onto PATH;
+      `bashrc/.shell_modules/tools/llvm.sh` appends the keg's bin dir so
+      `clangd` resolves while `clang`/`cc` stay Apple's. If clangd is missing,
+      `echo $PATH | tr : '\n' | grep llvm` is the first thing to check.
+- [ ] Open a Python, Lua and shell file — `pyright`, `ruff`, `lua_ls` and
+      `bashls` each attach. All four are `brew` formulae; there is no
+      mason.nvim in this config to fetch them at runtime.
+- [ ] `:TagsInfo` reports an index, and `<leader>ft` lists tags. Needs
+      `universal-ctags`; the module refuses macOS's BSD `ctags` on purpose.
+- [ ] `<leader>gg` opens lazygit, `<leader>gd` opens a diff view.
+- [ ] `./scripts/check.sh` passes all seven stages. This is the real acceptance
+      test for the toolchain: it fails loudly on a missing `shellcheck`,
+      `pytest`, `stylua`, `lua` or `nvim` rather than skipping.
+
 ## 10. Hand results back to the agents
 
 - [ ] `./scripts/doctor.sh --json > /tmp/doctor.json` and share the output — this drives

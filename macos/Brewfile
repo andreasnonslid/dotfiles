@@ -50,6 +50,33 @@ brew "tealdeer"
 # Ubuntu/Debian apt package is "golang"; the brew formula is "go".
 brew "go"
 
+# --- Language servers ---------------------------------------------------
+# nvim/lua/config/lsp.lua enables these by name and expects each binary on
+# PATH; there is no mason.nvim in that config to fetch them at runtime.
+# clangd is NOT here: it comes from the keg-only "llvm" formula above, which
+# Homebrew deliberately does not symlink onto PATH. See
+# bashrc/.shell_modules/tools/llvm.sh.
+brew "lua-language-server"
+brew "bash-language-server"
+brew "pyright"
+# Serves double duty: the LSP (nvim) and the formatter conform.nvim calls as
+# ruff_format / ruff_organize_imports.
+brew "ruff"
+
+# --- Editor runtime -----------------------------------------------------
+# The nvim tag index (nvim/lua/config/tags.lua) requires Universal Ctags
+# specifically and refuses Exuberant rather than drive it with wrong flags.
+# macOS ships a BSD ctags that is neither.
+brew "universal-ctags"
+# nvim's <leader>gg opens this in a floating terminal.
+brew "lazygit"
+
+# --- Verification -------------------------------------------------------
+# scripts/check.sh fails loudly without these rather than skipping, so a Mac
+# missing them cannot run the repo's own checks.
+brew "shellcheck"
+brew "pytest"
+
 # --- Formatters ---------------------------------------------------------
 # Every formatter pretty.lua drives and .githooks/pre-commit hard-requires.
 # "lua" is listed above already -- the pre-commit hook fails closed without
