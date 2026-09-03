@@ -48,9 +48,9 @@ else
         "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
 fi
 
-# Wires brew onto PATH for the rest of this script. Persisting it into an
-# interactive shell's rc file is out of scope here -- that belongs with the
-# zsh adapter (M06/M08), not the provisioning orchestrator.
+# Wires brew onto PATH for the rest of this script. Interactive shells pick
+# up the same via bashrc/.shell_modules/tools/homebrew.sh (sourced from
+# .zshrc and .bashrc on every platform; darwin-only inside).
 eval "$("$brew_prefix/bin/brew" shellenv)"
 
 echo "==> brew bundle (CLI formulae)"
