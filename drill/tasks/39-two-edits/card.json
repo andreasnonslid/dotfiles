@@ -1,0 +1,12 @@
+{
+ "kind": "transform",
+ "prompt": "In every .conf file here: replace localhost with db.internal and drop the comment lines (starting with #).",
+ "ref": [
+  "fd -e conf -x sed -i -e 's/localhost/db.internal/g' -e '/^#/d'"
+ ],
+ "hints": [
+  "Find the files, then run sed on each.",
+  "sed -e can be given twice to chain two edits."
+ ],
+ "why": "Several -e scripts run in order on each line. fd -x passes each path as the last argument."
+}

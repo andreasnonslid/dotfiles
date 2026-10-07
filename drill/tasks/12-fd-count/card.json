@@ -1,0 +1,13 @@
+{
+ "kind": "find",
+ "prompt": "How many .rs files are in this project? Output the number only.",
+ "answer": "3",
+ "ref": [
+  "fd -e rs | wc -l"
+ ],
+ "hints": [
+  "First list them, then count the lines.",
+  "wc -l counts lines."
+ ],
+ "why": "fd prints one path per line, so wc -l counts files."
+}

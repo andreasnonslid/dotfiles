@@ -1,0 +1,4 @@
+boot ok
+FATAL out of memory
+stack: 0x1f
+shutdown

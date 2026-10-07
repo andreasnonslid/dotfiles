@@ -1,0 +1,13 @@
+{
+ "kind": "find",
+ "prompt": "From people.csv (with a header), print the names of people older than 30.",
+ "answer": "bob\ncy",
+ "ref": [
+  "awk -F, 'NR>1 && $3>30 {print $1}' people.csv"
+ ],
+ "hints": [
+  "Set the field separator to a comma.",
+  "NR is the line number; skip the header with it."
+ ],
+ "why": "-F sets the separator; a condition before {action} filters lines; NR is the record number."
+}

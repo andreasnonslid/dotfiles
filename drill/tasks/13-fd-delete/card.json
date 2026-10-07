@@ -1,0 +1,12 @@
+{
+ "kind": "transform",
+ "prompt": "Delete every .tmp file in the project.",
+ "ref": [
+  "fd -e tmp -x rm"
+ ],
+ "hints": [
+  "List them with fd first, then run a command on each.",
+  "fd has an execute flag."
+ ],
+ "why": "fd -x runs a command per result ({} is the path). find . -name '*.tmp' -delete does the same without fd."
+}

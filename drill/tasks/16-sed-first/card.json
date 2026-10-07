@@ -1,0 +1,12 @@
+{
+ "kind": "transform",
+ "prompt": "In notes.txt replace the first colour on each line with color (leave later ones).",
+ "ref": [
+  "sed -i 's/colour/color/' notes.txt"
+ ],
+ "hints": [
+  "sed s/old/new/ does one replacement per line by default.",
+  "-i edits the file in place."
+ ],
+ "why": "Without the g flag, s/// replaces only the first match per line. BSD sed needs -i '' ."
+}

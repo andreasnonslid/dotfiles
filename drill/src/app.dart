@@ -1,6 +1,7 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'check.dart';
 import 'deck.dart';
@@ -39,13 +40,15 @@ class _DrillPageState extends State<DrillPage> {
   final _deck = Deck.load();
   late final _due = _deck.due;
   final _input = TextEditingController();
-  final _focus = FocusNode();
+  late final _focus = FocusNode(onKeyEvent: _key);
   final _scroll = ScrollController();
   final _log = <(String, String, String)>[]; // (command, output, note)
   Directory? _work;
   int _i = 0;
   int _n = 0; // commands run on this card
   int _hints = 0;
+  final _history = <String>[]; // commands this session, up/down recalls them
+  int _hi = 0; // history cursor; == length means the empty line
   bool? _skipped; // non-null once the card is finished
 
   Flashcard? get _card => _i < _due.length ? _due[_i] : null;
@@ -86,6 +89,8 @@ class _DrillPageState extends State<DrillPage> {
     _input.clear();
     _focus.requestFocus();
     if (line.isEmpty) return;
+    if (_history.isEmpty || _history.last != line) _history.add(line);
+    _hi = _history.length;
     if (!isAllowed(line)) {
       return setState(
         () => _log.add((line, '', 'not allowed. Tools: ${allowed.join(' ')}')),
@@ -182,13 +187,32 @@ class _DrillPageState extends State<DrillPage> {
     );
   }
 
+  KeyEventResult _key(FocusNode node, KeyEvent e) {
+    final up = e.logicalKey == LogicalKeyboardKey.arrowUp;
+    if (e is KeyUpEvent ||
+        (!up && e.logicalKey != LogicalKeyboardKey.arrowDown)) {
+      return KeyEventResult.ignored;
+    }
+    _hi = (_hi + (up ? -1 : 1)).clamp(0, _history.length);
+    final text = _hi == _history.length ? '' : _history[_hi];
+    _input.value = TextEditingValue(
+      text: text,
+      selection: TextSelection.collapsed(offset: text.length),
+    );
+    return KeyEventResult.handled;
+  }
+
   void _hint() {
-    final ref = _card!.ref;
-    final text = switch (_hints++) {
-      0 => 'hint 1: uses ${ref.expand(tools).toSet().join(', ')}',
-      1 => 'hint 2: ${ref.map(mask).join('  then  ')}',
-      _ => 'no more hints: skip to see the answer',
-    };
+    final c = _card!;
+    final levels = [
+      ...c.hints,
+      'uses ${c.ref.expand(tools).toSet().join(', ')}',
+      c.ref.map(mask).join('  then  '),
+    ];
+    final text = _hints < levels.length
+        ? 'hint ${_hints + 1}/${levels.length}: ${levels[_hints]}'
+        : 'no more hints: skip to see the answer';
+    _hints++;
     setState(() => _log.add(('', '', text)));
   }
 

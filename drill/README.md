@@ -1,4 +1,8 @@
 # drill
-Anki-style drills for core shell tools. Run: `dart run src/main.dart`, or build once: `dart compile exe src/main.dart -o build/drill`.
-Add a card: new folder `tasks/<id>/` with `card.json` (kind transform|find, prompt, ref, why, answer for find), `fixture/`, and `expected/` for transform. Progress: `~/.local/state/drill/state.json`.
-Test: `dart pub get && dart test`.
+Anki-style GUI drills for core shell tools (rg, fd, sed, awk, sort, uniq, cut, tr, find...). Flutter, desktop.
+
+    ./setup.sh && cd generated && flutter run -d linux     # tests: flutter test
+
+In the app: Enter runs a command, Up/Down recall earlier ones, the bulb gives progressive hints (using one keeps the card in its box), skip shows the answer. Each session = reviews due + 10 new cards, shuffled. Progress: `~/.local/state/drill/state.json`.
+
+Add a card = a folder `tasks/<id>/` with `card.json` {kind: find|transform, prompt, ref[], hints[], why, answer (find), ordered (optional)}, `fixture/`, and `expected/` (transform). `flutter test` runs every card's reference solution against its fixture.

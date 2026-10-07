@@ -1,0 +1,6 @@
+INFO start
+ERROR disk full
+info ok
+Error: retry
+WARN error budget low
+DEBUG tick

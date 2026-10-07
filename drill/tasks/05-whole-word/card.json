@@ -1,0 +1,13 @@
+{
+ "kind": "find",
+ "prompt": "List the lines in words.txt that contain the whole word cat (not category or concat).",
+ "answer": "cat\nthe cat sat",
+ "ref": [
+  "rg -w cat words.txt"
+ ],
+ "hints": [
+  "Plain matching also hits cat inside longer words.",
+  "There is a flag for word boundaries."
+ ],
+ "why": "-w requires word boundaries around the match, like \\b in a regex."
+}

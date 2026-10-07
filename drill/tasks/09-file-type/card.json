@@ -1,0 +1,13 @@
+{
+ "kind": "find",
+ "prompt": "Which Python files in this folder mention import? List file names only.",
+ "answer": "a.py\nd.py",
+ "ref": [
+  "rg -l -t py import"
+ ],
+ "hints": [
+  "-l lists names instead of lines.",
+  "rg knows file types; there is a flag to restrict by type."
+ ],
+ "why": "-t py restricts to a built-in type (see rg --type-list). -g '*.py' is the manual glob form."
+}

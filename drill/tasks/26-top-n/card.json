@@ -1,0 +1,14 @@
+{
+ "kind": "find",
+ "prompt": "Show the two most frequent words in words.txt with their counts, most frequent first.",
+ "answer": "3 apple\n2 fig",
+ "ordered": true,
+ "ref": [
+  "sort words.txt | uniq -c | sort -rn | head -n 2"
+ ],
+ "hints": [
+  "Count first, then sort the counts.",
+  "-n numeric, -r reverse; head keeps the top."
+ ],
+ "why": "Frequency tables: sort | uniq -c | sort -rn | head. Counts are numbers, so sort needs -n."
+}

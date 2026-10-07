@@ -1,3 +1,12 @@
-{"kind":"transform","prompt":"In subdir/, replace every call functionName( with newFunctionName( in all files.",
- "ref":["rg -l 'functionName\\(' subdir | xargs sed -i 's/functionName(/newFunctionName(/g'"],
- "why":"( is literal in sed's basic regex but needs \\( in rg's regex. BSD/macOS sed needs -i '' instead of -i."}
+{
+ "kind": "transform",
+ "prompt": "In subdir/, replace every call functionName( with newFunctionName( in all files.",
+ "ref": [
+  "rg -l 'functionName\\(' subdir | xargs sed -i 's/functionName(/newFunctionName(/g'"
+ ],
+ "hints": [
+  "Find the files first, then edit them.",
+  "rg -l lists files; xargs hands them to sed."
+ ],
+ "why": "( is literal in sed's basic regex but needs \\( in rg's regex. BSD/macOS sed needs -i '' instead of -i."
+}

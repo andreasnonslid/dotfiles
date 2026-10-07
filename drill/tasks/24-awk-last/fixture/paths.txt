@@ -1,0 +1,3 @@
+/usr/bin/ls
+/etc/hosts
+relative/dir/file.txt

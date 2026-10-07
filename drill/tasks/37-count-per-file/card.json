@@ -1,0 +1,13 @@
+{
+ "kind": "find",
+ "prompt": "How many lines mention TODO in each file? Show file and count.",
+ "answer": "a.js:2\nb.js:1",
+ "ref": [
+  "rg -c TODO"
+ ],
+ "hints": [
+  "One flag prints a count instead of the lines.",
+  "It reports per file, and only files that match."
+ ],
+ "why": "-c counts matching lines per file. Use rg TODO | wc -l for the grand total instead."
+}

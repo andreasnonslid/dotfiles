@@ -1,0 +1,13 @@
+{
+ "kind": "find",
+ "prompt": "Print only the email addresses found in contacts.txt, one per line.",
+ "answer": "ann@mail.com\nbob@site.com",
+ "ref": [
+  "rg -o '[a-z]+@[a-z]+\\.com' contacts.txt"
+ ],
+ "hints": [
+  "By default rg prints the whole line.",
+  "A flag prints only the matched part."
+ ],
+ "why": "-o prints just the match. Combine with a regex that describes the thing you want."
+}

@@ -1,0 +1,12 @@
+{
+ "kind": "find",
+ "prompt": "Show how a.txt differs from b.txt.",
+ "answer": "2c2\n< two\n---\n> TWO",
+ "ref": [
+  "diff a.txt b.txt"
+ ],
+ "hints": [
+  "There is a tool for comparing two files line by line."
+ ],
+ "why": "diff a b: < lines are only in a, > only in b. -u gives the unified format used in patches; diff -r compares directories."
+}

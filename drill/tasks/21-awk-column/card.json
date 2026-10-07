@@ -1,0 +1,14 @@
+{
+ "kind": "find",
+ "prompt": "Print the second column of data.txt.",
+ "answer": "1\n2\n3",
+ "ordered": true,
+ "ref": [
+  "awk '{print $2}' data.txt"
+ ],
+ "hints": [
+  "awk splits each line into fields.",
+  "The second field is $2."
+ ],
+ "why": "awk '{print $N}' prints field N. $NF is the last, $0 the whole line."
+}

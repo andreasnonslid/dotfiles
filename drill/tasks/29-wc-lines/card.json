@@ -1,0 +1,13 @@
+{
+ "kind": "find",
+ "prompt": "How many lines does big.txt have? Output the number only.",
+ "answer": "5",
+ "ref": [
+  "wc -l < big.txt"
+ ],
+ "hints": [
+  "wc counts lines with -l.",
+  "When it reads stdin it prints no file name."
+ ],
+ "why": "wc -l < file prints just the number; wc -l file also prints the name."
+}

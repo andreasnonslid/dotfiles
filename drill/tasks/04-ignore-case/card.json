@@ -1,0 +1,13 @@
+{
+ "kind": "find",
+ "prompt": "List the lines in app.log that contain \"error\" in any letter case.",
+ "answer": "ERROR disk full\nError: retry\nWARN error budget low",
+ "ref": [
+  "rg -i error app.log"
+ ],
+ "hints": [
+  "One flag makes matching ignore case.",
+  "It is a single letter, and it is the same one grep uses."
+ ],
+ "why": "-i ignores case; -S (smart case) is stricter only when your pattern has capitals."
+}

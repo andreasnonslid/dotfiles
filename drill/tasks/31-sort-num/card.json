@@ -1,0 +1,14 @@
+{
+ "kind": "find",
+ "prompt": "Print the numbers in nums.txt in ascending numeric order, without duplicates.",
+ "answer": "1\n2\n10\n33",
+ "ordered": true,
+ "ref": [
+  "sort -nu nums.txt"
+ ],
+ "hints": [
+  "Text sort puts 10 before 2.",
+  "One flag for numeric order, one for unique."
+ ],
+ "why": "sort -n compares numbers; -u drops duplicates; -r reverses; -k picks a column."
+}

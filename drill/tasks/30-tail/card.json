@@ -1,0 +1,13 @@
+{
+ "kind": "find",
+ "prompt": "Print the last two lines of log.txt.",
+ "answer": "c\nd",
+ "ordered": true,
+ "ref": [
+  "tail -n 2 log.txt"
+ ],
+ "hints": [
+  "head shows the start, its sibling shows the end."
+ ],
+ "why": "tail -n N for the last N lines; tail -n +N starts at line N; tail -f follows growth."
+}
