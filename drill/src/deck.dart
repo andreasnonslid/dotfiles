@@ -43,6 +43,29 @@ class Flashcard {
       : sameTree(work, '${dir.path}/expected');
 }
 
+/// How far a failed attempt was from passing, e.g. "found 1 of 2, 0 extra".
+extension Feedback on Flashcard {
+  Future<String> miss(Directory work, String out) async {
+    if (_j['kind'] == 'find') {
+      final got = normalize(out).split('\n').where((l) => l.isNotEmpty).toSet();
+      final want = normalize(_j['answer']).split('\n').toSet();
+      if (got.isEmpty) return 'no output';
+      return 'found ${got.intersection(want).length} of ${want.length}, ${got.difference(want).length} extra';
+    }
+    final d = await Process.run('diff', [
+      '-rq',
+      work.path,
+      '${dir.path}/expected',
+    ]);
+    final n = '${d.stdout}'
+        .trim()
+        .split('\n')
+        .where((l) => l.isNotEmpty)
+        .length;
+    return '$n file${n == 1 ? '' : 's'} still differ${n == 1 ? 's' : ''} from the goal';
+  }
+}
+
 class Deck {
   Deck._(this._file, this._state, this.cards);
 
@@ -56,7 +79,11 @@ class Deck {
         '${Platform.environment['HOME']}/.local/state';
     final file = File('$base/drill/state.json');
     final cards =
-        findTasks().listSync().whereType<Directory>().map(Flashcard.new).toList()
+        findTasks()
+            .listSync()
+            .whereType<Directory>()
+            .map(Flashcard.new)
+            .toList()
           ..sort((a, b) => a.id.compareTo(b.id));
     final state = file.existsSync()
         ? Map<String, dynamic>.from(jsonDecode(file.readAsStringSync()))
@@ -75,8 +102,13 @@ class Deck {
       if (((_state[c.id]?['due'] ?? '') as String).compareTo(_date(0)) <= 0) c,
   ];
 
-  /// Pass within the reference length: next box. Longer pass: same box. Skip: box 0.
-  void grade(Flashcard c, {required int commands, required bool skipped}) {
+  /// Pass within the reference length, no hints: next box. Otherwise same box. Skip: box 0.
+  void grade(
+    Flashcard c, {
+    required int commands,
+    required int hints,
+    required bool skipped,
+  }) {
     final old = (_state[c.id]?['box'] ?? 0) as int;
     final box = skipped
         ? 0

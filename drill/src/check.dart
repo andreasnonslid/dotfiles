@@ -61,3 +61,25 @@ Future<void> copyTree(String from, Directory to) async {
 
 Future<bool> sameTree(Directory a, String b) async =>
     (await Process.run('diff', ['-r', a.path, b])).exitCode == 0;
+
+/// Allowed tools in [cmd], in order, no repeats. First hint level.
+List<String> tools(String cmd) =>
+    cmd.split(RegExp(r'\s+')).where(allowed.contains).toSet().toList();
+
+/// [cmd] with arguments hidden: tools, flags and separators stay, the rest is `…`.
+/// Second hint level. ponytail: whitespace tokens, so `a|b` without spaces isn't split.
+String mask(String cmd) {
+  final out = <String>[];
+  for (final t in cmd.split(RegExp(r'\s+'))) {
+    final keep =
+        allowed.contains(t) ||
+        t.startsWith('-') ||
+        {'|', '&&', ';'}.contains(t);
+    if (keep) {
+      out.add(t);
+    } else if (out.isEmpty || out.last != '…') {
+      out.add('…');
+    }
+  }
+  return out.join(' ');
+}

@@ -41,10 +41,11 @@ class _DrillPageState extends State<DrillPage> {
   final _input = TextEditingController();
   final _focus = FocusNode();
   final _scroll = ScrollController();
-  final _log = <(String, String)>[]; // (command, output)
+  final _log = <(String, String, String)>[]; // (command, output, note)
   Directory? _work;
   int _i = 0;
   int _n = 0; // commands run on this card
+  int _hints = 0;
   bool? _skipped; // non-null once the card is finished
 
   Flashcard? get _card => _i < _due.length ? _due[_i] : null;
@@ -69,13 +70,14 @@ class _DrillPageState extends State<DrillPage> {
     setState(() {
       _log.clear();
       _n = 0;
+      _hints = 0;
       _skipped = null;
     });
     _focus.requestFocus();
   }
 
   void _finish(bool skipped) {
-    _deck.grade(_card!, commands: _n, skipped: skipped);
+    _deck.grade(_card!, commands: _n, hints: _hints, skipped: skipped);
     setState(() => _skipped = skipped);
   }
 
@@ -86,7 +88,7 @@ class _DrillPageState extends State<DrillPage> {
     if (line.isEmpty) return;
     if (!isAllowed(line)) {
       return setState(
-        () => _log.add((line, 'not allowed. Tools: ${allowed.join(' ')}')),
+        () => _log.add((line, '', 'not allowed. Tools: ${allowed.join(' ')}')),
       );
     }
     _n++;
@@ -94,7 +96,8 @@ class _DrillPageState extends State<DrillPage> {
     final lines = (r.out + r.err).trimRight().split('\n');
     final out = lines.take(40).join('\n') + (lines.length > 40 ? '\n…' : '');
     final ok = await _card!.passes(_work!, r.out);
-    setState(() => _log.add((line, out)));
+    final note = ok ? '' : await _card!.miss(_work!, r.out);
+    setState(() => _log.add((line, out, note)));
     if (ok) _finish(false);
     WidgetsBinding.instance.addPostFrameCallback(
       (_) => _scroll.jumpTo(_scroll.position.maxScrollExtent),
@@ -148,15 +151,23 @@ class _DrillPageState extends State<DrillPage> {
                         child: ListView(
                           controller: _scroll,
                           children: [
-                            for (final (cmd, out) in _log) ...[
-                              SelectableText(
-                                '\$ $cmd',
-                                style: _mono.copyWith(
-                                  color: theme.colorScheme.primary,
+                            for (final (cmd, out, note) in _log) ...[
+                              if (cmd.isNotEmpty)
+                                SelectableText(
+                                  '\$ $cmd',
+                                  style: _mono.copyWith(
+                                    color: theme.colorScheme.primary,
+                                  ),
                                 ),
-                              ),
                               if (out.isNotEmpty)
                                 SelectableText(out, style: _mono),
+                              if (note.isNotEmpty)
+                                Text(
+                                  note,
+                                  style: _mono.copyWith(
+                                    color: theme.colorScheme.tertiary,
+                                  ),
+                                ),
                               const SizedBox(height: 8),
                             ],
                           ],
@@ -169,6 +180,16 @@ class _DrillPageState extends State<DrillPage> {
         ),
       ),
     );
+  }
+
+  void _hint() {
+    final ref = _card!.ref;
+    final text = switch (_hints++) {
+      0 => 'hint 1: uses ${ref.expand(tools).toSet().join(', ')}',
+      1 => 'hint 2: ${ref.map(mask).join('  then  ')}',
+      _ => 'no more hints: skip to see the answer',
+    };
+    setState(() => _log.add(('', '', text)));
   }
 
   Widget _prompt() => TextField(
@@ -185,6 +206,11 @@ class _DrillPageState extends State<DrillPage> {
       suffixIcon: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
+          IconButton(
+            tooltip: 'Hint',
+            icon: const Icon(Icons.lightbulb_outline),
+            onPressed: _hint,
+          ),
           IconButton(
             tooltip: 'Reset files',
             icon: const Icon(Icons.restart_alt),
@@ -220,7 +246,7 @@ class _DrillPageState extends State<DrillPage> {
               Text(
                 _skipped!
                     ? 'Skipped'
-                    : 'Correct: $_n command${_n == 1 ? '' : 's'} (reference ${c.ref.length})',
+                    : 'Correct: $_n command${_n == 1 ? '' : 's'} (reference ${c.ref.length}${_hints > 0 ? ', $_hints hint${_hints == 1 ? '' : 's'}' : ''})',
                 style: theme.textTheme.titleMedium,
               ),
             ],
