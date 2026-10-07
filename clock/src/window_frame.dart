@@ -9,14 +9,14 @@ final desktop = Platform.isLinux || Platform.isWindows || Platform.isMacOS;
 
 /// Call before runApp. Frameless window: [WindowFrame] draws the close button,
 /// drag strip and resize edges.
-Future<void> initWindow() async {
+Future<void> initWindow(String title) async {
   WidgetsFlutterBinding.ensureInitialized();
   if (!desktop) return;
   await windowManager.ensureInitialized();
   await windowManager.waitUntilReadyToShow(
-    const WindowOptions(
-      size: Size(1280, 720),
-      title: 'Clock',
+    WindowOptions(
+      size: const Size(1280, 720),
+      title: title,
       titleBarStyle: TitleBarStyle.hidden,
     ),
     () async {

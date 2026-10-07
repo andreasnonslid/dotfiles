@@ -1,9 +1,9 @@
 import 'dart:convert';
 import 'dart:io';
 
-import 'package:test/test.dart';
+import 'package:flutter_test/flutter_test.dart';
 
-import '../src/check.dart';
+import 'package:drill/check.dart';
 
 void main() {
   test('allow-list and normalize', () {
@@ -13,7 +13,7 @@ void main() {
       r'cat $(ls)',
       'cat /etc/passwd',
       'cat ../x',
-      'rg x | sh'
+      'rg x | sh',
     ]) {
       expect(isAllowed(bad), isFalse, reason: bad);
     }
