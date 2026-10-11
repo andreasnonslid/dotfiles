@@ -5,31 +5,25 @@ Window.SetBackgroundBottomColor(0.1176, 0.1176, 0.1804);
 sw = Window.GetWidth();
 sh = Window.GetHeight();
 
-logo_image = Image("logo.png");
-logo = Sprite(logo_image);
-logo.SetX(sw / 2 - logo_image.GetWidth() / 2);
-logo.SetY(sh / 2 - logo_image.GetHeight() - 30);
+art = Image("bg.png");
+art_sprite = Sprite(art.Scale(sw, sh));
+art_sprite.SetZ(-100);
 
-on_image = Image("seg_on.png");
-off_image = Image("seg_off.png");
-segments = 30;
-step = 16;
-bar_x = sw / 2 - (segments * step) / 2;
-bar_y = sh / 2 + 24;
-for (i = 0; i < segments; i++) {
-    seg[i] = Sprite(off_image);
-    seg[i].SetX(bar_x + i * step);
-    seg[i].SetY(bar_y);
-}
+bar_w = Math.Int(sw * 0.22);
+bar_h = Math.Max(2, Math.Int(sh * 0.0028));
+bar_x = Math.Int((sw - bar_w) / 2);
+bar_y = Math.Int(sh * 0.93);
 
-label_image = Image("label.png");
-label = Sprite(label_image);
-label.SetX(sw / 2 - label_image.GetWidth() / 2);
-label.SetY(bar_y + 48);
+track_src = Image("track.png");
+track = Sprite(track_src.Scale(bar_w, bar_h));
+track.SetPosition(bar_x, bar_y, 1);
+
+fill_src = Image("fill.png");
+fill = Sprite();
+fill.SetPosition(bar_x, bar_y, 2);
 
 target = 0;
 shown = 0;
-lit = 0;
 
 fun on_progress(duration, progress) {
     target = progress;
@@ -37,11 +31,9 @@ fun on_progress(duration, progress) {
 Plymouth.SetBootProgressFunction(on_progress);
 
 fun on_refresh() {
-    shown = shown + (target - shown) * 0.08;
-    n = Math.Int(shown * segments);
-    while (lit < n && lit < segments) {
-        seg[lit].SetImage(on_image);
-        lit++;
-    }
+    shown = shown + (target - shown) * 0.12;
+    w = Math.Int(bar_w * shown);
+    if (w > 0)
+        fill.SetImage(fill_src.Scale(w, bar_h));
 }
 Plymouth.SetRefreshFunction(on_refresh);
