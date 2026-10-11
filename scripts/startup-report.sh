@@ -8,24 +8,22 @@ hr "boot (firmware / loader / kernel / userspace)"
 systemd-analyze 2>/dev/null | head -1
 printf 'kernel cmdline: %s\n' "$(cat /proc/cmdline)"
 
-hr "login -> desktop (from ~/.cache/bar-handoff.log)"
-log=~/.cache/bar-handoff.log
+hr "session start -> everything loaded (from ~/.cache/startup.log)"
+log=~/.cache/startup.log
 if [ -f "$log" ]; then
-    grep -E '^(script-start|sway-uptime|waybar-launched|terminal-launched|ready|revealed|apps-launched|zed-window|firefox-window|splash-up) ' "$log" |
+    grep -E '^(script-start|sway-uptime|locked|apps-launched|waybar-ready|terminal-window|zed-window|firefox-window|desktop-ready) ' "$log" |
     awk '
-        $1=="script-start"{s=$2; print "script started"}
+        $1=="script-start"{s=$2; print "startup script ran"}
         $1=="sway-uptime"{print "sway had been up       " $2}
-        $1=="splash-up"{printf "splash on screen       +%.2fs\n", $2-s}
-        $1=="waybar-launched"{printf "waybar launched       +%.2fs\n", $2-s}
-        $1=="terminal-launched"{printf "terminal launched     +%.2fs\n", $2-s}
-        $1=="ready"{printf "bar + terminal ready  +%.2fs\n", $2-s}
-        $1=="revealed"{printf "cover lifted (revealed) +%.2fs   <- how long the wallpaper was held\n", $2-s}
-        $1=="apps-launched"{printf "zed + firefox launched +%.2fs\n", $2-s}
-        $1=="zed-window"{printf "zed window appeared    +%.2fs\n", $2-s}
-        $1=="firefox-window"{printf "firefox window appeared +%.2fs\n", $2-s}'
-    grep -E '^(some|full)' "$log" | head -2
+        $1=="locked"{printf "lock screen up         +%.2fs   <- the password prompt is on screen\n", $2-s}
+        $1=="apps-launched"{printf "apps launched          +%.2fs\n", $2-s}
+        $1=="waybar-ready"{printf "bar ready              +%.2fs\n", $2-s}
+        $1=="terminal-window"{printf "terminal window         +%.2fs\n", $2-s}
+        $1=="zed-window"{printf "zed window              +%.2fs\n", $2-s}
+        $1=="firefox-window"{printf "firefox window          +%.2fs\n", $2-s}
+        $1=="desktop-ready"{printf "desktop fully loaded    +%.2fs   <- must be before you finish typing the password\n", $2-s}'
 else
-    echo "no handoff log yet (log in with the Sway session first)"
+    echo "no startup log yet (log in with the Sway session first)"
 fi
 
 hr "services that failed"
@@ -44,4 +42,3 @@ for t in gtklock swaylock waybar keyd.rvaiya; do printf '  %-10s %s\n' "$t" "$(c
 systemctl is-active keyd >/dev/null 2>&1 && echo "  keyd active" || echo "  keyd NOT active"
 pgrep -x swayidle >/dev/null && echo "  swayidle running" || echo "  swayidle NOT running"
 pgrep -x waybar >/dev/null && echo "  waybar running" || echo "  waybar NOT running"
-printf '  placeholder bar: %s\n' "$(swaymsg -t get_bar_config boot 2>/dev/null | grep -o '"mode": *"[a-z]*"' | head -1)"
