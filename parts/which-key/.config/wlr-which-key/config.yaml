@@ -184,7 +184,7 @@ menu:
     submenu:
       - key: "l"
         desc: "  Lock"
-        cmd: "swaylock -f"
+        cmd: "~/.config/sway/lock.sh"
       - key: "e"
         desc: "  Log out"
         cmd: "swaymsg exit"

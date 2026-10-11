@@ -109,7 +109,7 @@ def menu(c):
             ("r", "Random", f"{ME} random"),
         ]),
         ("q", f"{I['off']}  Session", [
-            ("l", f"{I['lock']}  Lock", "swaylock -f"),
+            ("l", f"{I['lock']}  Lock", "~/.config/sway/lock.sh"),
             ("e", f"{I['out']}  Log out", SWAY + "exit"),
             ("s", f"{I['sleep']}  Suspend", "systemctl suspend"),
             ("r", f"{I['reboot']}  Reboot", "systemctl reboot"),
@@ -535,24 +535,40 @@ export BAT_THEME=ansi
 
 def r_swaylock(c, s):
     h = lambda k: c[k].lstrip("#")
+    thick = 6 if s["density"] == "cozy" else 4
     t = f"""# {GEN}
-color={h('bg')}
+# Wallpaper only until you type; the ring appears on a key press.
 image={Path.home()}/.local/share/palette/wallpaper.png
 scaling=fill
+color={h('bg')}
 font={FONT}
-indicator-radius=90
-indicator-thickness={6 if s['density'] == 'cozy' else 4}
+font-size=18
+ignore-empty-password
+show-failed-attempts
+indicator-radius=70
+indicator-thickness={thick}
 inside-color={h('bg')}cc
-ring-color={h('accent')}
-key-hl-color={h('accent2')}
+inside-clear-color={h('bg')}cc
+inside-ver-color={h('bg')}cc
+inside-wrong-color={h('bg')}cc
+ring-color={h('dim')}
+ring-clear-color={h('warn')}
+ring-ver-color={h('accent2')}
+ring-wrong-color={h('urgent')}
+key-hl-color={h('accent')}
 bs-hl-color={h('urgent')}
+caps-lock-key-hl-color={h('warn')}
+caps-lock-bs-hl-color={h('urgent')}
 line-color=00000000
+line-clear-color=00000000
+line-ver-color=00000000
+line-wrong-color=00000000
 separator-color=00000000
 text-color={h('fg')}
-inside-ver-color={h('bg')}cc
-ring-ver-color={h('accent2')}
-inside-wrong-color={h('bg')}cc
-ring-wrong-color={h('urgent')}
+text-clear-color={h('warn')}
+text-ver-color={h('accent2')}
+text-wrong-color={h('urgent')}
+text-caps-lock-color={h('warn')}
 """
     return {"swaylock/.config/swaylock/config": t}
 
