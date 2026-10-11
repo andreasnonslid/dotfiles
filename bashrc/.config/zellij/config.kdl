@@ -299,6 +299,7 @@ web_client {
 //   - false (Default)
 // 
 // simplified_ui true
+simplified_ui false
  
 // Enable OSC8 hyperlink output
 // Options:
@@ -311,6 +312,7 @@ web_client {
 // Default: default
 // 
 // theme "dracula"
+theme "dotfiles"
  
 // Theme to use when the host terminal reports a dark color palette.
 // Requires `theme_light` to also be set; otherwise `theme` is used.
@@ -365,7 +367,7 @@ web_client {
 //   - true (default, enabled)
 //   - false
 // 
-pane_frames false
+pane_frames true
  
 // When attaching to an existing session with other users,
 // should the session be mirrored (true)
