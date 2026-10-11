@@ -128,6 +128,28 @@ def rgb(c):
     return tuple(int(c[i:i + 2], 16) for i in (0, 2, 4))
 
 
+def hyper_bindings(c):
+    """Direct keys, generated from menu() so they can never drift from the leader menu.
+
+    Rule: Hyper+X is exactly Hyper+Space, X. A leaf runs directly; a group opens the same popup
+    already inside that group (so a whole group, e.g. everything under q, is reached one way).
+    Shift is part of Hyper, so only lowercase letters and digits can be direct; the uppercase
+    move keys (H J K L) stay inside the menu.
+    """
+    wk = "~/.cargo/bin/wlr-which-key"
+    out = [f"# {GEN}", "# Hyper+X == Hyper+Space then X (lowercase). Edit menu() in scripts/theme.py."]
+    for key, _desc, cmd in menu(c):
+        if not (key.islower() or key.isdigit()):
+            continue
+        if isinstance(cmd, list):
+            out.append(f"bindsym $hyper+{key} exec {wk} --initial-keys {key}")
+        elif cmd.startswith(SWAY):
+            out.append(f"bindsym $hyper+{key} {cmd[len(SWAY):]}")
+        else:
+            out.append(f"bindsym $hyper+{key} exec {cmd}")
+    return "\n".join(out) + "\n"
+
+
 def r_sway(c, s):
     col = f"# {GEN}\n" + "".join(f"set ${k} {c[k]}\n" for k in COLOR_KEYS)
     col += f"set $bgrgb {c['bg'].lstrip('#')}\n"
@@ -162,7 +184,8 @@ bar {{
     }}
 }}
 """
-    return {"sway/.config/sway/colors.conf": col, "sway/.config/sway/style.conf": sty}
+    return {"sway/.config/sway/colors.conf": col, "sway/.config/sway/style.conf": sty,
+            "sway/.config/sway/hyper.conf": hyper_bindings(c)}
 
 
 def r_waybar(c, s):

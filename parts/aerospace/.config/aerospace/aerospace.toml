@@ -22,6 +22,19 @@ outer.bottom = 6
 
 [mode.main.binding]
 alt-enter = 'exec-and-forget open -na Ghostty'
+# Direct keys: Hyper+X is the same as Hyper+Space then X (mirrors parts/sway/hyper.conf).
+# A leaf acts directly; a group enters that mode. z (theme) and o (on-screen keyboard) are Linux-only.
+ctrl-alt-cmd-shift-h = 'focus left'
+ctrl-alt-cmd-shift-j = 'focus down'
+ctrl-alt-cmd-shift-k = 'focus up'
+ctrl-alt-cmd-shift-l = 'focus right'
+ctrl-alt-cmd-shift-f = 'fullscreen'
+ctrl-alt-cmd-shift-x = 'close'
+ctrl-alt-cmd-shift-r = 'mode resize'
+ctrl-alt-cmd-shift-m = 'mode move'
+ctrl-alt-cmd-shift-t = 'mode layout'
+ctrl-alt-cmd-shift-a = 'mode launch'
+ctrl-alt-cmd-shift-q = 'mode session'
 ctrl-alt-cmd-shift-1 = 'workspace 1'
 ctrl-alt-cmd-shift-2 = 'workspace 2'
 ctrl-alt-cmd-shift-3 = 'workspace 3'
