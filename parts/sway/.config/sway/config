@@ -26,8 +26,8 @@ input type:touchpad {
 exec mako
 # Not needed for the first paint: start after the bar so it appears at once.
 exec sleep 2 && squeekboard
-exec sleep 3 && nm-applet --indicator
-exec sleep 3 && blueman-applet
+exec sleep 3 && NO_AT_BRIDGE=1 nm-applet --indicator
+exec sleep 3 && NO_AT_BRIDGE=1 blueman-applet
 exec sleep 2 && ~/.config/sway/autorotate.sh
 
 # Touch and pen follow the panel (and its rotation).
