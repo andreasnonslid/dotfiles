@@ -49,6 +49,12 @@ DARWIN_ONLY_TOP_LEVEL = {
 }
 
 
+# darwin: parts that only make sense on Linux/Wayland.
+DARWIN_PART_EXCLUDE = {"sway", "waybar", "which-key"}
+# The other direction: parts that only make sense on macOS.
+LINUX_PART_EXCLUDE = {"aerospace", "hammerspoon"}
+
+
 def create_symlink(target, link_name, auto_yes=False):
     try:
         target = os.path.abspath(os.path.expanduser(target))
@@ -87,8 +93,38 @@ def symlink_dir_contents(source_dir, target_dir, auto_yes=False, extra_exclude=N
         create_symlink(src_path, tgt_path, auto_yes=auto_yes)
 
 
+def part_links(part_dir, home):
+    """(src, dst) pairs for one part: a dir that mirrors $HOME, with the
+    entries of its .config/ linked into ~/.config one by one (never wholesale)."""
+    for item in sorted(os.listdir(part_dir)):
+        if item in EXCLUDE:
+            continue
+        src = Path(part_dir) / item
+        if item == ".config" and src.is_dir():
+            for sub in sorted(os.listdir(src)):
+                yield src / sub, home / ".config" / sub
+        else:
+            yield src, home / item
+
+
+def link_part(part_dir, home, auto_yes=True):
+    for src, dst in part_links(part_dir, home):
+        create_symlink(str(src), str(dst), auto_yes=auto_yes)
+
+
+def unlink_part(part_dir, home):
+    """Remove only links that point into the part; leave anything else alone."""
+    part_dir = Path(part_dir).resolve()
+    for _, dst in part_links(part_dir, home):
+        if dst.is_symlink() and Path(os.path.realpath(dst)).is_relative_to(part_dir):
+            dst.unlink()
+            print(f"Unlinked: {dst}")
+
+
 def main():
     parser = argparse.ArgumentParser()
+    parser.add_argument("--link", nargs="+", metavar="PART", help="link only these parts/ and exit")
+    parser.add_argument("--unlink", nargs="+", metavar="PART", help="unlink these parts/ and exit")
     parser.add_argument(
         "-y", "--yes", action="store_true", help="Automatically confirm all removals"
     )
@@ -99,6 +135,15 @@ def main():
     is_windows = os.name == "nt"
     is_darwin = platform.system() == "Darwin"
     config_dir = home / ".config"
+    parts_dir = repo_root / "parts"
+
+    # Part management: `--unlink old --link new` swaps one part for another.
+    if args.link or args.unlink:
+        for name in args.unlink or []:
+            unlink_part(parts_dir / name, home)
+        for name in args.link or []:
+            link_part(parts_dir / name, home)
+        return
 
     # bashrc contents (dotfiles that land directly in $HOME, e.g. .bashrc)
     bashrc_source = repo_root / "bashrc"
@@ -197,6 +242,13 @@ def main():
             f"Skipping {claude_md}: real file exists. "
             f"Add caveman manually or '@{caveman_dir / 'CLAUDE.md'}' import."
         )
+
+    # parts/<name>/: swappable pieces (terminal, WM, bar, ...), see part_links.
+    if parts_dir.is_dir():
+        for part in sorted(parts_dir.iterdir()):
+            skip = DARWIN_PART_EXCLUDE if is_darwin else LINUX_PART_EXCLUDE
+            if part.is_dir() and part.name not in skip:
+                link_part(part, home, auto_yes=args.yes)
 
     # Local-only secrets: kept outside the repo in ~/.local/secrets and linked
     # into place only if present. These are never committed (see .gitignore).

@@ -94,6 +94,12 @@ def expected_links(darwin):
         expected[Path(".config/clangd")] = REPO_ROOT / "bashrc" / ".config" / "clangd"
     expected.update(NVIM_ENTRIES)
     expected.update(CAVEMAN_ENTRIES)
+    skip = {"sway", "waybar", "which-key"} if darwin else {"aerospace", "hammerspoon"}
+    for entry in (REPO_ROOT / "parts").glob("*/.config/*"):
+        if entry.parts[-3] not in skip:
+            expected[Path(".config") / entry.name] = entry
+    if darwin:
+        expected[Path(".hammerspoon")] = REPO_ROOT / "parts" / "hammerspoon" / ".hammerspoon"
     return expected
 
 
@@ -265,3 +271,30 @@ def test_existing_symlink_is_replaced_without_backup(monkeypatch, fake_home):
     ripgreprc_link = fake_home / ".ripgreprc"
     assert ripgreprc_link.is_symlink()
     assert ripgreprc_link.resolve() == (REPO_ROOT / "bashrc" / ".ripgreprc").resolve()
+
+
+def test_part_link_unlink_swap(tmp_path):
+    a = tmp_path / "parts" / "a"
+    b = tmp_path / "parts" / "b"
+    (a / ".config" / "app").mkdir(parents=True)
+    (b / ".config" / "app").mkdir(parents=True)
+    (a / ".rc").write_text("a")
+    home = tmp_path / "home"
+    home.mkdir()
+    other = tmp_path / "keep"
+    other.write_text("x")
+    (home / ".config").mkdir()
+    (home / ".config" / "other").symlink_to(other)
+
+    symlink.link_part(a, home)
+    assert (home / ".config" / "app").resolve() == (a / ".config" / "app").resolve()
+    assert (home / ".rc").is_symlink()
+
+    symlink.unlink_part(a, home)
+    assert not (home / ".config" / "app").exists() and not (home / ".rc").exists()
+    assert (home / ".config" / "other").is_symlink()  # untouched
+
+    symlink.link_part(a, home)
+    symlink.unlink_part(a, home)
+    symlink.link_part(b, home)  # swap
+    assert (home / ".config" / "app").resolve() == (b / ".config" / "app").resolve()
