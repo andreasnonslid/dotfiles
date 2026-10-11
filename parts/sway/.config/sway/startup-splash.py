@@ -46,9 +46,7 @@ QUOTE_FILE = HOME / ".local/share/palette/login-quote.txt"
 FRAME_FILE = HOME / ".local/share/palette/login-frame.png"
 
 
-def pick_quote(now=None):
-    """Seeded from the date and time, as the user asked: YYYYMMDDHHMMSS."""
-    seed = int(time.strftime("%Y%m%d%H%M%S", now or time.localtime()))
+def _rows():
     rows = []
     try:
         for line in (HERE / "quotes.txt").read_text().splitlines():
@@ -57,6 +55,13 @@ def pick_quote(now=None):
                 rows.append((q.strip(), a.strip()))
     except OSError:
         pass
+    return rows
+
+
+def pick_quote(now=None):
+    """Seeded from the date and time, as the user asked: YYYYMMDDHHMMSS."""
+    seed = int(time.strftime("%Y%m%d%H%M%S", now or time.localtime()))
+    rows = _rows()
     return random.Random(seed).choice(rows) if rows else ("Good things take a moment.", "")
 
 
@@ -70,6 +75,15 @@ def load_quote(new=False):
         except (OSError, ValueError):
             pass
     quote = pick_quote()
+    try:
+        previous = QUOTE_FILE.read_text().split("|", 1)[0].strip()
+    except OSError:
+        previous = ""
+    if quote[0] == previous:
+        # still seeded by the date and time, just never the same quote twice in a row
+        seed = int(time.strftime("%Y%m%d%H%M%S")) + 1
+        rows = [r for r in _rows() if r[0] != previous]
+        quote = random.Random(seed).choice(rows) if rows else quote
     try:
         QUOTE_FILE.parent.mkdir(parents=True, exist_ok=True)
         QUOTE_FILE.write_text(f"{quote[0]}|{quote[1]}\n")
@@ -159,9 +173,9 @@ class Splash(Gtk.Window):
     def tick(self):
         done = (RUN / "done").exists()
         target = 1.0 if done else sum(self.milestones()) / len(STEPS) * 0.92
-        self.shown += (target - self.shown) * 0.14
-        if done and self.finish_at is None and self.shown > 0.985:
-            self.finish_at = time.time() + 0.15
+        self.shown += (target - self.shown) * (0.6 if done else 0.14)
+        if done and self.finish_at is None:
+            self.finish_at = time.time() + 0.10   # ~3 frames: just enough to see the bar complete
         if (self.finish_at and time.time() >= self.finish_at) or time.time() - self.start > 9:
             Gtk.main_quit()
             return False

@@ -53,9 +53,9 @@ for _ in $(seq 1 $((HOLD_MAX * 20))); do
     sleep 0.05
 done
 t ready >> "$log"
-sleep 0.25   # let the last windows paint a first frame
+sleep 0.2    # let the last windows paint a first frame
 touch "$RUN/done"
-for _ in $(seq 1 30); do kill -0 "$splash_pid" 2>/dev/null || break; sleep 0.05; done
+for _ in $(seq 1 16); do kill -0 "$splash_pid" 2>/dev/null || break; sleep 0.05; done
 kill "$splash_pid" 2>/dev/null          # never leave it behind
 swaymsg bar boot mode invisible >/dev/null
 swaymsg output '*' bg "$HOME/.local/share/palette/wallpaper.png" fill >/dev/null   # the real wallpaper, behind the windows
