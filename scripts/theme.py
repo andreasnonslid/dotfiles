@@ -1019,6 +1019,74 @@ Plymouth.SetRefreshFunction(on_refresh);
 """)
 
 
+# ---------------------------------------------------------------- login splash background
+
+def make_splash_bg(c, w=1920, h=1080):
+    """Calm 'horizon' art in the palette: sky, a big soft moon, layered ridges low down.
+    The upper middle is left clear on purpose: the login splash puts its quote there."""
+    import cairo
+    import hashlib
+
+    rnd = random.Random(int(hashlib.sha256((c["bg"] + c["accent"]).encode()).hexdigest()[:12], 16))
+    col = lambda hexc, a=1.0: tuple(v / 255 for v in rgb(hexc)) + (a,)
+    surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+    cr = cairo.Context(surf)
+
+    sky = cairo.LinearGradient(0, 0, 0, h)
+    sky.add_color_stop_rgba(0.00, *col(mix(c["bg"], "#000000", 0.30)))
+    sky.add_color_stop_rgba(0.55, *col(c["bg"]))
+    sky.add_color_stop_rgba(0.78, *col(mix(c["bg"], c["accent"], 0.38)))
+    sky.add_color_stop_rgba(1.00, *col(mix(c["bg"], c["accent2"], 0.30)))
+    cr.set_source(sky)
+    cr.paint()
+
+    # sparse stars, kept away from the quote area
+    for _ in range(140):
+        x, y = rnd.random() * w, rnd.random() * h * 0.5
+        if w * 0.18 < x < w * 0.82 and h * 0.16 < y < h * 0.5:
+            continue
+        cr.set_source_rgba(*col(c["fg"], 0.15 + rnd.random() * 0.35))
+        cr.arc(x, y, 0.6 + rnd.random() * 1.1, 0, 2 * math.pi)
+        cr.fill()
+
+    # moon with a wide glow, low on the right so the centre stays free
+    mx, my, mr = w * 0.76, h * 0.60, h * 0.085
+    glow = cairo.RadialGradient(mx, my, mr * 0.4, mx, my, mr * 6)
+    glow.add_color_stop_rgba(0, *col(c["accent2"], 0.40))
+    glow.add_color_stop_rgba(1, *col(c["accent2"], 0.0))
+    cr.set_source(glow)
+    cr.paint()
+    cr.set_source_rgba(*col(mix(c["fg"], c["accent2"], 0.25), 0.95))
+    cr.arc(mx, my, mr, 0, 2 * math.pi)
+    cr.fill()
+
+    # ridgelines: back to front, darker toward the viewer
+    layers = 5
+    for i in range(layers):
+        f = i / (layers - 1)
+        base = h * (0.62 + 0.07 * i)
+        amp = h * (0.075 - 0.008 * i)
+        phase = [rnd.random() * 6.28 for _ in range(4)]
+        freq = [1.1 + i * 0.25, 2.3 + i * 0.4, 4.7, 9.0]
+        cr.move_to(0, h)
+        for px in range(0, w + 8, 8):
+            x = px / w
+            y = base - amp * (
+                0.55 * math.sin(freq[0] * 6.28 * x + phase[0])
+                + 0.28 * math.sin(freq[1] * 6.28 * x + phase[1])
+                + 0.12 * math.sin(freq[2] * 6.28 * x + phase[2])
+                + 0.05 * math.sin(freq[3] * 6.28 * x + phase[3]))
+            cr.line_to(px, y)
+        cr.line_to(w, h)
+        cr.close_path()
+        cr.set_source_rgba(*col(mix(mix(c["bg"], c["accent"], 0.30 - 0.22 * f), "#000000", 0.10 + 0.55 * f)))
+        cr.fill()
+
+    out = WALLPAPER.parent / "splash-bg.png"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    surf.write_to_png(str(out))
+
+
 # ---------------------------------------------------------------- wallpaper
 
 def png(path, w, h, rows):
@@ -1098,6 +1166,7 @@ def apply(colors, style, reload=True):
     wallpaper(c, s["wallpaper"])
     make_cursors(c)
     try:
+        make_splash_bg(c)
         make_plymouth(c)
     except Exception as e:  # cairo/pango missing: the splash just isn't regenerated
         print(f"plymouth theme skipped: {e}", file=sys.stderr)

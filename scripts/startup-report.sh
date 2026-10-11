@@ -11,10 +11,11 @@ printf 'kernel cmdline: %s\n' "$(cat /proc/cmdline)"
 hr "login -> desktop (from ~/.cache/bar-handoff.log)"
 log=~/.cache/bar-handoff.log
 if [ -f "$log" ]; then
-    grep -E '^(script-start|sway-uptime|waybar-launched|terminal-launched|ready|revealed|apps-launched|zed-window|firefox-window) ' "$log" |
+    grep -E '^(script-start|sway-uptime|waybar-launched|terminal-launched|ready|revealed|apps-launched|zed-window|firefox-window|splash-up) ' "$log" |
     awk '
         $1=="script-start"{s=$2; print "script started"}
         $1=="sway-uptime"{print "sway had been up       " $2}
+        $1=="splash-up"{printf "splash on screen       +%.2fs\n", $2-s}
         $1=="waybar-launched"{printf "waybar launched       +%.2fs\n", $2-s}
         $1=="terminal-launched"{printf "terminal launched     +%.2fs\n", $2-s}
         $1=="ready"{printf "bar + terminal ready  +%.2fs\n", $2-s}
