@@ -14,5 +14,7 @@ fi
 command -v sway >/dev/null && step sway sway -C
 python3 -c "import tomllib,sys;tomllib.load(open(sys.argv[1],\"rb\"))" parts/aerospace/.config/aerospace/aerospace.toml && echo "aerospace toml ok" || { echo "FAIL: aerospace toml"; fail=1; }
 command -v waybar >/dev/null && step waybar bash -c 'timeout 2 waybar -c parts/waybar/.config/waybar/config.jsonc -s parts/waybar/.config/waybar/style.css 2>&1 | grep -E "\[error\]" && exit 1; exit 0'
+step startup bash tests/startup_test.sh >/dev/null 2>&1 \
+  && echo "startup test ok" || { echo "FAIL: tests/startup_test.sh (run it for details)"; fail=1; }
 command -v nvim >/dev/null && step nvim bash -c 'nvim --headless +qa 2>&1 | grep -q . && exit 1; exit 0'
 exit $fail

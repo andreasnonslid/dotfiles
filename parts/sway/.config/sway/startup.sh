@@ -19,7 +19,7 @@ t apps-launched >> "$log"
 
 # Note when each piece is up (for scripts/startup-report.sh); nothing waits on this.
 zed=; ff=; bar=; term=
-for _ in $(seq 1 120); do
+for _ in $(seq 1 "${STARTUP_POLLS:-120}"); do
     tree=$(swaymsg -t get_tree)
     [ -z "$bar" ] && [ -e "$XDG_RUNTIME_DIR/waybar-ready" ] && { bar=1; t waybar-ready >> "$log"; }
     [ -z "$term" ] && grep -q '"app_id": "Alacritty"' <<<"$tree" && { term=1; t terminal-window >> "$log"; }
