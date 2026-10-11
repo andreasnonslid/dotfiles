@@ -8,6 +8,9 @@ local exclude = {
     -- actually runs, check.sh's own pytest stage (which runs first) leaves
     -- this behind every time, and prettier picks up its README.md.
     "*/.pytest_cache/*",
+    -- Flutter-generated runner code; not ours to format.
+    "*/generated/*",
+    "*/build/*",
 }
 
 local formatters = {

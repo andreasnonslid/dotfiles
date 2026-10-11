@@ -1,0 +1,17 @@
+#!/usr/bin/env bash
+# One gate for every change: format, tests, configs parse, nvim starts.
+cd "$(dirname "$0")" || exit 1
+fail=0
+step() { printf '== %s\n' "$1"; shift; "$@" || { echo "FAIL: $*"; fail=1; }; }
+
+command -v lua >/dev/null && step format lua pretty.lua -l || echo "skip format (no lua)"
+step tests    pipx run pytest -q tests
+if command -v alacritty >/dev/null; then
+  for f in parts/alacritty/.config/alacritty/*.toml; do
+    [ -e "$f" ] && step "alacritty $f" bash -c '! alacritty --config-file "$0" -e true 2>&1 | grep -q ERROR' "$f"
+  done
+fi
+command -v sway >/dev/null && step sway sway -C
+python3 -c "import tomllib,sys;tomllib.load(open(sys.argv[1],\"rb\"))" parts/aerospace/.config/aerospace/aerospace.toml && echo "aerospace toml ok" || { echo "FAIL: aerospace toml"; fail=1; }
+command -v nvim >/dev/null && step nvim bash -c 'nvim --headless +qa 2>&1 | grep -q . && exit 1; exit 0'
+exit $fail
