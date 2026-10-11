@@ -1,0 +1,8 @@
+bg = "#2e3440"
+fg = "#d8dee9"
+dim = "#4c566a"
+accent = "#88c0d0"
+accent2 = "#81a1c1"
+warn = "#ebcb8b"
+urgent = "#bf616a"
+ansi = ["#3b4252", "#bf616a", "#a3be8c", "#ebcb8b", "#81a1c1", "#b48ead", "#88c0d0", "#e5e9f0"]
