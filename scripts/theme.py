@@ -390,7 +390,9 @@ def r_zellij(c, s):
     body = "".join([
         comp("text_unselected", c["fg"], c["bg"], *em),
         comp("text_selected", c["fg"], surf2, *em),
-        comp("ribbon_unselected", c["fg"], surf, *em),
+        # emphasis_1 doubles as the background of every second (alternate) inactive tab,
+        # so it must be a quiet surface, not an accent.
+        comp("ribbon_unselected", c["fg"], surf, c["accent"], mix(c["bg"], c["fg"], 0.22), a[2], c["warn"]),
         comp("ribbon_selected", c["bg"], c["accent"], dk, dk, dk, dk),
         comp("table_title", c["accent"], c["bg"], *em),
         comp("table_cell_unselected", c["fg"], c["bg"], *em),

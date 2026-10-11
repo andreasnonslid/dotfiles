@@ -21,7 +21,7 @@ themes {
             base "#cdd6f4"
             background "#303042"
             emphasis_0 "#cba6f7"
-            emphasis_1 "#89b4fa"
+            emphasis_1 "#44465a"
             emphasis_2 "#a6e3a1"
             emphasis_3 "#f9e2af"
         }
