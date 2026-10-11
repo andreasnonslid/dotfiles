@@ -14,6 +14,8 @@
 tap "nikitabobko/tap"
 cask "nikitabobko/tap/aerospace"
 cask "raycast"
+# Which-key hints overlay for AeroSpace (parts/hammerspoon); optional, pending IT.
+cask "hammerspoon"
 cask "karabiner-elements"
 
 # --- Terminal & font ------------------------------------------------------
