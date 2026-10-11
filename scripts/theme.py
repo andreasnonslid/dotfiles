@@ -180,34 +180,39 @@ def r_waybar(c, s):
     "modules-center": [],
     "modules-right": ["tray", "network", "cpu", "memory", "backlight", "pulseaudio", "battery", "clock", "custom/ready"],
     "sway/workspaces": {{ "disable-scroll": true, "format": "{{index}}" }},
-    "clock": {{ "format": "  {{:%a %d %b   %H:%M}}", "tooltip-format": "{{calendar}}" }},
+    "clock": {{ "align": 0.5, "format": "  {{:%a %d %b   %H:%M}}", "tooltip-format": "{{calendar}}" }},
     "battery": {{
+        "align": 0.5,
         "states": {{ "warning": 25, "critical": 12 }},
         "format": "{{icon}}  {{capacity}}%",
         "format-charging": "󰂄  {{capacity}}%",
         "format-icons": ["󰁺", "󰁼", "󰁿", "󰂁", "󰁹"]
     }},
     "network": {{
+        "align": 0.5,
         "format-wifi": "󰖩  {{essid}}",
+        "max-length": 20,
         "format-ethernet": "󰈀",
         "format-disconnected": "󰖪  offline",
         "on-click": "nm-connection-editor"
     }},
     "pulseaudio": {{
+        "align": 0.5,
         "format": "{{icon}}  {{volume}}%",
         "format-muted": "󰝟  muted",
         "format-icons": {{ "default": ["󰕿", "󰖀", "󰕾"] }},
         "on-click": "pavucontrol"
     }},
-    "backlight": {{ "format": "󰃠  {{percent}}%" }},
-    "cpu": {{ "format": "󰻠  {{usage}}%" }},
-    "memory": {{ "format": "󰍛  {{percentage}}%" }},
+    "backlight": {{ "align": 0.5, "format": "󰃠  {{percent}}%" }},
+    "cpu": {{ "align": 0.5, "format": "󰻠  {{usage}}%" }},
+    "memory": {{ "align": 0.5, "format": "󰍛  {{percentage}}%" }},
     "tray": {{ "spacing": 8 }},
     "custom/ready": {{ "format": "", "exec": "touch $XDG_RUNTIME_DIR/waybar-ready", "interval": "once", "tooltip": false }}
 }}
 """
     border = "" if s["bar_border"] == "none" else f"border-bottom: {s['bar_border']};"
     r, p = s["radius"], s["mod_pad"]
+    w = lambda chars: round(chars * s["font_size"] * 0.58)  # Iosevka Term advance ~0.5em, plus margin
     css = f"""/* {GEN} */
 @import "colors.css";
 
@@ -226,6 +231,14 @@ window#waybar {{ background: {s['bar_bg']}; color: @fg; {border} }}
 #workspaces button:hover {{ background: alpha(@accent, 0.25); color: @fg; }}
 #workspaces button.focused {{ color: @bg; background: @accent; font-weight: bold; }}
 #workspaces button.urgent {{ color: @bg; background: @urgent; }}
+
+/* Reserved widths: content fills in without the bar resizing while services come up. */
+#network {{ min-width: {w(18)}px; }}
+#cpu, #memory {{ min-width: {w(6)}px; }}
+#backlight {{ min-width: {w(7)}px; }}
+#pulseaudio {{ min-width: {w(8)}px; }}
+#battery {{ min-width: {w(7)}px; }}
+#clock {{ min-width: {w(19)}px; }}
 
 #mode {{ color: @bg; background: @warn; font-weight: bold; }}
 #clock {{ color: @accent2; font-weight: bold; }}
