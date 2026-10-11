@@ -33,4 +33,23 @@ sleep 0.2
 swaymsg bar boot mode invisible >/dev/null
 [ -n "$covered" ] && pkill -USR1 -x swaylock
 t revealed >> "$log"
+
+# 5. Zed (workspace 2) and Firefox (workspace 3), launched after the reveal so they never delay it;
+#    the `assign` rules in the sway config send their windows to those workspaces.
+has_app() { swaymsg -t get_tree | grep -q "\"app_id\": \"$1\""; }
+has_app dev.zed.Zed || { setsid ~/.local/bin/zed >/dev/null 2>&1 & }
+has_app firefox-esr || { setsid firefox-esr >/dev/null 2>&1 & }
+t apps-launched >> "$log"
+
+# Record when each window really appears (for scripts/startup-report.sh).
+(
+    zed=; ff=
+    for _ in $(seq 1 240); do
+        tree=$(swaymsg -t get_tree)
+        [ -z "$zed" ] && grep -q '"app_id": "dev.zed.Zed"' <<<"$tree" && { zed=1; t zed-window >> "$log"; }
+        [ -z "$ff" ] && grep -q '"app_id": "firefox-esr"' <<<"$tree" && { ff=1; t firefox-window >> "$log"; }
+        [ -n "$zed" ] && [ -n "$ff" ] && break
+        sleep 0.25
+    done
+) &
 wait

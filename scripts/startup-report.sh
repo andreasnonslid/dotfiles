@@ -11,14 +11,17 @@ printf 'kernel cmdline: %s\n' "$(cat /proc/cmdline)"
 hr "login -> desktop (from ~/.cache/bar-handoff.log)"
 log=~/.cache/bar-handoff.log
 if [ -f "$log" ]; then
-    grep -E '^(script-start|sway-uptime|waybar-launched|terminal-launched|ready|revealed) ' "$log" |
+    grep -E '^(script-start|sway-uptime|waybar-launched|terminal-launched|ready|revealed|apps-launched|zed-window|firefox-window) ' "$log" |
     awk '
         $1=="script-start"{s=$2; print "script started"}
         $1=="sway-uptime"{print "sway had been up       " $2}
         $1=="waybar-launched"{printf "waybar launched       +%.2fs\n", $2-s}
         $1=="terminal-launched"{printf "terminal launched     +%.2fs\n", $2-s}
         $1=="ready"{printf "bar + terminal ready  +%.2fs\n", $2-s}
-        $1=="revealed"{printf "cover lifted (revealed) +%.2fs   <- how long the wallpaper was held\n", $2-s}'
+        $1=="revealed"{printf "cover lifted (revealed) +%.2fs   <- how long the wallpaper was held\n", $2-s}
+        $1=="apps-launched"{printf "zed + firefox launched +%.2fs\n", $2-s}
+        $1=="zed-window"{printf "zed window appeared    +%.2fs\n", $2-s}
+        $1=="firefox-window"{printf "firefox window appeared +%.2fs\n", $2-s}'
     grep -E '^(some|full)' "$log" | head -2
 else
     echo "no handoff log yet (log in with the Sway session first)"
