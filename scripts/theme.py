@@ -153,8 +153,8 @@ def hyper_bindings(c):
 def r_sway(c, s):
     col = f"# {GEN}\n" + "".join(f"set ${k} {c[k]}\n" for k in COLOR_KEYS)
     col += f"set $bgrgb {c['bg'].lstrip('#')}\n"
-    col += "# Prepared login frame: the first thing sway shows. bg-state.sh puts the wallpaper back after login.\n"
-    col += "output * bg ~/.local/share/palette/login-frame.png fill\n"
+    col += "# The lock frame (art + quote): the first thing sway shows, and the lock screen's background.\n# bg-state.sh / lock.sh put the real wallpaper back once the session is unlocked.\n"
+    col += "output * bg ~/.local/share/palette/lock-frame.png fill\n"
     sty = f"""# {GEN}
 default_border pixel {s['border']}
 gaps inner {s['gaps_inner']}
@@ -162,29 +162,6 @@ gaps outer {s['gaps_outer']}
 smart_borders on
 smart_gaps on
 seat * xcursor_theme dotfiles 24
-
-# Placeholder bar: sway draws it with itself, so the top is never empty while waybar warms up.
-# It mirrors waybar's layout (workspaces left, clock right) so the handoff reads as "filling in".
-# bar-handoff.sh hides it once waybar has drawn.
-bar {{
-    id boot
-    mode invisible
-    position top
-    height {s['bar_height'] + s['bar_margin']}
-    font pango:{FONT} {round(s['font_size'] * 0.75)}
-    status_padding {s['mod_pad']}
-    workspace_min_width 30
-    tray_output none
-    separator_symbol " "
-    status_command while date +'  %a %d %b   %H:%M'; do sleep 30; done
-    colors {{
-        background {c['bg'] if s['bar_bg'] != 'transparent' else '#00000000'}
-        statusline {c['accent2']}
-        focused_workspace {c['accent']} {c['accent']} {c['bg']}
-        inactive_workspace #00000000 #00000000 {c['dim']}
-        urgent_workspace {c['urgent']} {c['urgent']} {c['bg']}
-    }}
-}}
 """
     return {"sway/.config/sway/colors.conf": col, "sway/.config/sway/style.conf": sty,
             "sway/.config/sway/hyper.conf": hyper_bindings(c)}
@@ -698,7 +675,7 @@ def r_gtklock(c, s):
     rad = max(s["radius"], 8)
     ini = f"""# {GEN}
 [main]
-background={Path.home()}/.local/share/palette/wallpaper.png
+background={Path.home()}/.local/share/palette/lock-frame.png
 style={Path.home()}/.config/gtklock/style.css
 time-format=%H:%M
 date-format=%A, %d %B
@@ -901,70 +878,22 @@ GLYPHS = {  # 5x5 pixel font for the splash logo
 
 
 def make_plymouth(c):
-    """Palette-driven Plymouth theme into linux/plymouth/dotfiles (installed by linux/install-plymouth.sh)."""
+    """Boot splash into linux/plymouth/dotfiles: the lock screen's horizon art and one thin progress
+    line, so boot -> lock is a single continuous scene (installed by linux/install-plymouth.sh)."""
     import cairo
-    import gi
-    gi.require_version("Pango", "1.0")
-    gi.require_version("PangoCairo", "1.0")
-    from gi.repository import Pango, PangoCairo
-
     out = ROOT / "linux/plymouth/dotfiles"
     out.mkdir(parents=True, exist_ok=True)
+    art = WALLPAPER.parent / "splash-bg.png"
+    shutil.copyfile(art, out / "bg.png")
     col = lambda h, a=1.0: tuple(v / 255 for v in rgb(h)) + (a,)
-
-    # logo: pixel-art DEBIAN, rows fade accent -> accent2
-    px, gap, word = 14, 3, "DEBIAN"
-    cols = len(word) * 5 + (len(word) - 1)
-    W, H = cols * (px + gap), 5 * (px + gap)
-    surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
-    cr = cairo.Context(surf)
-    a1, a2 = rgb(c["accent"]), rgb(c["accent2"])
-    for ci, ch in enumerate(word):
-        for ry, row in enumerate(GLYPHS[ch]):
-            t = ry / 4
-            cr.set_source_rgb(*[(a1[i] + (a2[i] - a1[i]) * t) / 255 for i in range(3)])
-            for rx, v in enumerate(row):
-                if v == "X":
-                    x = (ci * 6 + rx) * (px + gap)
-                    y = ry * (px + gap)
-                    cr.rectangle(x, y, px, px)
-                    cr.fill()
-    surf.write_to_png(str(out / "logo.png"))
-
-    # progress segments
-    for name, color in (("seg_on", c["accent"]), ("seg_off", mix(c["bg"], c["fg"], 0.12))):
-        sf = cairo.ImageSurface(cairo.FORMAT_ARGB32, 12, 8)
+    for name, color in (("track", col(c["fg"], 0.18)), ("fill", col(c["accent"], 0.95))):
+        sf = cairo.ImageSurface(cairo.FORMAT_ARGB32, 8, 3)
         cr = cairo.Context(sf)
-        cr.set_source_rgba(*col(color))
-        r = 3
-        cr.new_sub_path()
-        for cx, cy, a in ((12 - r, r, -90), (12 - r, 8 - r, 0), (r, 8 - r, 90), (r, r, 180)):
-            cr.arc(cx, cy, r, math.radians(a), math.radians(a + 90))
-        cr.close_path()
-        cr.fill()
+        cr.set_source_rgba(*color)
+        cr.paint()
         sf.write_to_png(str(out / f"{name}.png"))
-
-    # label: hostname and OS in the theme font
-    import socket
-    osname = "Debian GNU/Linux"
-    for line in Path("/etc/os-release").read_text().splitlines():
-        if line.startswith("PRETTY_NAME="):
-            osname = line.split("=", 1)[1].strip('"')
-    text = f"{socket.gethostname()}   ·   {osname}"
-    sf = cairo.ImageSurface(cairo.FORMAT_ARGB32, 900, 40)
-    cr = cairo.Context(sf)
-    lay = PangoCairo.create_layout(cr)
-    lay.set_font_description(Pango.FontDescription(f"{FONT} 14"))
-    lay.set_text(text, -1)
-    w, h = lay.get_pixel_size()
-    sf = cairo.ImageSurface(cairo.FORMAT_ARGB32, max(w, 1), max(h, 1))
-    cr = cairo.Context(sf)
-    lay = PangoCairo.create_layout(cr)
-    lay.set_font_description(Pango.FontDescription(f"{FONT} 14"))
-    lay.set_text(text, -1)
-    cr.set_source_rgba(*col(c["dim"]))
-    PangoCairo.show_layout(cr, lay)
-    sf.write_to_png(str(out / "label.png"))
+    for stale in ("logo.png", "seg_on.png", "seg_off.png", "label.png"):
+        (out / stale).unlink(missing_ok=True)
 
     bg = rgb(c["bg"])
     (out / "dotfiles.plymouth").write_text(
@@ -978,31 +907,25 @@ Window.SetBackgroundBottomColor({bg[0] / 255:.4f}, {bg[1] / 255:.4f}, {bg[2] / 2
 sw = Window.GetWidth();
 sh = Window.GetHeight();
 
-logo_image = Image("logo.png");
-logo = Sprite(logo_image);
-logo.SetX(sw / 2 - logo_image.GetWidth() / 2);
-logo.SetY(sh / 2 - logo_image.GetHeight() - 30);
+art = Image("bg.png");
+art_sprite = Sprite(art.Scale(sw, sh));
+art_sprite.SetZ(-100);
 
-on_image = Image("seg_on.png");
-off_image = Image("seg_off.png");
-segments = 30;
-step = 16;
-bar_x = sw / 2 - (segments * step) / 2;
-bar_y = sh / 2 + 24;
-for (i = 0; i < segments; i++) {{
-    seg[i] = Sprite(off_image);
-    seg[i].SetX(bar_x + i * step);
-    seg[i].SetY(bar_y);
-}}
+bar_w = Math.Int(sw * 0.22);
+bar_h = Math.Max(2, Math.Int(sh * 0.0028));
+bar_x = Math.Int((sw - bar_w) / 2);
+bar_y = Math.Int(sh * 0.93);
 
-label_image = Image("label.png");
-label = Sprite(label_image);
-label.SetX(sw / 2 - label_image.GetWidth() / 2);
-label.SetY(bar_y + 48);
+track_src = Image("track.png");
+track = Sprite(track_src.Scale(bar_w, bar_h));
+track.SetPosition(bar_x, bar_y, 1);
+
+fill_src = Image("fill.png");
+fill = Sprite();
+fill.SetPosition(bar_x, bar_y, 2);
 
 target = 0;
 shown = 0;
-lit = 0;
 
 fun on_progress(duration, progress) {{
     target = progress;
@@ -1010,12 +933,10 @@ fun on_progress(duration, progress) {{
 Plymouth.SetBootProgressFunction(on_progress);
 
 fun on_refresh() {{
-    shown = shown + (target - shown) * 0.08;
-    n = Math.Int(shown * segments);
-    while (lit < n && lit < segments) {{
-        seg[lit].SetImage(on_image);
-        lit++;
-    }}
+    shown = shown + (target - shown) * 0.12;
+    w = Math.Int(bar_w * shown);
+    if (w > 0)
+        fill.SetImage(fill_src.Scale(w, bar_h));
 }}
 Plymouth.SetRefreshFunction(on_refresh);
 """)
@@ -1169,8 +1090,8 @@ def apply(colors, style, reload=True):
     make_cursors(c)
     try:
         make_splash_bg(c)
-        subprocess.run(["python3", str(PARTS / "sway/.config/sway/startup-splash.py"), "--render",
-                        str(WALLPAPER.parent / "login-frame.png")], check=False,
+        subprocess.run(["python3", str(PARTS / "sway/.config/sway/quote-frame.py"), "--render",
+                        str(WALLPAPER.parent / "lock-frame.png")], check=False,
                        stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         make_plymouth(c)
     except Exception as e:  # cairo/pango missing: the splash just isn't regenerated
@@ -1181,7 +1102,6 @@ def apply(colors, style, reload=True):
         gsettings(c, icons)
     if reload:
         sh("swaymsg", "reload")
-        sh("swaymsg", "bar", "boot", "mode", "invisible")  # reload re-creates the placeholder
         sh("pkill", "-SIGUSR2", "-x", "waybar")
         sh("makoctl", "reload")
     print(f"colors: {colors}  style: {style}")
