@@ -30,10 +30,10 @@ input type:tablet_tool map_to_output eDP-1
 
 # Idle: lock 5 min, screen off 10 min, suspend 15 min; lock before any sleep (lid too, via logind).
 exec swayidle -w \
-    timeout 300 'swaylock -f -c $bgrgb' \
+    timeout 300 'swaylock -f' \
     timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
     timeout 900 'systemctl suspend' \
-    before-sleep 'swaylock -f -c $bgrgb'
+    before-sleep 'swaylock -f'
 
 # Tablet mode: folded over, the keyboard and touchpad must not type. One binding per event.
 bindswitch --reload tablet:on  exec notify-send "Tablet mode"; input type:touchpad events disabled; input 4012:2782:keyd_virtual_keyboard events disabled
@@ -58,7 +58,7 @@ bindsym Mod4+space exec $menu
 bindsym Mod4+q kill
 bindsym Mod4+Shift+e exec swaymsg exit
 bindsym Mod4+Shift+c reload
-bindsym Mod4+l exec swaylock -f -c $bgrgb
+bindsym Mod4+l exec swaylock -f
 
 # Leader: Hyper+space -> which-key overlay -> one key -> back (D6).
 bindsym $hyper+space exec ~/.cargo/bin/wlr-which-key
