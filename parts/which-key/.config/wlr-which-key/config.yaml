@@ -158,6 +158,9 @@ menu:
       - key: "s"
         desc: "  Style"
         submenu:
+          - key: "c"
+            desc: "compact"
+            cmd: "python3 /home/andreas/dotfiles/scripts/theme.py style compact"
           - key: "m"
             desc: "minimal"
             cmd: "python3 /home/andreas/dotfiles/scripts/theme.py style minimal"
@@ -181,7 +184,7 @@ menu:
     submenu:
       - key: "l"
         desc: "  Lock"
-        cmd: "swaylock -f -c 1e1e2e"
+        cmd: "swaylock -f"
       - key: "e"
         desc: "  Log out"
         cmd: "swaymsg exit"
