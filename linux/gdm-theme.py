@@ -44,7 +44,7 @@ def main():
     assert all(HEX.match(v) for v in c.values()), "bad color"
     accent_name = data["accent"] if data["accent"] in ACCENTS else "blue"
 
-    wp = pal / "wallpaper.png"
+    wp = pal / "splash-bg.png"   # the horizon art; the quote is added only by sway/the splash
     assert wp.is_file() and not wp.is_symlink() and wp.stat().st_size < 16_000_000, "bad wallpaper"
     with wp.open("rb") as f:
         assert f.read(8) == b"\x89PNG\r\n\x1a\n", "wallpaper is not a PNG"

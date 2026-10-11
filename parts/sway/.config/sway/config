@@ -7,6 +7,7 @@ include /etc/sway/config.d/*
 exec ~/.config/sway/startup-reveal.sh
 # A reload re-creates the placeholder; hide it again when waybar is already running.
 exec_always ~/.config/sway/bar-state.sh
+exec_always ~/.config/sway/bg-state.sh
 
 set $hyper Ctrl+Mod1+Mod4+Shift
 set $term  alacritty

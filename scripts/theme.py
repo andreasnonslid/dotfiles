@@ -153,7 +153,8 @@ def hyper_bindings(c):
 def r_sway(c, s):
     col = f"# {GEN}\n" + "".join(f"set ${k} {c[k]}\n" for k in COLOR_KEYS)
     col += f"set $bgrgb {c['bg'].lstrip('#')}\n"
-    col += "output * bg ~/.local/share/palette/wallpaper.png fill\n"
+    col += "# Prepared login frame: the first thing sway shows. bg-state.sh puts the wallpaper back after login.\n"
+    col += "output * bg ~/.local/share/palette/login-frame.png fill\n"
     sty = f"""# {GEN}
 default_border pixel {s['border']}
 gaps inner {s['gaps_inner']}
@@ -167,6 +168,7 @@ seat * xcursor_theme dotfiles 24
 # bar-handoff.sh hides it once waybar has drawn.
 bar {{
     id boot
+    mode invisible
     position top
     height {s['bar_height'] + s['bar_margin']}
     font pango:{FONT} {round(s['font_size'] * 0.75)}
@@ -1167,6 +1169,9 @@ def apply(colors, style, reload=True):
     make_cursors(c)
     try:
         make_splash_bg(c)
+        subprocess.run(["python3", str(PARTS / "sway/.config/sway/startup-splash.py"), "--render",
+                        str(WALLPAPER.parent / "login-frame.png")], check=False,
+                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         make_plymouth(c)
     except Exception as e:  # cairo/pango missing: the splash just isn't regenerated
         print(f"plymouth theme skipped: {e}", file=sys.stderr)

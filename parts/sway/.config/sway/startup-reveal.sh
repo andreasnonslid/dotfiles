@@ -17,6 +17,7 @@ fi
 #     If it cannot start, the cover simply stays until the reveal below.
 RUN="$XDG_RUNTIME_DIR/startup"
 rm -rf "$RUN"; mkdir -p "$RUN"
+touch "$RUN/active"   # tells bg-state.sh to leave the prepared frame alone until the reveal
 has_app() { swaymsg -t get_tree | grep -q "\"app_id\": \"$1\""; }
 python3 ~/.config/sway/startup-splash.py >/dev/null 2>&1 &
 splash_pid=$!
@@ -57,6 +58,10 @@ touch "$RUN/done"
 for _ in $(seq 1 30); do kill -0 "$splash_pid" 2>/dev/null || break; sleep 0.05; done
 kill "$splash_pid" 2>/dev/null          # never leave it behind
 swaymsg bar boot mode invisible >/dev/null
+swaymsg output '*' bg "$HOME/.local/share/palette/wallpaper.png" fill >/dev/null   # the real wallpaper, behind the windows
+rm -f "$RUN/active"
 [ -n "$covered" ] && pkill -USR1 -x swaylock
 t revealed >> "$log"
+# Prepare the NEXT login's frame now (a fresh quote, seeded from the date and time), off the critical path.
+( nice -n 10 python3 ~/.config/sway/startup-splash.py --render "$HOME/.local/share/palette/login-frame.png" --new ) &
 wait

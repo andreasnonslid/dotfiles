@@ -42,6 +42,10 @@ def colors():
     return {k: tuple(int(v[i:i + 2], 16) / 255 for i in (1, 3, 5)) for k, v in c.items()}
 
 
+QUOTE_FILE = HOME / ".local/share/palette/login-quote.txt"
+FRAME_FILE = HOME / ".local/share/palette/login-frame.png"
+
+
 def pick_quote(now=None):
     """Seeded from the date and time, as the user asked: YYYYMMDDHHMMSS."""
     seed = int(time.strftime("%Y%m%d%H%M%S", now or time.localtime()))
@@ -54,6 +58,24 @@ def pick_quote(now=None):
     except OSError:
         pass
     return random.Random(seed).choice(rows) if rows else ("Good things take a moment.", "")
+
+
+def load_quote(new=False):
+    """The quote the prepared login frame shows (so the splash continues it unchanged).
+    new=True picks a fresh one from the current date and time and remembers it for the next login."""
+    if not new:
+        try:
+            q, a = QUOTE_FILE.read_text().split("|", 1)
+            return q.strip(), a.strip()
+        except (OSError, ValueError):
+            pass
+    quote = pick_quote()
+    try:
+        QUOTE_FILE.parent.mkdir(parents=True, exist_ok=True)
+        QUOTE_FILE.write_text(f"{quote[0]}|{quote[1]}\n")
+    except OSError:
+        pass
+    return quote
 
 
 def paint(cr, w, h, c, bg, quote, shown, ready):
@@ -92,7 +114,7 @@ def paint(cr, w, h, c, bg, quote, shown, ready):
         PangoCairo.show_layout(cr, al)
 
     # a quiet progress line near the bottom and four dots under it
-    lw, lh = w * 0.22, 3
+    lw, lh = w * 0.22, max(2.0, h * 0.0028)
     x, y = (w - lw) / 2, h * 0.93
     cr.set_source_rgba(*c["fg"], 0.18)
     cr.rectangle(x, y, lw, lh)
@@ -103,7 +125,7 @@ def paint(cr, w, h, c, bg, quote, shown, ready):
     gap = lw / (len(STEPS) - 1)
     for i, ok in enumerate(ready):
         cr.set_source_rgba(*(c["accent2"] if ok else c["fg"]), 0.9 if ok else 0.25)
-        cr.arc(x + i * gap, y + 22, 3.2, 0, 2 * math.pi)
+        cr.arc(x + i * gap, y + h * 0.020, h * 0.003, 0, 2 * math.pi)
         cr.fill()
 
 
@@ -111,7 +133,7 @@ class Splash(Gtk.Window):
     def __init__(self):
         super().__init__(title="startup-splash")
         self.c = colors()
-        self.quote = pick_quote()
+        self.quote = load_quote()
         self.start = time.time()
         self.shown = 0.0
         self.finish_at = None
@@ -147,6 +169,26 @@ class Splash(Gtk.Window):
         return True
 
 
+def render(out, new):
+    """Write the login frame (art + quote + empty progress) to a PNG without opening a window."""
+    import cairo
+    c = colors()
+    try:
+        bg = GdkPixbuf.Pixbuf.new_from_file(str(HOME / ".local/share/palette/splash-bg.png"))
+    except GLib.Error:
+        bg = None
+    w, h = (bg.get_width(), bg.get_height()) if bg else (1920, 1080)
+    surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
+    paint(cairo.Context(surf), w, h, c, bg, load_quote(new), 0.0, [False] * len(STEPS))
+    tmp = Path(str(out) + ".tmp")
+    surf.write_to_png(str(tmp))
+    os.replace(tmp, out)
+
+
 if __name__ == "__main__":
+    import sys
+    if "--render" in sys.argv:
+        render(Path(sys.argv[sys.argv.index("--render") + 1]), "--new" in sys.argv)
+        raise SystemExit(0)
     splash = Splash()  # keep a reference: an unreferenced window is garbage-collected at once
     Gtk.main()
