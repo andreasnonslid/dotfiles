@@ -238,11 +238,16 @@ def r_waybar(c, s):
     }},
 
     "bluetooth": {{
-        "format": "",
-        "format-off": "",
-        "format-connected": "\uf293  {{device_alias}}",
+        "align": 0.5,
+        "format": "\U000f00af  {{num_connections}}",
+        "format-connected": "\U000f00b1  {{num_connections}}",
+        "format-off": "\U000f00b2",
+        "format-disabled": "\U000f00b2",
+        "tooltip-format": "Bluetooth on  \u00b7  {{num_connections}} connected",
         "tooltip-format-connected": "{{device_enumerate}}",
-        "on-click": "blueman-manager"
+        "tooltip-format-enumerate-connected": "{{device_alias}}",
+        "on-click": "~/.config/sway/bluetooth-menu.sh",
+        "on-click-right": "blueman-manager"
     }},
 
     "network": {{
@@ -342,6 +347,8 @@ window#waybar {{ background: {s['bar_bg']}; color: @fg; {border} }}
 #mpris {{ color: @accent; }}
 #network {{ color: @accent; }}
 #bluetooth {{ color: @accent2; }}
+#bluetooth.off, #bluetooth.disabled {{ color: @dim; }}
+#bluetooth {{ min-width: {w(5)}px; }}
 #cpu.warning, #memory.warning {{ color: @warn; }}
 #backlight {{ color: @warn; }}
 #pulseaudio {{ color: @accent2; }}

@@ -44,11 +44,16 @@
     },
 
     "bluetooth": {
-        "format": "",
-        "format-off": "",
-        "format-connected": "  {device_alias}",
+        "align": 0.5,
+        "format": "󰂯  {num_connections}",
+        "format-connected": "󰂱  {num_connections}",
+        "format-off": "󰂲",
+        "format-disabled": "󰂲",
+        "tooltip-format": "Bluetooth on  ·  {num_connections} connected",
         "tooltip-format-connected": "{device_enumerate}",
-        "on-click": "blueman-manager"
+        "tooltip-format-enumerate-connected": "{device_alias}",
+        "on-click": "~/.config/sway/bluetooth-menu.sh",
+        "on-click-right": "blueman-manager"
     },
 
     "network": {

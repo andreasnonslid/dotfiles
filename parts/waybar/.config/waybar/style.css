@@ -28,6 +28,8 @@ window#waybar { background: transparent; color: @fg;  }
 #mpris { color: @accent; }
 #network { color: @accent; }
 #bluetooth { color: @accent2; }
+#bluetooth.off, #bluetooth.disabled { color: @dim; }
+#bluetooth { min-width: 38px; }
 #cpu.warning, #memory.warning { color: @warn; }
 #backlight { color: @warn; }
 #pulseaudio { color: @accent2; }
