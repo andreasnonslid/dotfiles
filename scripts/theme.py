@@ -140,18 +140,23 @@ smart_borders on
 seat * xcursor_theme dotfiles 24
 
 # Placeholder bar: sway draws it with itself, so the top is never empty while waybar warms up.
-# bar-handoff.sh hides it once waybar reports ready.
+# It mirrors waybar's layout (workspaces left, clock right) so the handoff reads as "filling in".
+# bar-handoff.sh hides it once waybar has drawn.
 bar {{
     id boot
     position top
-    height {s['bar_height']}
-    font pango:{FONT} {s['font_size']}
-    status_command while date +'%a %d %b   %H:%M'; do sleep 30; done
+    height {s['bar_height'] + s['bar_margin']}
+    font pango:{FONT} {round(s['font_size'] * 0.75)}
+    status_padding {s['mod_pad']}
+    workspace_min_width 30
+    tray_output none
+    separator_symbol " "
+    status_command while date +'  %a %d %b   %H:%M'; do sleep 30; done
     colors {{
-        background {c['bg']}
+        background {c['bg'] if s['bar_bg'] != 'transparent' else '#00000000'}
         statusline {c['accent2']}
         focused_workspace {c['accent']} {c['accent']} {c['bg']}
-        inactive_workspace {c['bg']} {c['bg']} {c['dim']}
+        inactive_workspace #00000000 #00000000 {c['dim']}
         urgent_workspace {c['urgent']} {c['urgent']} {c['bg']}
     }}
 }}
@@ -172,8 +177,8 @@ def r_waybar(c, s):
     "margin-right": {m},
     "spacing": 8,
     "modules-left": ["sway/workspaces", "sway/mode"],
-    "modules-center": ["clock"],
-    "modules-right": ["tray", "network", "cpu", "memory", "backlight", "pulseaudio", "battery", "custom/ready"],
+    "modules-center": [],
+    "modules-right": ["tray", "network", "cpu", "memory", "backlight", "pulseaudio", "battery", "clock", "custom/ready"],
     "sway/workspaces": {{ "disable-scroll": true, "format": "{{index}}" }},
     "clock": {{ "format": "  {{:%a %d %b   %H:%M}}", "tooltip-format": "{{calendar}}" }},
     "battery": {{

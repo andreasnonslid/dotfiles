@@ -8,8 +8,8 @@
     "margin-right": 0,
     "spacing": 8,
     "modules-left": ["sway/workspaces", "sway/mode"],
-    "modules-center": ["clock"],
-    "modules-right": ["tray", "network", "cpu", "memory", "backlight", "pulseaudio", "battery", "custom/ready"],
+    "modules-center": [],
+    "modules-right": ["tray", "network", "cpu", "memory", "backlight", "pulseaudio", "battery", "clock", "custom/ready"],
     "sway/workspaces": { "disable-scroll": true, "format": "{index}" },
     "clock": { "format": "  {:%a %d %b   %H:%M}", "tooltip-format": "{calendar}" },
     "battery": {

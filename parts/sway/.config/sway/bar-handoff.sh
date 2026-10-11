@@ -6,6 +6,6 @@ for _ in $(seq 1 100); do
   [ -e "$XDG_RUNTIME_DIR/waybar-ready" ] && break
   sleep 0.1
 done
-sleep 0.3
+sleep 0.15
 swaymsg bar boot mode invisible >/dev/null
 wait
