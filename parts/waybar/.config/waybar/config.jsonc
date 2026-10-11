@@ -1,0 +1,36 @@
+{
+    "layer": "top",
+    "position": "top",
+    "height": 34,
+    "margin-top": 6,
+    "margin-left": 8,
+    "margin-right": 8,
+    "spacing": 8,
+    "modules-left": ["sway/workspaces", "sway/mode"],
+    "modules-center": ["clock"],
+    "modules-right": ["tray", "network", "cpu", "memory", "backlight", "pulseaudio", "battery"],
+    "sway/workspaces": { "disable-scroll": true, "format": "{index}" },
+    "clock": { "format": "  {:%a %d %b   %H:%M}", "tooltip-format": "{calendar}" },
+    "battery": {
+        "states": { "warning": 25, "critical": 12 },
+        "format": "{icon}  {capacity}%",
+        "format-charging": "󰂄  {capacity}%",
+        "format-icons": ["󰁺", "󰁼", "󰁿", "󰂁", "󰁹"]
+    },
+    "network": {
+        "format-wifi": "󰖩  {essid}",
+        "format-ethernet": "󰈀",
+        "format-disconnected": "󰖪  offline",
+        "on-click": "nm-connection-editor"
+    },
+    "pulseaudio": {
+        "format": "{icon}  {volume}%",
+        "format-muted": "󰝟  muted",
+        "format-icons": { "default": ["󰕿", "󰖀", "󰕾"] },
+        "on-click": "pavucontrol"
+    },
+    "backlight": { "format": "󰃠  {percent}%" },
+    "cpu": { "format": "󰻠  {usage}%" },
+    "memory": { "format": "󰍛  {percentage}%" },
+    "tray": { "spacing": 8 }
+}

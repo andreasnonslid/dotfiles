@@ -1,0 +1,76 @@
+# sway: leader = Hyper (ctrl+alt+super+shift, from keyd/Vial: Caps hold). See ~/rice/keymap.md.
+include ~/.config/sway/colors.conf
+include /etc/sway/config.d/*
+
+set $hyper Ctrl+Mod1+Mod4+Shift
+set $term  alacritty
+set $menu  fuzzel
+
+font pango:IosevkaTerm Nerd Font 11
+default_border pixel 2
+gaps inner 8
+gaps outer 4
+smart_borders on
+client.focused $accent $accent $bg $accent $accent
+client.unfocused $dim $bg $fg $dim $dim
+client.urgent $urgent $urgent $bg $urgent $urgent
+
+input type:keyboard xkb_layout no
+input type:touchpad {
+    tap enabled
+    natural_scroll enabled
+}
+
+exec squeekboard
+exec mako
+exec nm-applet --indicator
+exec blueman-applet
+exec ~/.config/sway/autorotate.sh
+
+# Touch and pen follow the panel (and its rotation).
+input type:touch map_to_output eDP-1
+input type:tablet_tool map_to_output eDP-1
+
+# Idle: lock 5 min, screen off 10 min, suspend 15 min; lock before any sleep (lid too, via logind).
+exec swayidle -w \
+    timeout 300 'swaylock -f -c $bgrgb' \
+    timeout 600 'swaymsg "output * power off"' resume 'swaymsg "output * power on"' \
+    timeout 900 'systemctl suspend' \
+    before-sleep 'swaylock -f -c $bgrgb'
+
+# Tablet mode: folded over, the keyboard and touchpad must not type. One binding per event.
+bindswitch --reload tablet:on  exec notify-send "Tablet mode"; input type:touchpad events disabled; input 4012:2782:keyd_virtual_keyboard events disabled
+bindswitch --reload tablet:off exec notify-send "Laptop mode"; input type:touchpad events enabled; input 4012:2782:keyd_virtual_keyboard events enabled
+
+# Hardware keys.
+bindsym --locked XF86AudioRaiseVolume exec wpctl set-volume -l 1.0 @DEFAULT_AUDIO_SINK@ 5%+
+bindsym --locked XF86AudioLowerVolume exec wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-
+bindsym --locked XF86AudioMute exec wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle
+bindsym --locked XF86AudioMicMute exec wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle
+bindsym --locked XF86MonBrightnessUp exec brightnessctl set 5%+
+bindsym --locked XF86MonBrightnessDown exec brightnessctl set 5%-
+bindsym --locked XF86AudioPlay exec playerctl play-pause
+bindsym --locked XF86AudioNext exec playerctl next
+bindsym --locked XF86AudioPrev exec playerctl previous
+# Region screenshot: saved to ~/Pictures/Screenshots and copied to the clipboard.
+bindsym Print exec f=~/Pictures/Screenshots/$(date +%F_%H-%M-%S).png && grim -g "$(slurp)" "$f" && wl-copy < "$f"
+
+# Few direct chords for things done constantly.
+bindsym Mod4+Return exec $term
+bindsym Mod4+space exec $menu
+bindsym Mod4+q kill
+bindsym Mod4+Shift+e exec swaymsg exit
+bindsym Mod4+Shift+c reload
+bindsym Mod4+l exec swaylock -f -c $bgrgb
+
+# Leader: Hyper+space -> which-key overlay -> one key -> back (D6).
+bindsym $hyper+space exec ~/.cargo/bin/wlr-which-key
+mode "resize" {
+    bindsym h resize shrink width 40px
+    bindsym l resize grow width 40px
+    bindsym k resize shrink height 40px
+    bindsym j resize grow height 40px
+    bindsym Escape mode default
+}
+
+exec waybar

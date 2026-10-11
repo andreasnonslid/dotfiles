@@ -1,0 +1,29 @@
+@import "colors.css";
+
+* { font-family: "IosevkaTerm Nerd Font"; font-size: 14px; border: none; border-radius: 0; min-height: 0; }
+window#waybar { background: transparent; color: @fg; }
+
+/* every module is a floating pill */
+#workspaces, #mode, #clock, #tray, #network, #cpu, #memory, #backlight, #pulseaudio, #battery {
+    background: alpha(@bg, 0.92);
+    border-radius: 14px;
+    padding: 2px 14px;
+    margin: 0;
+}
+
+#workspaces { padding: 0 4px; }
+#workspaces button { color: @dim; padding: 0 10px; margin: 3px 2px; border-radius: 10px; background: transparent; }
+#workspaces button:hover { background: alpha(@accent, 0.25); color: @fg; }
+#workspaces button.focused { color: @bg; background: @accent; font-weight: bold; }
+#workspaces button.urgent { color: @bg; background: @urgent; }
+
+#mode { color: @bg; background: @warn; font-weight: bold; }
+#clock { color: @accent2; font-weight: bold; }
+#network { color: @accent; }
+#cpu, #memory { color: @dim; }
+#backlight { color: @warn; }
+#pulseaudio { color: @accent2; }
+#pulseaudio.muted { color: @dim; }
+#battery { color: @accent; }
+#battery.warning { color: @warn; }
+#battery.critical { color: @urgent; }
