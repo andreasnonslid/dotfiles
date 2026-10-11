@@ -26,9 +26,11 @@ input type:touchpad {
 exec mako
 # Not needed for the first paint: start after the bar so it appears at once.
 exec sleep 2 && squeekboard
-exec sleep 3 && NO_AT_BRIDGE=1 nm-applet --indicator
-exec sleep 3 && NO_AT_BRIDGE=1 blueman-applet
 exec sleep 2 && ~/.config/sway/autorotate.sh
+
+# Network picker: click the network module -> nmtui in a centred floating terminal.
+# (nm-applet / blueman-applet are not started: their tray icons duplicated the bar's modules.)
+for_window [app_id="nmtui-float"] floating enable, resize set width 70 ppt height 60 ppt, move position center
 
 # Touch and pen follow the panel (and its rotation).
 output eDP-1 scale 1.25

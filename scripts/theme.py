@@ -191,6 +191,18 @@ bar {{
 def r_waybar(c, s):
     col = f"/* {GEN} */\n" + "".join(f"@define-color {k} {c[k]};\n" for k in COLOR_KEYS)
     m = s["bar_margin"]
+    # window icons shown inside each workspace button (app_id regex -> icon)
+    icons = {  # ECMAScript regex (waybar uses std::regex): no (?i), so spell out the cases
+        "[Aa]lacritty|foot|kitty": "\uf120",
+        "[Ff]irefox.*": "\uf269",
+        "[Cc]hrom.*|[Bb]rave.*|[Gg]oogle-chrome.*": "\uf268",
+        "[Cc]ode.*|[Cc]ursor.*|[Zz]ed.*": "\uf121",
+        "[Oo]bsidian": "\U000f0b6e",
+        "org.gnome.[Nn]autilus|[Tt]hunar": "\uf07b",
+        "[Ss]lack": "\uf198", "[Dd]iscord": "\uf392", "[Ss]potify": "\uf1bc",
+        "[Pp]avucontrol": "\uf028", "[Ll]ibreoffice.*": "\uf1c2", "mpv|vlc": "\uf03d",
+    }
+    rewrite = ",\n".join(f'        "class<{k}>": "{v}"' for k, v in icons.items())
     cfg = f"""// {GEN}
 {{
     "layer": "top",
@@ -202,48 +214,111 @@ def r_waybar(c, s):
     "spacing": 8,
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
-    "modules-right": ["tray", "network", "cpu", "memory", "backlight", "pulseaudio", "battery", "clock", "custom/ready"],
-    "sway/workspaces": {{ "disable-scroll": true, "format": "{{index}}" }},
-    "clock": {{ "align": 0.5, "format": "  {{:%a %d %b   %H:%M}}", "tooltip-format": "{{calendar}}" }},
+    "modules-right": ["mpris", "tray", "bluetooth", "network", "pulseaudio", "backlight", "battery", "cpu", "memory", "clock", "custom/ready"],
+
+    "sway/workspaces": {{
+        "disable-scroll": false,
+        "all-outputs": false,
+        "format": "{{index}} {{windows}}",
+        "window-format": "{{icon}}",
+        "window-rewrite-default": "\uf2d0",
+        "window-rewrite": {{
+{rewrite}
+        }}
+    }},
+
+    "mpris": {{
+        "format": "{{status_icon}}  {{title}}",
+        "status-icons": {{ "playing": "\uf04b", "paused": "\uf04c" }},
+        "max-length": 34,
+        "on-click": "playerctl play-pause",
+        "on-scroll-up": "playerctl next",
+        "on-scroll-down": "playerctl previous",
+        "tooltip-format": "{{player}}: {{artist}} \u2013 {{title}}"
+    }},
+
+    "bluetooth": {{
+        "format": "",
+        "format-off": "",
+        "format-connected": "\uf293  {{device_alias}}",
+        "tooltip-format-connected": "{{device_enumerate}}",
+        "on-click": "blueman-manager"
+    }},
+
+    "network": {{
+        "align": 0.5,
+        "format-wifi": "\U000f05a9  {{essid}}",
+        "format-ethernet": "\U000f0200",
+        "format-disconnected": "\U000f05aa  offline",
+        "max-length": 20,
+        "tooltip-format-wifi": "{{essid}}  {{signalStrength}}%\\n{{ipaddr}}",
+        "on-click": "alacritty --class nmtui-float -e nmtui",
+        "on-click-right": "nm-connection-editor"
+    }},
+
+    "pulseaudio": {{
+        "align": 0.5,
+        "format": "{{icon}}  {{volume}}%",
+        "format-muted": "\U000f075f  muted",
+        "format-icons": {{ "default": ["\U000f057f", "\U000f0580", "\U000f057e"] }},
+        "scroll-step": 5,
+        "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+        "on-click-right": "pavucontrol"
+    }},
+
+    "backlight": {{
+        "format": "\U000f00e0",
+        "tooltip-format": "Brightness {{percent}}%",
+        "on-scroll-up": "brightnessctl set 5%+",
+        "on-scroll-down": "brightnessctl set 5%-"
+    }},
+
     "battery": {{
         "align": 0.5,
         "states": {{ "warning": 25, "critical": 12 }},
         "format": "{{icon}}  {{capacity}}%",
-        "format-charging": "󰂄  {{capacity}}%",
-        "format-icons": ["󰁺", "󰁼", "󰁿", "󰂁", "󰁹"]
+        "format-charging": "\U000f0084  {{capacity}}%",
+        "format-icons": ["\U000f007a", "\U000f007c", "\U000f007f", "\U000f0081", "\U000f0079"],
+        "tooltip-format": "{{timeTo}}"
     }},
-    "network": {{
+
+    "cpu": {{
+        "interval": 3,
+        "states": {{ "warning": 85 }},
+        "format": "",
+        "format-warning": "\U000f0ee0  {{usage}}%"
+    }},
+
+    "memory": {{
+        "interval": 5,
+        "states": {{ "warning": 85 }},
+        "format": "",
+        "format-warning": "\U000f035b  {{percentage}}%"
+    }},
+
+    "clock": {{
         "align": 0.5,
-        "format-wifi": "󰖩  {{essid}}",
-        "max-length": 20,
-        "format-ethernet": "󰈀",
-        "format-disconnected": "󰖪  offline",
-        "on-click": "nm-connection-editor"
+        "format": "\uf017  {{:%a %d %b   %H:%M}}",
+        "format-alt": "\uf017  {{:%H:%M}}",
+        "tooltip-format": "{{calendar}}"
     }},
-    "pulseaudio": {{
-        "align": 0.5,
-        "format": "{{icon}}  {{volume}}%",
-        "format-muted": "󰝟  muted",
-        "format-icons": {{ "default": ["󰕿", "󰖀", "󰕾"] }},
-        "on-click": "pavucontrol"
-    }},
-    "backlight": {{ "align": 0.5, "format": "󰃠  {{percent}}%" }},
-    "cpu": {{ "align": 0.5, "format": "󰻠  {{usage}}%" }},
-    "memory": {{ "align": 0.5, "format": "󰍛  {{percentage}}%" }},
+
     "tray": {{ "spacing": 8 }},
+
     "custom/ready": {{ "format": "", "exec": "touch $XDG_RUNTIME_DIR/waybar-ready", "interval": "once", "tooltip": false }}
 }}
 """
     border = "" if s["bar_border"] == "none" else f"border-bottom: {s['bar_border']};"
     r, p = s["radius"], s["mod_pad"]
     w = lambda chars: round(chars * s["font_size"] * 0.58)  # Iosevka Term advance ~0.5em, plus margin
+    mods = "#workspaces, #mode, #clock, #tray, #network, #bluetooth, #mpris, #cpu, #memory, #backlight, #pulseaudio, #battery"
     css = f"""/* {GEN} */
 @import "colors.css";
 
 * {{ font-family: "{FONT}"; font-size: {s['font_size']}px; border: none; border-radius: 0; min-height: 0; }}
 window#waybar {{ background: {s['bar_bg']}; color: @fg; {border} }}
 
-#workspaces, #mode, #clock, #tray, #network, #cpu, #memory, #backlight, #pulseaudio, #battery {{
+{mods} {{
     background: {s['mod_bg']};
     border-radius: {r}px;
     padding: 2px {p}px;
@@ -256,18 +331,18 @@ window#waybar {{ background: {s['bar_bg']}; color: @fg; {border} }}
 #workspaces button.focused {{ color: @bg; background: @accent; font-weight: bold; }}
 #workspaces button.urgent {{ color: @bg; background: @urgent; }}
 
-/* Reserved widths: content fills in without the bar resizing while services come up. */
+/* Reserved widths for always-present modules: content fills in without the bar resizing. */
 #network {{ min-width: {w(18)}px; }}
-#cpu, #memory {{ min-width: {w(6)}px; }}
-#backlight {{ min-width: {w(7)}px; }}
 #pulseaudio {{ min-width: {w(8)}px; }}
 #battery {{ min-width: {w(7)}px; }}
 #clock {{ min-width: {w(19)}px; }}
 
 #mode {{ color: @bg; background: @warn; font-weight: bold; }}
 #clock {{ color: @accent2; font-weight: bold; }}
+#mpris {{ color: @accent; }}
 #network {{ color: @accent; }}
-#cpu, #memory {{ color: @dim; }}
+#bluetooth {{ color: @accent2; }}
+#cpu.warning, #memory.warning {{ color: @warn; }}
 #backlight {{ color: @warn; }}
 #pulseaudio {{ color: @accent2; }}
 #pulseaudio.muted {{ color: @dim; }}

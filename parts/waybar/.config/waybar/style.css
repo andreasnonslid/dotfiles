@@ -4,7 +4,7 @@
 * { font-family: "IosevkaTerm Nerd Font"; font-size: 13px; border: none; border-radius: 0; min-height: 0; }
 window#waybar { background: transparent; color: @fg;  }
 
-#workspaces, #mode, #clock, #tray, #network, #cpu, #memory, #backlight, #pulseaudio, #battery {
+#workspaces, #mode, #clock, #tray, #network, #bluetooth, #mpris, #cpu, #memory, #backlight, #pulseaudio, #battery {
     background: transparent;
     border-radius: 4px;
     padding: 2px 10px;
@@ -17,18 +17,18 @@ window#waybar { background: transparent; color: @fg;  }
 #workspaces button.focused { color: @bg; background: @accent; font-weight: bold; }
 #workspaces button.urgent { color: @bg; background: @urgent; }
 
-/* Reserved widths: content fills in without the bar resizing while services come up. */
+/* Reserved widths for always-present modules: content fills in without the bar resizing. */
 #network { min-width: 136px; }
-#cpu, #memory { min-width: 45px; }
-#backlight { min-width: 53px; }
 #pulseaudio { min-width: 60px; }
 #battery { min-width: 53px; }
 #clock { min-width: 143px; }
 
 #mode { color: @bg; background: @warn; font-weight: bold; }
 #clock { color: @accent2; font-weight: bold; }
+#mpris { color: @accent; }
 #network { color: @accent; }
-#cpu, #memory { color: @dim; }
+#bluetooth { color: @accent2; }
+#cpu.warning, #memory.warning { color: @warn; }
 #backlight { color: @warn; }
 #pulseaudio { color: @accent2; }
 #pulseaudio.muted { color: @dim; }
