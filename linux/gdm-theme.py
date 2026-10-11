@@ -87,7 +87,7 @@ def main():
     css, n = re.subn(r"#lockDialogGroup \{[^}]*\}",
                      "#lockDialogGroup {\n  background-color: %s;\n"
                      "  background-image: url(file:///usr/share/gdm/palette-wallpaper.png);\n"
-                     "  background-size: %dpx %dpx; background-position: center; background-repeat: no-repeat; }"
+                     "  background-size: %dpx %dpx; background-position: 0px 0px; background-repeat: no-repeat; }"
                      % (bg, w, h), css, count=1)
     assert n == 1, "lockDialogGroup not found; shell theme changed"
     (tmp / "gnome-shell-dark.css").write_text(css)
