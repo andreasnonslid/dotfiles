@@ -13,43 +13,32 @@ if ! pgrep -x swaylock >/dev/null; then
 fi
 ( sleep 8; pkill -USR1 -x swaylock ) &
 
-# 2. Bar: waybar (idempotent), then wait until it reports it has built its modules.
+# 2. Launch everything up front, in parallel, slowest first: Firefox and Zed (assigned to
+#    workspaces 3 and 2 by the sway config), the bar, and the terminal.
 rm -f "$XDG_RUNTIME_DIR/waybar-ready"
+has_app() { swaymsg -t get_tree | grep -q "\"app_id\": \"$1\""; }
+has_app firefox-esr || { setsid firefox-esr >/dev/null 2>&1 & }
+has_app dev.zed.Zed || { setsid ~/.local/bin/zed >/dev/null 2>&1 & }
+t apps-launched >> "$log"
 pgrep -x waybar >/dev/null || NO_AT_BRIDGE=1 waybar -l info 2>> "$log" &
 t waybar-launched >> "$log"
-
-# 3. Terminal on workspace 1, unless one is already there.
-has_term() { swaymsg -t get_tree | grep -q '"app_id": "Alacritty"'; }
-has_term || alacritty &
+has_app Alacritty || alacritty &
 t terminal-launched >> "$log"
 
-# 4. Wait for both (max ~6 s), let one frame settle, then reveal.
-for _ in $(seq 1 120); do
-  [ -e "$XDG_RUNTIME_DIR/waybar-ready" ] && has_term && break
-  sleep 0.05
+# 3. Hold the cover until the bar, the terminal and both apps have a window (cap: HOLD_MAX seconds),
+#    so workspaces 2 and 3 are already there when you switch to them. Set HOLD_MAX=1 for a short hold.
+HOLD_MAX=${HOLD_MAX:-6}
+zed=; ff=
+for _ in $(seq 1 $((HOLD_MAX * 20))); do
+    tree=$(swaymsg -t get_tree)
+    [ -z "$zed" ] && grep -q '"app_id": "dev.zed.Zed"' <<<"$tree" && { zed=1; t zed-window >> "$log"; }
+    [ -z "$ff" ] && grep -q '"app_id": "firefox-esr"' <<<"$tree" && { ff=1; t firefox-window >> "$log"; }
+    [ -e "$XDG_RUNTIME_DIR/waybar-ready" ] && grep -q '"app_id": "Alacritty"' <<<"$tree" && [ -n "$zed" ] && [ -n "$ff" ] && break
+    sleep 0.05
 done
 t ready >> "$log"
-sleep 0.2
+sleep 0.25   # let the last windows paint a first frame
 swaymsg bar boot mode invisible >/dev/null
 [ -n "$covered" ] && pkill -USR1 -x swaylock
 t revealed >> "$log"
-
-# 5. Zed (workspace 2) and Firefox (workspace 3), launched after the reveal so they never delay it;
-#    the `assign` rules in the sway config send their windows to those workspaces.
-has_app() { swaymsg -t get_tree | grep -q "\"app_id\": \"$1\""; }
-has_app dev.zed.Zed || { setsid ~/.local/bin/zed >/dev/null 2>&1 & }
-has_app firefox-esr || { setsid firefox-esr >/dev/null 2>&1 & }
-t apps-launched >> "$log"
-
-# Record when each window really appears (for scripts/startup-report.sh).
-(
-    zed=; ff=
-    for _ in $(seq 1 240); do
-        tree=$(swaymsg -t get_tree)
-        [ -z "$zed" ] && grep -q '"app_id": "dev.zed.Zed"' <<<"$tree" && { zed=1; t zed-window >> "$log"; }
-        [ -z "$ff" ] && grep -q '"app_id": "firefox-esr"' <<<"$tree" && { ff=1; t firefox-window >> "$log"; }
-        [ -n "$zed" ] && [ -n "$ff" ] && break
-        sleep 0.25
-    done
-) &
 wait

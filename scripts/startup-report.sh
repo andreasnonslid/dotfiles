@@ -39,7 +39,7 @@ hr "boot-time hogs (top 6)"
 systemd-analyze blame --no-pager 2>/dev/null | head -6 | sed 's/^/  /'
 
 hr "wiring check"
-for t in gtklock swaylock waybar keyd; do printf '  %-10s %s\n' "$t" "$(command -v "$t" >/dev/null 2>&1 && echo present || echo MISSING)"; done
+for t in gtklock swaylock waybar keyd.rvaiya; do printf '  %-10s %s\n' "$t" "$(command -v "$t" >/dev/null 2>&1 && echo present || echo MISSING)"; done
 systemctl is-active keyd >/dev/null 2>&1 && echo "  keyd active" || echo "  keyd NOT active"
 pgrep -x swayidle >/dev/null && echo "  swayidle running" || echo "  swayidle NOT running"
 pgrep -x waybar >/dev/null && echo "  waybar running" || echo "  waybar NOT running"
