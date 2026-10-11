@@ -13,3 +13,6 @@ opacity = 0.92
 wk_border = 3
 wk_pad = 28
 font_size = 15
+density = "cozy"
+pad = 11
+lines = 12

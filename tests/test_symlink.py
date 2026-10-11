@@ -71,6 +71,7 @@ DARWIN_ONLY_CONFIG_TARGETS = {
 NVIM_ENTRIES = {
     Path(".config/nvim/init.lua"): REPO_ROOT / "nvim" / "init.lua",
     Path(".config/nvim/lsp"): REPO_ROOT / "nvim" / "lsp",
+    Path(".config/nvim/colors"): REPO_ROOT / "nvim" / "colors",
     Path(".config/nvim/lua"): REPO_ROOT / "nvim" / "lua",
     Path(".config/nvim/stylua.toml"): REPO_ROOT / "nvim" / "stylua.toml",
     Path(".config/nvim/testfiles"): REPO_ROOT / "nvim" / "testfiles",
@@ -94,7 +95,7 @@ def expected_links(darwin):
         expected[Path(".config/clangd")] = REPO_ROOT / "bashrc" / ".config" / "clangd"
     expected.update(NVIM_ENTRIES)
     expected.update(CAVEMAN_ENTRIES)
-    skip = {"sway", "waybar", "which-key"} if darwin else {"aerospace", "hammerspoon"}
+    skip = {"sway", "waybar", "which-key", "fuzzel", "swaylock"} if darwin else {"aerospace", "hammerspoon"}
     for entry in (REPO_ROOT / "parts").glob("*/.config/*"):
         if entry.parts[-3] not in skip:
             expected[Path(".config") / entry.name] = entry

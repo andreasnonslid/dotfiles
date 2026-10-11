@@ -6,15 +6,16 @@
   theme.py list colors|styles | current
   theme.py colors NAME | style NAME | apply [COLORS [STYLE]] | next-colors | next-style | random
 
-Outputs are rendered into the parts (committed) so the symlinks just work:
-  sway/{colors,style}.conf  waybar/{colors.css,style.css,config.jsonc}
-  alacritty/{colors,style}.toml  fuzzel/fuzzel.ini  which-key/config.yaml
-  hammerspoon/colors.lua  bashrc/.config/mako/config
-The wallpaper goes to ~/.local/share/palette/wallpaper.png (not committed).
+Everything is generated from the two choices (committed, so symlinks just work):
+  sway, waybar, alacritty, fuzzel, which-key, swaylock, mako, hammerspoon (parts/)
+  starship.toml, zellij (themes/dotfiles.kdl + managed lines in config.kdl),
+  nvim/colors/palette.lua, palette/env.sh (fzf, bat; sourced by tools/palette.sh)
+Not committed (per machine): GTK3/4 gtk.css in ~/.config, wallpaper in ~/.local/share/palette.
 """
 import math
 import os
 import random
+import re
 import struct
 import subprocess
 import sys
@@ -106,7 +107,7 @@ def menu(c):
             ("r", "Random", f"{ME} random"),
         ]),
         ("q", f"{I['off']}  Session", [
-            ("l", f"{I['lock']}  Lock", f"swaylock -f -c {c['bg'].lstrip('#')}"),
+            ("l", f"{I['lock']}  Lock", "swaylock -f"),
             ("e", f"{I['out']}  Log out", SWAY + "exit"),
             ("s", f"{I['sleep']}  Suspend", "systemctl suspend"),
             ("r", f"{I['reboot']}  Reboot", "systemctl reboot"),
@@ -237,11 +238,11 @@ font={FONT}:size={s['font_size'] + 1}
 prompt="  "
 icon-theme=Adwaita
 width=42
-lines=12
-horizontal-pad=24
-vertical-pad=16
+lines={s['lines']}
+horizontal-pad={s['pad'] + 8}
+vertical-pad={s['pad']}
 inner-pad=8
-line-height=26
+line-height={s['font_size'] + 12}
 
 [colors]
 background={h('bg', 'f2')}
@@ -302,8 +303,8 @@ text-color={c['fg']}
 border-color={c['accent']}
 border-size={s['border']}
 border-radius={s['radius']}
-padding=12
-margin=10
+padding={s['pad']}
+margin={max(s['gaps_inner'], 6)}
 """
     return {"../bashrc/.config/mako/config": t}
 
@@ -313,7 +314,217 @@ def r_hammerspoon(c, s):
     return {"hammerspoon/.hammerspoon/colors.lua": f"-- {GEN}\nreturn {{\n{body}}}\n"}
 
 
-RENDERERS = [r_sway, r_waybar, r_alacritty, r_fuzzel, r_whichkey, r_mako, r_hammerspoon]
+def r_starship(c, s):
+    two = s["density"] == "cozy"
+    fmt = "$status$directory$git_branch$git_status$cmd_duration"
+    fmt += "$time$line_break$character" if two else "$character"
+    pal = "".join(f'{k} = "{c[k]}"\n' for k in COLOR_KEYS)
+    t = f"""# {GEN}
+palette = "dotfiles"
+add_newline = {"true" if two else "false"}
+format = "{fmt}"
+
+[palettes.dotfiles]
+{pal}red = "{c['urgent']}"
+green = "{c['ansi'][2]}"
+blue = "{c['accent2']}"
+cyan = "{c['ansi'][6]}"
+yellow = "{c['warn']}"
+
+[directory]
+style = "accent bold"
+truncation_length = 3
+truncate_to_repo = true
+
+[git_branch]
+format = "on [($branch)]($style) "
+style = "accent2"
+
+[git_status]
+format = "([$all_status$ahead_behind]($style) )"
+style = "warn"
+
+[cmd_duration]
+format = "took [($duration)]($style) "
+style = "dim"
+
+[status]
+disabled = false
+format = "[$symbol]($style)"
+symbol = "✘ "
+success_symbol = "✔ "
+style = "bold urgent"
+success_style = "bold green"
+failure_style = "bold urgent"
+
+[time]
+disabled = {"false" if two else "true"}
+format = "[$time]($style) "
+style = "dim"
+time_format = "%H:%M"
+
+[character]
+success_symbol = "[❯](accent)"
+error_symbol = "[❯](urgent)"
+"""
+    return {str(ROOT / "starship.toml"): t}
+
+
+def r_zellij(c, s):
+    a = c["ansi"]
+    t = f"""// {GEN}
+themes {{
+    dotfiles {{
+        fg "{c['fg']}"
+        bg "{c['bg']}"
+        black "{a[0]}"
+        red "{c['urgent']}"
+        green "{a[2]}"
+        yellow "{c['warn']}"
+        blue "{c['accent2']}"
+        magenta "{c['accent']}"
+        orange "{c['warn']}"
+        cyan "{a[6]}"
+        white "{c['fg']}"
+    }}
+}}
+"""
+    out = {str(ROOT / "bashrc/.config/zellij/themes/dotfiles.kdl"): t}
+    home = Path.home() / ".config/zellij"
+    if home.is_dir() and not home.is_symlink():  # machine not bootstrapped: theme it in place
+        out[str(home / "themes/dotfiles.kdl")] = t
+    return out
+
+
+def zellij_options(s):
+    """Managed option lines inside the hand-written config.kdl."""
+    home = Path.home() / ".config/zellij/config.kdl"
+    for p in [ROOT / "bashrc/.config/zellij/config.kdl"] + ([home] if home.is_file() and not home.is_symlink() else []):
+        if p.exists():
+            zellij_edit(p, s)
+
+
+def zellij_edit(p, s):
+    bak = p.with_name(p.name + ".pre-theme")
+    if p != ROOT / "bashrc/.config/zellij/config.kdl" and not bak.exists():
+        bak.write_text(p.read_text())
+    txt = p.read_text()
+    cozy = s["density"] == "cozy"
+    for key, val, anchor in [
+        ("theme", '"dotfiles"', '// theme "dracula"'),
+        ("pane_frames", "true" if cozy else "false", None),
+        ("simplified_ui", "false" if cozy else "true", "// simplified_ui true"),
+    ]:
+        line = f"{key} {val}"
+        if re.search(rf"^{key} ", txt, re.M):
+            txt = re.sub(rf"^{key} .*$", line, txt, flags=re.M)
+        elif anchor and anchor in txt:
+            txt = txt.replace(anchor, anchor + "\n" + line, 1)
+        else:
+            txt += "\n" + line + "\n"
+    p.write_text(txt)
+
+
+def r_nvim(c, s):
+    pal = "".join(f'  {k} = "{c[k]}",\n' for k in COLOR_KEYS)
+    a = c["ansi"]
+    lua = f"""-- {GEN}
+local p = {{
+{pal}  red = "{c['urgent']}", green = "{a[2]}", yellow = "{c['warn']}",
+  blue = "{c['accent2']}", magenta = "{c['accent']}", cyan = "{a[6]}", black = "{a[0]}",
+}}
+vim.cmd("highlight clear")
+vim.g.colors_name = "palette"
+vim.o.termguicolors = true
+local function hl(g, o) vim.api.nvim_set_hl(0, g, o) end
+local groups = {{
+  Normal = {{ fg = p.fg, bg = p.bg }}, NormalFloat = {{ fg = p.fg, bg = p.bg }},
+  FloatBorder = {{ fg = p.accent, bg = p.bg }}, CursorLine = {{ bg = p.black }},
+  CursorLineNr = {{ fg = p.accent, bold = true }}, LineNr = {{ fg = p.dim }},
+  Visual = {{ bg = p.black }}, Search = {{ fg = p.bg, bg = p.warn }},
+  IncSearch = {{ fg = p.bg, bg = p.accent }}, Pmenu = {{ fg = p.fg, bg = p.black }},
+  PmenuSel = {{ fg = p.bg, bg = p.accent }}, StatusLine = {{ fg = p.fg, bg = p.black }},
+  StatusLineNC = {{ fg = p.dim, bg = p.bg }}, VertSplit = {{ fg = p.dim }},
+  WinSeparator = {{ fg = p.dim }}, SignColumn = {{ bg = p.bg }}, Folded = {{ fg = p.dim, bg = p.black }},
+  Comment = {{ fg = p.dim, italic = true }}, String = {{ fg = p.green }},
+  Constant = {{ fg = p.yellow }}, Number = {{ fg = p.yellow }}, Boolean = {{ fg = p.yellow }},
+  Identifier = {{ fg = p.fg }}, Function = {{ fg = p.blue }}, Statement = {{ fg = p.magenta }},
+  Keyword = {{ fg = p.magenta }}, Operator = {{ fg = p.cyan }}, Type = {{ fg = p.yellow }},
+  PreProc = {{ fg = p.accent2 }}, Special = {{ fg = p.cyan }}, Title = {{ fg = p.accent, bold = true }},
+  MatchParen = {{ fg = p.accent, bold = true, underline = true }},
+  Error = {{ fg = p.red }}, ErrorMsg = {{ fg = p.red }}, WarningMsg = {{ fg = p.yellow }},
+  DiagnosticError = {{ fg = p.red }}, DiagnosticWarn = {{ fg = p.yellow }},
+  DiagnosticInfo = {{ fg = p.blue }}, DiagnosticHint = {{ fg = p.cyan }},
+  DiffAdd = {{ fg = p.green }}, DiffChange = {{ fg = p.yellow }}, DiffDelete = {{ fg = p.red }},
+  Added = {{ fg = p.green }}, Changed = {{ fg = p.yellow }}, Removed = {{ fg = p.red }},
+  Directory = {{ fg = p.blue }}, NonText = {{ fg = p.dim }}, SpecialKey = {{ fg = p.dim }},
+}}
+for g, o in pairs(groups) do hl(g, o) end
+"""
+    return {str(ROOT / "nvim/colors/palette.lua"): lua}
+
+
+def r_env(c, s):
+    b = "rounded" if s["density"] == "cozy" else "sharp"
+    fzf = (f"--color=bg:{c['bg']},bg+:{c['ansi'][0]},fg:{c['fg']},fg+:{c['fg']},"
+           f"hl:{c['accent']},hl+:{c['accent']},info:{c['dim']},prompt:{c['accent2']},"
+           f"pointer:{c['accent']},marker:{c['warn']},spinner:{c['accent']},header:{c['dim']},"
+           f"border:{c['dim']} --border={b} --info=inline")
+    t = f"""# {GEN}
+export FZF_DEFAULT_OPTS="{fzf}"
+export BAT_THEME=ansi
+"""
+    return {"palette/.config/palette/env.sh": t}
+
+
+def r_swaylock(c, s):
+    h = lambda k: c[k].lstrip("#")
+    t = f"""# {GEN}
+color={h('bg')}
+image={Path.home()}/.local/share/palette/wallpaper.png
+scaling=fill
+font={FONT}
+indicator-radius=90
+indicator-thickness={6 if s['density'] == 'cozy' else 4}
+inside-color={h('bg')}cc
+ring-color={h('accent')}
+key-hl-color={h('accent2')}
+bs-hl-color={h('urgent')}
+line-color=00000000
+separator-color=00000000
+text-color={h('fg')}
+inside-ver-color={h('bg')}cc
+ring-ver-color={h('accent2')}
+inside-wrong-color={h('bg')}cc
+ring-wrong-color={h('urgent')}
+"""
+    return {"swaylock/.config/swaylock/config": t}
+
+
+def r_gtk(c, s):
+    n = {
+        "accent_bg_color": c["accent"], "accent_fg_color": c["bg"], "accent_color": c["accent"],
+        "window_bg_color": c["bg"], "window_fg_color": c["fg"],
+        "view_bg_color": c["bg"], "view_fg_color": c["fg"],
+        "headerbar_bg_color": c["bg"], "headerbar_fg_color": c["fg"],
+        "headerbar_border_color": c["ansi"][0], "card_bg_color": c["ansi"][0], "card_fg_color": c["fg"],
+        "popover_bg_color": c["bg"], "popover_fg_color": c["fg"],
+        "sidebar_bg_color": c["bg"], "sidebar_fg_color": c["fg"],
+        "dialog_bg_color": c["bg"], "dialog_fg_color": c["fg"],
+        "destructive_bg_color": c["urgent"], "destructive_color": c["urgent"],
+        "error_color": c["urgent"], "warning_color": c["warn"], "success_color": c["ansi"][2],
+        # GTK3 theme names
+        "theme_bg_color": c["bg"], "theme_fg_color": c["fg"], "theme_base_color": c["bg"],
+        "theme_text_color": c["fg"], "theme_selected_bg_color": c["accent"],
+        "theme_selected_fg_color": c["bg"],
+    }
+    css = f"/* {GEN} */\n" + "".join(f"@define-color {k} {v};\n" for k, v in n.items())
+    h = Path.home() / ".config"
+    return {str(h / "gtk-3.0/gtk.css"): css, str(h / "gtk-4.0/gtk.css"): css}
+
+
+RENDERERS = [r_sway, r_waybar, r_alacritty, r_fuzzel, r_whichkey, r_mako, r_hammerspoon,
+             r_starship, r_zellij, r_nvim, r_env, r_swaylock, r_gtk]
 
 
 # ---------------------------------------------------------------- wallpaper
@@ -386,9 +597,10 @@ def apply(colors, style, reload=True):
     c, s = load("colors", colors), load("styles", style)
     for r in RENDERERS:
         for rel, text in r(c, s).items():
-            dst = (PARTS / rel).resolve()
+            dst = Path(rel) if os.path.isabs(rel) else (PARTS / rel).resolve()
             dst.parent.mkdir(parents=True, exist_ok=True)
             dst.write_text(text)
+    zellij_options(s)
     (PALETTE / "current-colors").write_text(colors + "\n")
     (PALETTE / "current-styles").write_text(style + "\n")
     wallpaper(c, s["wallpaper"])

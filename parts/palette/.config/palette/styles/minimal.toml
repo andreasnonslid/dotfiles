@@ -13,3 +13,6 @@ opacity = 1.0
 wk_border = 1
 wk_pad = 14
 font_size = 13
+density = "compact"
+pad = 6
+lines = 8
