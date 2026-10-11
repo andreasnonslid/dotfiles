@@ -50,7 +50,7 @@ DARWIN_ONLY_TOP_LEVEL = {
 
 
 # darwin: parts that only make sense on Linux/Wayland.
-DARWIN_PART_EXCLUDE = {"sway", "waybar", "which-key", "fuzzel", "swaylock"}
+DARWIN_PART_EXCLUDE = {"sway", "waybar", "which-key", "fuzzel", "swaylock", "gtklock"}
 # The other direction: parts that only make sense on macOS.
 LINUX_PART_EXCLUDE = {"aerospace", "hammerspoon"}
 

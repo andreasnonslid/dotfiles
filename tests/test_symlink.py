@@ -95,7 +95,7 @@ def expected_links(darwin):
         expected[Path(".config/clangd")] = REPO_ROOT / "bashrc" / ".config" / "clangd"
     expected.update(NVIM_ENTRIES)
     expected.update(CAVEMAN_ENTRIES)
-    skip = {"sway", "waybar", "which-key", "fuzzel", "swaylock"} if darwin else {"aerospace", "hammerspoon"}
+    skip = {"sway", "waybar", "which-key", "fuzzel", "swaylock", "gtklock"} if darwin else {"aerospace", "hammerspoon"}
     for entry in (REPO_ROOT / "parts").glob("*/.config/*"):
         if entry.parts[-3] not in skip:
             expected[Path(".config") / entry.name] = entry

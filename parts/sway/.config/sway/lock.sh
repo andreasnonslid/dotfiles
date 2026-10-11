@@ -4,7 +4,16 @@
 # keymap, is the seat's active keyboard. So: try once; if it aborts, stop squeekboard, lock, and
 # bring squeekboard back as soon as the screen is unlocked.
 pgrep -x swaylock >/dev/null && exit 0
+pgrep -x gtklock >/dev/null && exit 0
 
+# Preferred: gtklock, a conventional lock screen (clock, date, avatar, password box).
+if command -v gtklock >/dev/null 2>&1; then
+    gtklock -d
+    sleep 0.5
+    pgrep -x gtklock >/dev/null && exit 0
+fi
+
+# Fallback: swaylock.
 try_lock() {
     swaylock -f
     sleep 0.5

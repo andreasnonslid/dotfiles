@@ -573,6 +573,46 @@ text-caps-lock-color={h('warn')}
     return {"swaylock/.config/swaylock/config": t}
 
 
+def r_gtklock(c, s):
+    """A conventional lock screen: clock, date, avatar + name, password box (needs the gtklock package)."""
+    import glob
+    mods = sorted(glob.glob("/usr/lib/*/gtklock/*userinfo*.so") + glob.glob("/usr/lib/gtklock/*userinfo*.so"))
+    modline = f"modules={mods[0]}\n" if mods else ""
+    rad = max(s["radius"], 8)
+    ini = f"""# {GEN}
+[main]
+background={Path.home()}/.local/share/palette/wallpaper.png
+style={Path.home()}/.config/gtklock/style.css
+time-format=%H:%M
+date-format=%A, %d %B
+idle-hide=true
+idle-timeout=20
+{modline}
+[userinfo]
+under-clock=true
+"""
+    a = lambda k, al: f"alpha({c[k]}, {al})"
+    css = f"""/* {GEN} */
+* {{ font-family: "{FONT}"; color: {c['fg']}; }}
+window {{ background-color: {c['bg']}; }}
+#clock-label {{ font-size: 96px; font-weight: bold; color: {c['accent']}; margin-bottom: 4px; }}
+#date-label {{ font-size: 22px; color: {c['accent2']}; margin-bottom: 36px; }}
+#user-image, #userinfo-image {{ border-radius: 999px; margin-bottom: 10px; }}
+#user-name, #userinfo-name, #user-label {{ font-size: 20px; margin-bottom: 14px; }}
+#input-label {{ color: {c['dim']}; font-size: 14px; }}
+#input-field {{
+    min-width: 320px; padding: 10px 16px; border-radius: {rad}px;
+    background-color: {a('bg', 0.85)}; border: {s['border'] + 1}px solid {c['accent']};
+    color: {c['fg']}; caret-color: {c['accent']}; font-size: 18px;
+}}
+#input-field:focus {{ border-color: {c['accent2']}; }}
+#error-label {{ color: {c['urgent']}; margin-top: 12px; font-size: 16px; }}
+#unlock-button {{ background: transparent; border: none; color: {c['accent']}; }}
+"""
+    d = "gtklock/.config/gtklock/"
+    return {d + "config.ini": ini, d + "style.css": css}
+
+
 def r_gtk(c, s):
     n = {
         "accent_bg_color": c["accent"], "accent_fg_color": c["bg"], "accent_color": c["accent"],
@@ -596,7 +636,7 @@ def r_gtk(c, s):
 
 
 RENDERERS = [r_sway, r_waybar, r_alacritty, r_fuzzel, r_whichkey, r_mako, r_hammerspoon,
-             r_starship, r_zellij, r_nvim, r_env, r_swaylock, r_gtk]
+             r_starship, r_zellij, r_nvim, r_env, r_swaylock, r_gtklock, r_gtk]
 
 
 # ---------------------------------------------------------------- cursors, icons, GNOME settings
