@@ -55,9 +55,10 @@ cargo install fd-find zellij tealdeer tree-sitter-cli
 curl -sS https://starship.rs/install.sh | sh -s -- -y
 
 # NVIM latest version install
-curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim.appimage
-chmod u+x nvim.appimage
-./nvim.appimage
+curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
+sudo rm -rf /opt/nvim-linux-x86_64
+sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
+sudo rm nvim-linux-x86_64.tar.gz
 
 # Cleanup
 sudo apt autoremove -y

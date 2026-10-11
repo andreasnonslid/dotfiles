@@ -1,16 +1,17 @@
 #!/bin/bash
 set -ex
 
-sudo add-apt-repository -y ppa:neovim-ppa/stable
 sudo apt update
 sudo apt upgrade -y
 
 # Essential libraries and development tools
+# nvim comes from the release tarball below, not apt/ppa (M10: avoid two
+# competing installs racing for PATH priority).
 sudo apt install -y \
     git git-lfs curl build-essential make automake cmake ninja-build \
     libgmp-dev libmpfr-dev libmpc-dev flex bison texinfo unzip wget jq \
     fzf bat ripgrep fd-find silversearcher-ag zoxide tldr secure-delete openssh-client \
-    tmux xclip libgit2-dev eza software-properties-common neovim just \
+    tmux xclip libgit2-dev eza software-properties-common just \
     libbz2-dev libncurses5-dev libncursesw5-dev libreadline-dev \
     libsqlite3-dev libffi-dev liblzma-dev tk-dev zlib1g-dev golang fish \
     clang-format-15
@@ -57,7 +58,7 @@ curl -sS https://starship.rs/install.sh | sh -s -- -y
 
 # NVIM latest version install
 curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux-x86_64.tar.gz
-sudo rm -rf /opt/nvim
+sudo rm -rf /opt/nvim-linux-x86_64
 sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz
 sudo rm nvim-linux-x86_64.tar.gz
 
