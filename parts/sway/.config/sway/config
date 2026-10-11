@@ -3,6 +3,9 @@ include ~/.config/sway/colors.conf
 include ~/.config/sway/style.conf
 include /etc/sway/config.d/*
 
+# The bar first, so it is up as soon as sway is.
+exec waybar
+
 set $hyper Ctrl+Mod1+Mod4+Shift
 set $term  alacritty
 set $menu  fuzzel
@@ -18,11 +21,12 @@ input type:touchpad {
     natural_scroll enabled
 }
 
-exec squeekboard
 exec mako
-exec nm-applet --indicator
-exec blueman-applet
-exec ~/.config/sway/autorotate.sh
+# Not needed for the first paint: start after the bar so it appears at once.
+exec sleep 2 && squeekboard
+exec sleep 3 && nm-applet --indicator
+exec sleep 3 && blueman-applet
+exec sleep 2 && ~/.config/sway/autorotate.sh
 
 # Touch and pen follow the panel (and its rotation).
 input type:touch map_to_output eDP-1
@@ -70,4 +74,3 @@ mode "resize" {
     bindsym Escape mode default
 }
 
-exec waybar
