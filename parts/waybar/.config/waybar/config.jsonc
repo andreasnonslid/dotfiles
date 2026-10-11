@@ -9,7 +9,7 @@
     "spacing": 8,
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": ["clock"],
-    "modules-right": ["tray", "network", "cpu", "memory", "backlight", "pulseaudio", "battery"],
+    "modules-right": ["tray", "network", "cpu", "memory", "backlight", "pulseaudio", "battery", "custom/ready"],
     "sway/workspaces": { "disable-scroll": true, "format": "{index}" },
     "clock": { "format": "  {:%a %d %b   %H:%M}", "tooltip-format": "{calendar}" },
     "battery": {
@@ -33,5 +33,6 @@
     "backlight": { "format": "󰃠  {percent}%" },
     "cpu": { "format": "󰻠  {usage}%" },
     "memory": { "format": "󰍛  {percentage}%" },
-    "tray": { "spacing": 8 }
+    "tray": { "spacing": 8 },
+    "custom/ready": { "format": "", "exec": "touch $XDG_RUNTIME_DIR/waybar-ready", "interval": "once", "tooltip": false }
 }

@@ -138,6 +138,23 @@ gaps inner {s['gaps_inner']}
 gaps outer {s['gaps_outer']}
 smart_borders on
 seat * xcursor_theme dotfiles 24
+
+# Placeholder bar: sway draws it with itself, so the top is never empty while waybar warms up.
+# bar-handoff.sh hides it once waybar reports ready.
+bar {{
+    id boot
+    position top
+    height {s['bar_height']}
+    font pango:{FONT} {s['font_size']}
+    status_command while date +'%a %d %b   %H:%M'; do sleep 30; done
+    colors {{
+        background {c['bg']}
+        statusline {c['accent2']}
+        focused_workspace {c['accent']} {c['accent']} {c['bg']}
+        inactive_workspace {c['bg']} {c['bg']} {c['dim']}
+        urgent_workspace {c['urgent']} {c['urgent']} {c['bg']}
+    }}
+}}
 """
     return {"sway/.config/sway/colors.conf": col, "sway/.config/sway/style.conf": sty}
 
@@ -156,7 +173,7 @@ def r_waybar(c, s):
     "spacing": 8,
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": ["clock"],
-    "modules-right": ["tray", "network", "cpu", "memory", "backlight", "pulseaudio", "battery"],
+    "modules-right": ["tray", "network", "cpu", "memory", "backlight", "pulseaudio", "battery", "custom/ready"],
     "sway/workspaces": {{ "disable-scroll": true, "format": "{{index}}" }},
     "clock": {{ "format": "  {{:%a %d %b   %H:%M}}", "tooltip-format": "{{calendar}}" }},
     "battery": {{
@@ -180,7 +197,8 @@ def r_waybar(c, s):
     "backlight": {{ "format": "󰃠  {{percent}}%" }},
     "cpu": {{ "format": "󰻠  {{usage}}%" }},
     "memory": {{ "format": "󰍛  {{percentage}}%" }},
-    "tray": {{ "spacing": 8 }}
+    "tray": {{ "spacing": 8 }},
+    "custom/ready": {{ "format": "", "exec": "touch $XDG_RUNTIME_DIR/waybar-ready", "interval": "once", "tooltip": false }}
 }}
 """
     border = "" if s["bar_border"] == "none" else f"border-bottom: {s['bar_border']};"

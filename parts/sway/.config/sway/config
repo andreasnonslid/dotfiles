@@ -4,7 +4,7 @@ include ~/.config/sway/style.conf
 include /etc/sway/config.d/*
 
 # The bar first, so it is up as soon as sway is.
-exec waybar
+exec ~/.config/sway/bar-handoff.sh
 
 set $hyper Ctrl+Mod1+Mod4+Shift
 set $term  alacritty
