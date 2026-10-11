@@ -13,13 +13,16 @@ Everything is generated from the two choices (committed, so symlinks just work):
 Not committed (per machine): GTK3/4 gtk.css in ~/.config, wallpaper in ~/.local/share/palette.
 """
 import math
+import colorsys
 import os
+import pwd
 import random
 import re
 import struct
 import subprocess
 import sys
 import tempfile
+import shutil
 import tomllib
 import zlib
 from pathlib import Path
@@ -134,6 +137,7 @@ default_border pixel {s['border']}
 gaps inner {s['gaps_inner']}
 gaps outer {s['gaps_outer']}
 smart_borders on
+seat * xcursor_theme dotfiles 24
 """
     return {"sway/.config/sway/colors.conf": col, "sway/.config/sway/style.conf": sty}
 
@@ -371,24 +375,38 @@ error_symbol = "[❯](urgent)"
 
 
 def r_zellij(c, s):
+    """Component theme (zellij 0.43+): dark surfaces, light text, accent emphasis."""
     a = c["ansi"]
-    t = f"""// {GEN}
-themes {{
-    dotfiles {{
-        fg "{c['fg']}"
-        bg "{c['bg']}"
-        black "{a[0]}"
-        red "{c['urgent']}"
-        green "{a[2]}"
-        yellow "{c['warn']}"
-        blue "{c['accent2']}"
-        magenta "{c['accent']}"
-        orange "{c['warn']}"
-        cyan "{a[6]}"
-        white "{c['fg']}"
-    }}
-}}
-"""
+    surf = mix(c["bg"], c["fg"], 0.10)   # status bar / unselected ribbons
+    surf2 = mix(c["bg"], c["fg"], 0.18)  # selected text rows
+    dk = mix(c["bg"], "#000000", 0.35)   # readable on an accent background
+
+    def comp(name, base, bgc, e0, e1, e2, e3):
+        return (f'        {name} {{\n            base "{base}"\n            background "{bgc}"\n'
+                f'            emphasis_0 "{e0}"\n            emphasis_1 "{e1}"\n'
+                f'            emphasis_2 "{e2}"\n            emphasis_3 "{e3}"\n        }}\n')
+
+    em = (c["accent"], c["accent2"], a[2], c["warn"])
+    body = "".join([
+        comp("text_unselected", c["fg"], c["bg"], *em),
+        comp("text_selected", c["fg"], surf2, *em),
+        comp("ribbon_unselected", c["fg"], surf, *em),
+        comp("ribbon_selected", c["bg"], c["accent"], dk, dk, dk, dk),
+        comp("table_title", c["accent"], c["bg"], *em),
+        comp("table_cell_unselected", c["fg"], c["bg"], *em),
+        comp("table_cell_selected", c["fg"], surf2, *em),
+        comp("list_unselected", c["fg"], c["bg"], *em),
+        comp("list_selected", c["fg"], surf2, *em),
+        comp("frame_unselected", c["dim"], c["bg"], *em),
+        comp("frame_selected", c["accent"], c["bg"], *em),
+        comp("frame_highlight", c["warn"], c["bg"], *em),
+        comp("exit_code_success", a[2], c["bg"], *em),
+        comp("exit_code_error", c["urgent"], c["bg"], *em),
+    ])
+    players = "".join(f'            player_{i + 1} "{col}"\n' for i, col in enumerate(
+        [c["accent"], c["accent2"], a[2], c["warn"], c["urgent"], a[5], a[6], c["fg"], c["dim"], a[0]]))
+    t = (f"// {GEN}\nthemes {{\n    dotfiles {{\n{body}"
+         f"        multiplayer_user_colors {{\n{players}        }}\n    }}\n}}\n")
     out = {str(ROOT / "bashrc/.config/zellij/themes/dotfiles.kdl"): t}
     home = Path.home() / ".config/zellij"
     if home.is_dir() and not home.is_symlink():  # machine not bootstrapped: theme it in place
@@ -527,6 +545,210 @@ RENDERERS = [r_sway, r_waybar, r_alacritty, r_fuzzel, r_whichkey, r_mako, r_hamm
              r_starship, r_zellij, r_nvim, r_env, r_swaylock, r_gtk]
 
 
+# ---------------------------------------------------------------- cursors, icons, GNOME settings
+
+def hue_of(hexc):
+    r, g, b = (v / 255 for v in rgb(hexc))
+    h, sat, v = colorsys.rgb_to_hsv(r, g, b)
+    return h * 360, sat, v
+
+
+# GNOME accent-color enum, Papirus folder colors: (name, hue)
+GNOME_ACCENTS = [("red", 355), ("orange", 30), ("yellow", 48), ("green", 130), ("teal", 175),
+                 ("blue", 215), ("purple", 275), ("pink", 330)]
+PAPIRUS = [("red", 0), ("deeporange", 15), ("orange", 30), ("yellow", 48), ("green", 130),
+           ("teal", 175), ("cyan", 190), ("blue", 215), ("indigo", 235), ("violet", 270),
+           ("magenta", 300), ("pink", 335), ("carmine", 350)]
+
+
+def nearest(table, hexc):
+    h, sat, _ = hue_of(hexc)
+    if sat < 0.15:
+        return "slate" if table is GNOME_ACCENTS else "grey"
+    return min(table, key=lambda t: min(abs(h - t[1]), 360 - abs(h - t[1])))[0]
+
+
+def mix(a, b, t):
+    ra, rb = rgb(a), rgb(b)
+    return "#%02x%02x%02x" % tuple(round(ra[i] + (rb[i] - ra[i]) * t) for i in range(3))
+
+
+def recolor_cursor(data, dark, light):
+    """Xcursor file: map each pixel's luminance onto dark..light (outline -> bg, fill -> accent)."""
+    if data[:4] != b"Xcur":
+        return data
+    hdr, _, ntoc = struct.unpack_from("<3I", data, 4)
+    out = bytearray(data)
+    dk, lt = rgb(dark), rgb(light)
+    for i in range(ntoc):
+        ty, _, pos = struct.unpack_from("<3I", data, 16 + 12 * i)
+        if ty != 0xFFFD0002:
+            continue
+        w, h = struct.unpack_from("<2I", data, pos + 16)
+        base = pos + 36
+        for p in range(w * h):
+            o = base + 4 * p
+            px = struct.unpack_from("<I", data, o)[0]
+            a = px >> 24
+            if a == 0:
+                continue
+            # premultiplied -> straight luminance
+            r, g, b = ((px >> 16) & 255, (px >> 8) & 255, px & 255)
+            lum = (0.299 * r + 0.587 * g + 0.114 * b) / a
+            lum = min(1.0, lum)
+            col = [dk[j] + (lt[j] - dk[j]) * lum for j in range(3)]
+            out_px = (a << 24) | (int(col[0] * a / 255) << 16) | (int(col[1] * a / 255) << 8) | int(col[2] * a / 255)
+            struct.pack_into("<I", out, o, out_px)
+    return bytes(out)
+
+
+def make_cursors(c):
+    src = Path("/usr/share/icons/Adwaita/cursors")
+    if not src.is_dir():
+        return
+    dst = Path.home() / ".local/share/icons/dotfiles"
+    if (dst / "cursors").exists():
+        shutil.rmtree(dst / "cursors")
+    (dst / "cursors").mkdir(parents=True)
+    (dst / "index.theme").write_text("[Icon Theme]\nName=dotfiles\nComment=Generated by scripts/theme.py\nInherits=Adwaita\n")
+    for p in src.iterdir():
+        t = dst / "cursors" / p.name
+        if p.is_symlink():
+            t.symlink_to(os.readlink(p))
+        else:
+            t.write_bytes(recolor_cursor(p.read_bytes(), c["bg"], c["accent"]))
+
+
+def make_icons(c):
+    base = Path("/usr/share/icons/Papirus-Dark")
+    if not base.is_dir():
+        return False
+    dst = Path.home() / ".local/share/icons/dotfiles-icons"
+    if dst.exists():
+        shutil.rmtree(dst)
+    color = nearest(PAPIRUS, c["accent"])
+    idx = (base / "index.theme").read_text()
+    idx = re.sub(r"^Name=.*$", "Name=dotfiles-icons", idx, flags=re.M)
+    idx = re.sub(r"^Inherits=.*$", "Inherits=Papirus-Dark,Adwaita,hicolor", idx, flags=re.M)
+    if "Inherits=" not in idx:
+        idx = idx.replace("[Icon Theme]", "[Icon Theme]\nInherits=Papirus-Dark,Adwaita,hicolor", 1)
+    dst.mkdir(parents=True)
+    (dst / "index.theme").write_text(idx)
+    names = {n for n, _ in PAPIRUS} | {"grey", "bluegrey", "brown", "black", "white", "adwaita",
+                                        "darkcyan", "breeze", "nordic", "palebrown", "paleorange",
+                                        "yaru", "teal"}
+    pat = re.compile(r"^folder-(?:%s)(?=[-.])" % "|".join(sorted(names, key=len, reverse=True)))
+    for d in base.glob("*/places"):
+        for lnk in d.iterdir():
+            if not lnk.is_symlink():
+                continue
+            tgt = os.readlink(lnk)
+            if not pat.match(Path(tgt).name):
+                continue
+            new = pat.sub(f"folder-{color}", Path(tgt).name)
+            if (d / new).exists():
+                out = dst / d.relative_to(base) / lnk.name
+                out.parent.mkdir(parents=True, exist_ok=True)
+                out.symlink_to(new if "/" not in tgt else str(Path(tgt).with_name(new)))
+                # relative link must resolve inside the original dir, so point at the real one
+                out.unlink()
+                out.symlink_to(d / new)
+    return True
+
+
+def gsettings(c, icons):
+    def gs(key, val):
+        sh("gsettings", "set", "org.gnome.desktop.interface", key, val)
+    gs("cursor-theme", "dotfiles")
+    gs("accent-color", nearest(GNOME_ACCENTS, c["accent"]))
+    if icons:
+        gs("icon-theme", "dotfiles-icons")
+
+
+# ---------------------------------------------------------------- login screen (root)
+
+GDM_MARK = ("# BEGIN dotfiles theme", "# END dotfiles theme")
+
+
+def gdm(dry=False):
+    """dry=True: build and verify the new resource under /tmp, install nothing."""
+    if not dry and os.geteuid() != 0:
+        sys.exit("run as root: sudo python3 " + " ".join(sys.argv))
+    user = os.environ.get("SUDO_USER") or ("" if dry else sys.exit("run via sudo"))
+    home = Path(pwd.getpwnam(user).pw_dir) if user else Path.home()
+    colors = (PALETTE / "current-colors").read_text().strip()
+    c = load("colors", colors)
+    res = Path("/usr/share/gnome-shell/gnome-shell-theme.gresource")
+    orig = res.with_name(res.name + ".orig-dotfiles")
+    if not dry and not orig.exists():
+        shutil.copy2(res, orig)
+    if dry:
+        orig = res
+
+    # 1. assets: wallpaper + cursor/icon themes must be readable by the gdm user
+    wp = home / ".local/share/palette/wallpaper.png"
+    if not dry:
+        shutil.copy2(wp, "/usr/share/gdm/palette-wallpaper.png")
+        os.chmod("/usr/share/gdm/palette-wallpaper.png", 0o644)
+    for n in ("dotfiles", "dotfiles-icons"):
+        d = home / ".local/share/icons" / n
+        if d.is_dir() and not dry:
+            shutil.rmtree(f"/usr/share/icons/{n}", ignore_errors=True)
+            shutil.copytree(d, f"/usr/share/icons/{n}", symlinks=True)
+    # icon symlinks point at /usr/share/icons/Papirus-Dark/...: fine system-wide.
+
+    # 2. shell theme: recolor the dark stylesheet, put the wallpaper behind the login
+    tmp = Path(tempfile.mkdtemp())
+    listing = subprocess.run(["gresource", "list", str(orig)], capture_output=True, text=True, check=True).stdout.split()
+    prefix = "/org/gnome/shell/theme/"
+    for r in listing:
+        out = tmp / r[len(prefix):]
+        out.write_bytes(subprocess.run(["gresource", "extract", str(orig), r], capture_output=True, check=True).stdout)
+    css = (tmp / "gnome-shell-dark.css").read_text()
+    bg, fg, dim = c["bg"], c["fg"], c["dim"]
+    for old, new in {
+        "#222226": bg, "#2e2e33": mix(bg, fg, 0.05), "#36363a": mix(bg, fg, 0.10),
+        "#38383b": mix(bg, fg, 0.11), "#424247": mix(bg, fg, 0.14), "#47474c": mix(bg, fg, 0.16),
+        "#4a4a4f": mix(bg, fg, 0.17), "#4d4d4d": mix(bg, fg, 0.18), "#56565c": mix(bg, fg, 0.22),
+        "#9b9b9d": dim, "#fafafb": fg, "#ffffff": fg,
+    }.items():
+        css = css.replace(old, new)
+    css = re.sub(r"#lockDialogGroup \{[^}]*\}",
+                 "#lockDialogGroup {\n  background-color: %s;\n  background-image: url(file:///usr/share/gdm/palette-wallpaper.png);\n"
+                 "  background-size: cover; background-position: center; }" % bg, css, count=1)
+    (tmp / "gnome-shell-dark.css").write_text(css)
+    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<gresources><gresource prefix="/org/gnome/shell/theme">\n'
+    xml += "".join(f"  <file>{r[len(prefix):]}</file>\n" for r in listing) + "</gresource></gresources>\n"
+    (tmp / "theme.gresource.xml").write_text(xml)
+    new = tmp / "out.gresource"
+    subprocess.run(["glib-compile-resources", f"--sourcedir={tmp}", f"--target={new}", str(tmp / "theme.gresource.xml")], check=True)
+    chk = subprocess.run(["gresource", "list", str(new)], capture_output=True, text=True, check=True).stdout.split()
+    assert sorted(chk) == sorted(listing), "resource list mismatch, not installing"
+    os.chmod(new, 0o644)
+    if dry:
+        print(f"dry run ok: {len(listing)} resources, built {new} ({new.stat().st_size} bytes)")
+        print(re.search(r"#lockDialogGroup \{[^}]*\}", (tmp / "gnome-shell-dark.css").read_text()).group(0))
+        return
+    shutil.move(str(new), str(res))
+    shutil.rmtree(tmp)
+
+    # 3. greeter defaults (Debian: /etc/gdm3/greeter.dconf-defaults)
+    gp = Path("/etc/gdm3/greeter.dconf-defaults")
+    txt = gp.read_text()
+    txt = re.sub(rf"\n?{re.escape(GDM_MARK[0])}.*?{re.escape(GDM_MARK[1])}\n?", "\n", txt, flags=re.S)
+    block = f"""{GDM_MARK[0]}
+[org/gnome/desktop/interface]
+color-scheme='prefer-dark'
+accent-color='{nearest(GNOME_ACCENTS, c['accent'])}'
+cursor-theme='dotfiles'
+{"icon-theme='dotfiles-icons'" if Path('/usr/share/icons/dotfiles-icons').is_dir() else ""}
+{GDM_MARK[1]}
+"""
+    gp.write_text(txt.rstrip("\n") + "\n\n" + block)
+    subprocess.run(["/usr/share/gdm/generate-config"], check=False)
+    print(f"login screen themed: colors={colors}. Original kept at {orig}. Log out to see it.")
+
+
 # ---------------------------------------------------------------- wallpaper
 
 def png(path, w, h, rows):
@@ -604,6 +826,10 @@ def apply(colors, style, reload=True):
     (PALETTE / "current-colors").write_text(colors + "\n")
     (PALETTE / "current-styles").write_text(style + "\n")
     wallpaper(c, s["wallpaper"])
+    make_cursors(c)
+    icons = make_icons(c)
+    if reload:
+        gsettings(c, icons)
     if reload:
         sh("swaymsg", "reload")
         sh("pkill", "-SIGUSR2", "-x", "waybar")
@@ -633,6 +859,8 @@ def main(argv):
         apply(cycle("colors"), cs)
     elif cmd == "next-style":
         apply(cc, cycle("styles"))
+    elif cmd == "gdm":
+        gdm(dry="--dry" in args)
     elif cmd == "random":
         apply(random.choice(names("colors")), random.choice(names("styles")))
     else:
