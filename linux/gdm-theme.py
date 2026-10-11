@@ -68,6 +68,15 @@ def main():
         out.write_bytes(subprocess.run(["gresource", "extract", str(ORIG), r], capture_output=True, check=True).stdout)
     css = (tmp / "gnome-shell-dark.css").read_text()
     bg, fg = c["bg"], c["fg"]
+    # The shell's CSS only takes lengths for background-size (not "cover"), so use the panel's size.
+    w, h = 1920, 1080
+    for modes in sorted(Path("/sys/class/drm").glob("card*-*/modes")):
+        try:
+            if (modes.parent / "status").read_text().strip() == "connected":
+                w, h = map(int, modes.read_text().split()[0].split("x"))
+                break
+        except (OSError, ValueError):
+            pass
     for old, new in {
         "#222226": bg, "#2e2e33": mix(bg, fg, 0.05), "#36363a": mix(bg, fg, 0.10),
         "#38383b": mix(bg, fg, 0.11), "#424247": mix(bg, fg, 0.14), "#47474c": mix(bg, fg, 0.16),
@@ -78,7 +87,8 @@ def main():
     css, n = re.subn(r"#lockDialogGroup \{[^}]*\}",
                      "#lockDialogGroup {\n  background-color: %s;\n"
                      "  background-image: url(file:///usr/share/gdm/palette-wallpaper.png);\n"
-                     "  background-size: cover; background-position: center; }" % bg, css, count=1)
+                     "  background-size: %dpx %dpx; background-position: center; background-repeat: no-repeat; }"
+                     % (bg, w, h), css, count=1)
     assert n == 1, "lockDialogGroup not found; shell theme changed"
     (tmp / "gnome-shell-dark.css").write_text(css)
     xml = '<?xml version="1.0" encoding="UTF-8"?>\n<gresources><gresource prefix="/org/gnome/shell/theme">\n'
