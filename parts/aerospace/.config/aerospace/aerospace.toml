@@ -22,6 +22,15 @@ outer.bottom = 6
 
 [mode.main.binding]
 alt-enter = 'exec-and-forget open -na Ghostty'
+ctrl-alt-cmd-shift-1 = 'workspace 1'
+ctrl-alt-cmd-shift-2 = 'workspace 2'
+ctrl-alt-cmd-shift-3 = 'workspace 3'
+ctrl-alt-cmd-shift-4 = 'workspace 4'
+ctrl-alt-cmd-shift-5 = 'workspace 5'
+ctrl-alt-cmd-shift-6 = 'workspace 6'
+ctrl-alt-cmd-shift-7 = 'workspace 7'
+ctrl-alt-cmd-shift-8 = 'workspace 8'
+ctrl-alt-cmd-shift-9 = 'workspace 9'
 ctrl-alt-cmd-shift-space = ['mode leader', 'exec-and-forget open -g hammerspoon://leader']
 
 [mode.leader.binding]
