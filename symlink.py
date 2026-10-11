@@ -244,7 +244,9 @@ def main():
         )
 
     # parts/<name>/: swappable pieces (terminal, WM, bar, ...), see part_links.
-    if parts_dir.is_dir():
+    # Windows gets none: they are Linux/macOS desktop configs (Hyper also collides with the
+    # Office key shortcuts there), so linking them would only leave dead files in the profile.
+    if parts_dir.is_dir() and not is_windows:
         for part in sorted(parts_dir.iterdir()):
             skip = DARWIN_PART_EXCLUDE if is_darwin else LINUX_PART_EXCLUDE
             if part.is_dir() and part.name not in skip:
