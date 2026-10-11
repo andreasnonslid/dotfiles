@@ -114,6 +114,7 @@ def menu(c):
             ("s", f"{I['sleep']}  Suspend", "systemctl suspend"),
             ("r", f"{I['reboot']}  Reboot", "systemctl reboot"),
             ("p", f"{I['off']}  Power off", "systemctl poweroff"),
+            ("u", f"{I['reboot']}  Firmware setup (UEFI)", "systemctl reboot --firmware-setup"),
         ]),
     ]
 
