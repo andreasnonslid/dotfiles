@@ -6,8 +6,22 @@ t() { printf '%s %.3f\n' "$1" "$(date +%s.%N)"; }
 touch "$XDG_RUNTIME_DIR/startup-active"      # keeps bg-state.sh from swapping the frame for the wallpaper
 { t script-start; echo "sway-uptime $(ps -o etimes= -p "$(pgrep -xn sway)")s"; } > "$log"
 
-~/.config/sway/lock.sh
-t locked >> "$log"
+# Only an automatic login needs the lock screen (it IS the login then). After a normal GDM login you
+# have already typed your password, so locking again would just ask for it twice.
+should_lock() {
+    conf=${GDM_CONF:-/etc/gdm3/daemon.conf}
+    grep -qs '^AutomaticLoginEnable *= *true' "$conf" || return 1
+    grep -qs "^AutomaticLogin *= *$USER" "$conf" || return 1
+    up=${STARTUP_UPTIME:-$(cut -d. -f1 /proc/uptime)}
+    [ "$up" -lt 240 ]            # autologin only happens right after power-on
+}
+if should_lock; then
+    ~/.config/sway/lock.sh
+    t locked >> "$log"
+else
+    rm -f "$XDG_RUNTIME_DIR/startup-active"    # no lock to hold the frame for: the wallpaper may return
+    t lock-skipped >> "$log"
+fi
 
 has_app() { swaymsg -t get_tree | grep -q "\"app_id\": \"$1\""; }
 rm -f "$XDG_RUNTIME_DIR/waybar-ready"

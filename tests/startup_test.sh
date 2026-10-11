@@ -60,6 +60,9 @@ printf '#!/bin/bash\necho zed >> "$SANDBOX/calls"; touch "$SANDBOX/apps/dev.zed.
 mk waybar '#!/bin/bash
 echo "waybar" >> "$SANDBOX/calls"; touch "$XDG_RUNTIME_DIR/waybar-ready"; exit 0'
 export PATH=$T/bin:$PATH
+printf "[daemon]\nAutomaticLoginEnable=true\nAutomaticLogin=%s\n" "$USER" > "$T/gdm-auto.conf"
+printf "[daemon]\n" > "$T/gdm-manual.conf"
+export GDM_CONF=$T/gdm-auto.conf STARTUP_UPTIME=30
 
 # ---- 1. session start
 echo "session start (startup.sh)"
@@ -75,6 +78,19 @@ done
 check "all four windows were noticed"                'grep -q "^desktop-ready" "$log" && grep -q "^zed-window" "$log" && grep -q "^firefox-window" "$log"'
 check "frame kept while locked (startup-active)"     '[ -e "$XDG_RUNTIME_DIR/startup-active" ]'
 check "wallpaper NOT swapped while locked"           '! grep -q "output \* bg .*wallpaper.png" "$T/calls"'
+
+echo "a normal (non-autologin) login must NOT lock"
+cp -r "$HOME/.cache" "$T/cache.keep"; : > "$T/calls"; rm -f "$T/apps"/* "$XDG_RUNTIME_DIR/startup-active" "$T/run/gtklock.pid"
+GDM_CONF=$T/gdm-manual.conf timeout 25 bash "$HOME/.config/sway/startup.sh" >/dev/null 2>&1
+check "no lock when autologin is off"                '! grep -q "^gtklock" "$T/calls"'
+check "...but the desktop still loads"               'grep -qx waybar "$T/calls" && grep -qx alacritty "$T/calls"'
+check "...and the wallpaper is not held back"        '[ ! -e "$XDG_RUNTIME_DIR/startup-active" ]'
+: > "$T/calls"; rm -f "$T/apps"/* "$T/run/gtklock.pid" "$T/unlock"
+STARTUP_UPTIME=9000 timeout 25 bash "$HOME/.config/sway/startup.sh" >/dev/null 2>&1
+check "no lock on a late login (uptime 2.5 h)"       '! grep -q "^gtklock" "$T/calls"'
+# back to the autologin boot for the unlock checks below
+: > "$T/calls"; rm -f "$T/apps"/* "$T/run/gtklock.pid" "$T/unlock"
+timeout 25 bash "$HOME/.config/sway/startup.sh" >/dev/null 2>&1
 
 # ---- 2. unlock
 echo "unlock"
@@ -136,7 +152,7 @@ echo \"${app%%:*}\" >> \"\$HSB/calls\"; exit 0"
 echo waybar >> "$HSB/calls"; touch "$XDG_RUNTIME_DIR/waybar-ready"'
     (
         unset DBUS_SESSION_BUS_ADDRESS WAYLAND_DISPLAY SWAYSOCK I3SOCK DISPLAY
-        export HOME=$H/home XDG_RUNTIME_DIR=$H/run HSB=$H STARTUP_POLLS=8
+        export HOME=$H/home XDG_RUNTIME_DIR=$H/run HSB=$H STARTUP_POLLS=8 GDM_CONF=$T/gdm-auto.conf STARTUP_UPTIME=30
         export PATH=$H/bin:${PATH#$T/bin:}   # the unit-test stand-ins must not leak in
         export WLR_BACKENDS=headless WLR_RENDERER=pixman WLR_LIBINPUT_NO_DEVICES=1
         timeout 14 sway -c "$H/home/.config/sway/config" >"$H/sway.log" 2>&1 &
