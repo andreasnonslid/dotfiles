@@ -1,0 +1,14 @@
+[Unit]
+Description=Pre-read the desktop's files into the page cache (idle priority)
+After=sysinit.target
+ConditionPathExists=/usr/local/libexec/dotfiles-prewarm
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/libexec/dotfiles-prewarm
+Nice=19
+IOSchedulingClass=idle
+CPUSchedulingPolicy=idle
+
+[Install]
+WantedBy=multi-user.target
