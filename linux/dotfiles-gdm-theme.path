@@ -1,0 +1,8 @@
+[Unit]
+Description=Re-theme the GDM login screen when the palette changes
+
+[Path]
+PathChanged=/home/USER/.local/share/palette/gdm-input.json
+
+[Install]
+WantedBy=multi-user.target

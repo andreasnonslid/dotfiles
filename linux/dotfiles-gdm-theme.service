@@ -1,0 +1,6 @@
+[Unit]
+Description=Theme the GDM login screen from USER's palette
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/libexec/dotfiles-gdm-theme USER
