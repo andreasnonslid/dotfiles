@@ -9,10 +9,10 @@ esp=/boot/efi
 newest=$(ls -1 /boot/vmlinuz-* 2>/dev/null | sed 's|.*/vmlinuz-||' | sort -V | tail -1)
 [ "$ver" = "$newest" ] || exit 0
 mountpoint -q "$esp" || exit 0
-[ -d "$esp/EFI/linux" ] || exit 0   # direct boot not set up
-cp -L "/boot/vmlinuz-$ver" "$esp/EFI/linux/vmlinuz.efi.new" &&
-cp -L "/boot/initrd.img-$ver" "$esp/EFI/linux/initrd.img.new" &&
+[ -d "$esp/EFI/debian-direct" ] || exit 0   # direct boot not set up
+cp -L "/boot/vmlinuz-$ver" "$esp/EFI/debian-direct/vmlinuz.efi.new" &&
+cp -L "/boot/initrd.img-$ver" "$esp/EFI/debian-direct/initrd.img.new" &&
 sync &&
-mv "$esp/EFI/linux/vmlinuz.efi.new" "$esp/EFI/linux/vmlinuz.efi" &&
-mv "$esp/EFI/linux/initrd.img.new" "$esp/EFI/linux/initrd.img"
+mv "$esp/EFI/debian-direct/vmlinuz.efi.new" "$esp/EFI/debian-direct/vmlinuz.efi" &&
+mv "$esp/EFI/debian-direct/initrd.img.new" "$esp/EFI/debian-direct/initrd.img"
 exit 0

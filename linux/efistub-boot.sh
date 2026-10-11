@@ -14,20 +14,22 @@ root=$(sed -n 's/.*\(root=[^ ]*\).*/\1/p' /proc/cmdline)
 disk=$(lsblk -no PKNAME "$(findmnt -no SOURCE $esp)")
 part=$(cat "/sys/class/block/$(basename "$(findmnt -no SOURCE $esp)")/partition")
 
-install -d "$esp/EFI/linux"
-cp -L /vmlinuz "$esp/EFI/linux/vmlinuz.efi.new"
-cp -L /initrd.img "$esp/EFI/linux/initrd.img.new"
+install -d "$esp/EFI/debian-direct"
+cp -L /vmlinuz "$esp/EFI/debian-direct/vmlinuz.efi.new"
+cp -L /initrd.img "$esp/EFI/debian-direct/initrd.img.new"
 sync
-mv "$esp/EFI/linux/vmlinuz.efi.new" "$esp/EFI/linux/vmlinuz.efi"
-mv "$esp/EFI/linux/initrd.img.new" "$esp/EFI/linux/initrd.img"
+mv "$esp/EFI/debian-direct/vmlinuz.efi.new" "$esp/EFI/debian-direct/vmlinuz.efi"
+mv "$esp/EFI/debian-direct/initrd.img.new" "$esp/EFI/debian-direct/initrd.img"
 
 label="Debian (direct)"
 for n in $(efibootmgr | sed -n "s/^Boot\([0-9A-F]\{4\}\)\*\? $label\$/\1/p"); do
     efibootmgr -q -B -b "$n"
 done
+# systemd-logind scans EFI/Linux for UKIs and logs an error per file, so we use another dir name.
+[ -f "$esp/EFI/linux/vmlinuz.efi" ] && rm -rf "$esp/EFI/linux" || true
 efibootmgr -q --create --disk "/dev/$disk" --part "$part" --label "$label" \
-    --loader '\EFI\linux\vmlinuz.efi' \
-    --unicode "$root ro quiet splash initrd=\\EFI\\linux\\initrd.img"
+    --loader '\EFI\debian-direct\vmlinuz.efi' \
+    --unicode "$root ro quiet splash loglevel=1 vt.global_cursor_default=0 initrd=\\EFI\\debian-direct\\initrd.img"
 if [ "${1:-}" = "--hook" ]; then
     d=$(cd "$(dirname "$0")" && pwd)
     install -Dm755 "$d/efistub-sync" /etc/kernel/postinst.d/zz-efistub-sync
