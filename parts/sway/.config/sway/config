@@ -4,7 +4,7 @@ include ~/.config/sway/style.conf
 include /etc/sway/config.d/*
 
 # The bar first, so it is up as soon as sway is.
-exec ~/.config/sway/bar-handoff.sh
+exec ~/.config/sway/startup-reveal.sh
 # A reload re-creates the placeholder; hide it again when waybar is already running.
 exec_always ~/.config/sway/bar-state.sh
 
@@ -31,6 +31,7 @@ exec sleep 3 && NO_AT_BRIDGE=1 blueman-applet
 exec sleep 2 && ~/.config/sway/autorotate.sh
 
 # Touch and pen follow the panel (and its rotation).
+output eDP-1 scale 1.25
 input type:touch map_to_output eDP-1
 input type:tablet_tool map_to_output eDP-1
 
