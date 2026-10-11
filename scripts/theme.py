@@ -137,6 +137,7 @@ default_border pixel {s['border']}
 gaps inner {s['gaps_inner']}
 gaps outer {s['gaps_outer']}
 smart_borders on
+smart_gaps on
 seat * xcursor_theme dotfiles 24
 
 # Placeholder bar: sway draws it with itself, so the top is never empty while waybar warms up.
@@ -264,8 +265,9 @@ def r_alacritty(c, s):
     col += f'[colors.selection]\nbackground = "{c["accent"]}"\ntext = "{c["bg"]}"\n\n'
     for sect in ("normal", "bright"):
         col += f"[colors.{sect}]\n" + "".join(f'{k} = "{v}"\n' for k, v in zip(n, a)) + "\n"
-    pad = max(s["gaps_inner"], 4)
-    sty = f"# {GEN}\n[window]\nopacity = {s['opacity']}\npadding = {{ x = {pad}, y = {pad} }}\n"
+    pad = 0 if s["density"] == "compact" else max(s["gaps_inner"], 4)
+    sty = (f"# {GEN}\n[window]\nopacity = {s['opacity']}\ndynamic_padding = true\n"
+           f"padding = {{ x = {pad}, y = {pad} }}\n")
     d = "alacritty/.config/alacritty/"
     return {d + "colors.toml": col, d + "style.toml": sty}
 
