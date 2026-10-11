@@ -1,0 +1,8 @@
+[Plymouth Theme]
+Name=dotfiles
+Description=Palette-driven boot splash (scripts/theme.py)
+ModuleName=script
+
+[script]
+ImageDir=/usr/share/plymouth/themes/dotfiles
+ScriptFile=/usr/share/plymouth/themes/dotfiles/dotfiles.script

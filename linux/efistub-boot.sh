@@ -27,7 +27,7 @@ for n in $(efibootmgr | sed -n "s/^Boot\([0-9A-F]\{4\}\)\*\? $label\$/\1/p"); do
 done
 efibootmgr -q --create --disk "/dev/$disk" --part "$part" --label "$label" \
     --loader '\EFI\linux\vmlinuz.efi' \
-    --unicode "$root ro quiet initrd=\\EFI\\linux\\initrd.img"
+    --unicode "$root ro quiet splash initrd=\\EFI\\linux\\initrd.img"
 if [ "${1:-}" = "--hook" ]; then
     d=$(cd "$(dirname "$0")" && pwd)
     install -Dm755 "$d/efistub-sync" /etc/kernel/postinst.d/zz-efistub-sync

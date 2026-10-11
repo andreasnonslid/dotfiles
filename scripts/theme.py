@@ -679,6 +679,139 @@ def gdm_input(c):
     os.replace(tmp, p)  # one change event for the path unit
 
 
+# ---------------------------------------------------------------- boot splash (Plymouth)
+
+GLYPHS = {  # 5x5 pixel font for the splash logo
+    "D": ["XXXX.", "X...X", "X...X", "X...X", "XXXX."],
+    "E": ["XXXXX", "X....", "XXXX.", "X....", "XXXXX"],
+    "B": ["XXXX.", "X...X", "XXXX.", "X...X", "XXXX."],
+    "I": ["XXXXX", "..X..", "..X..", "..X..", "XXXXX"],
+    "A": [".XXX.", "X...X", "XXXXX", "X...X", "X...X"],
+    "N": ["X...X", "XX..X", "X.X.X", "X..XX", "X...X"],
+}
+
+
+def make_plymouth(c):
+    """Palette-driven Plymouth theme into linux/plymouth/dotfiles (installed by linux/install-plymouth.sh)."""
+    import cairo
+    import gi
+    gi.require_version("Pango", "1.0")
+    gi.require_version("PangoCairo", "1.0")
+    from gi.repository import Pango, PangoCairo
+
+    out = ROOT / "linux/plymouth/dotfiles"
+    out.mkdir(parents=True, exist_ok=True)
+    col = lambda h, a=1.0: tuple(v / 255 for v in rgb(h)) + (a,)
+
+    # logo: pixel-art DEBIAN, rows fade accent -> accent2
+    px, gap, word = 14, 3, "DEBIAN"
+    cols = len(word) * 5 + (len(word) - 1)
+    W, H = cols * (px + gap), 5 * (px + gap)
+    surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, W, H)
+    cr = cairo.Context(surf)
+    a1, a2 = rgb(c["accent"]), rgb(c["accent2"])
+    for ci, ch in enumerate(word):
+        for ry, row in enumerate(GLYPHS[ch]):
+            t = ry / 4
+            cr.set_source_rgb(*[(a1[i] + (a2[i] - a1[i]) * t) / 255 for i in range(3)])
+            for rx, v in enumerate(row):
+                if v == "X":
+                    x = (ci * 6 + rx) * (px + gap)
+                    y = ry * (px + gap)
+                    cr.rectangle(x, y, px, px)
+                    cr.fill()
+    surf.write_to_png(str(out / "logo.png"))
+
+    # progress segments
+    for name, color in (("seg_on", c["accent"]), ("seg_off", mix(c["bg"], c["fg"], 0.12))):
+        sf = cairo.ImageSurface(cairo.FORMAT_ARGB32, 12, 8)
+        cr = cairo.Context(sf)
+        cr.set_source_rgba(*col(color))
+        r = 3
+        cr.new_sub_path()
+        for cx, cy, a in ((12 - r, r, -90), (12 - r, 8 - r, 0), (r, 8 - r, 90), (r, r, 180)):
+            cr.arc(cx, cy, r, math.radians(a), math.radians(a + 90))
+        cr.close_path()
+        cr.fill()
+        sf.write_to_png(str(out / f"{name}.png"))
+
+    # label: hostname and OS in the theme font
+    import socket
+    osname = "Debian GNU/Linux"
+    for line in Path("/etc/os-release").read_text().splitlines():
+        if line.startswith("PRETTY_NAME="):
+            osname = line.split("=", 1)[1].strip('"')
+    text = f"{socket.gethostname()}   ·   {osname}"
+    sf = cairo.ImageSurface(cairo.FORMAT_ARGB32, 900, 40)
+    cr = cairo.Context(sf)
+    lay = PangoCairo.create_layout(cr)
+    lay.set_font_description(Pango.FontDescription(f"{FONT} 14"))
+    lay.set_text(text, -1)
+    w, h = lay.get_pixel_size()
+    sf = cairo.ImageSurface(cairo.FORMAT_ARGB32, max(w, 1), max(h, 1))
+    cr = cairo.Context(sf)
+    lay = PangoCairo.create_layout(cr)
+    lay.set_font_description(Pango.FontDescription(f"{FONT} 14"))
+    lay.set_text(text, -1)
+    cr.set_source_rgba(*col(c["dim"]))
+    PangoCairo.show_layout(cr, lay)
+    sf.write_to_png(str(out / "label.png"))
+
+    bg = rgb(c["bg"])
+    (out / "dotfiles.plymouth").write_text(
+        "[Plymouth Theme]\nName=dotfiles\nDescription=Palette-driven boot splash (scripts/theme.py)\n"
+        "ModuleName=script\n\n[script]\nImageDir=/usr/share/plymouth/themes/dotfiles\n"
+        "ScriptFile=/usr/share/plymouth/themes/dotfiles/dotfiles.script\n")
+    (out / "dotfiles.script").write_text(f"""// {GEN}
+Window.SetBackgroundTopColor({bg[0] / 255:.4f}, {bg[1] / 255:.4f}, {bg[2] / 255:.4f});
+Window.SetBackgroundBottomColor({bg[0] / 255:.4f}, {bg[1] / 255:.4f}, {bg[2] / 255:.4f});
+
+sw = Window.GetWidth();
+sh = Window.GetHeight();
+
+logo_image = Image("logo.png");
+logo = Sprite(logo_image);
+logo.SetX(sw / 2 - logo_image.GetWidth() / 2);
+logo.SetY(sh / 2 - logo_image.GetHeight() - 30);
+
+on_image = Image("seg_on.png");
+off_image = Image("seg_off.png");
+segments = 30;
+step = 16;
+bar_x = sw / 2 - (segments * step) / 2;
+bar_y = sh / 2 + 24;
+for (i = 0; i < segments; i++) {{
+    seg[i] = Sprite(off_image);
+    seg[i].SetX(bar_x + i * step);
+    seg[i].SetY(bar_y);
+}}
+
+label_image = Image("label.png");
+label = Sprite(label_image);
+label.SetX(sw / 2 - label_image.GetWidth() / 2);
+label.SetY(bar_y + 48);
+
+target = 0;
+shown = 0;
+lit = 0;
+
+fun on_progress(duration, progress) {{
+    target = progress;
+}}
+Plymouth.SetBootProgressFunction(on_progress);
+
+fun on_refresh() {{
+    shown = shown + (target - shown) * 0.08;
+    n = Math.Int(shown * segments);
+    while (lit < n && lit < segments) {{
+        seg[lit].SetImage(on_image);
+        lit++;
+    }}
+}}
+Plymouth.SetRefreshFunction(on_refresh);
+""")
+
+
 # ---------------------------------------------------------------- wallpaper
 
 def png(path, w, h, rows):
@@ -757,6 +890,10 @@ def apply(colors, style, reload=True):
     (PALETTE / "current-styles").write_text(style + "\n")
     wallpaper(c, s["wallpaper"])
     make_cursors(c)
+    try:
+        make_plymouth(c)
+    except Exception as e:  # cairo/pango missing: the splash just isn't regenerated
+        print(f"plymouth theme skipped: {e}", file=sys.stderr)
     icons = make_icons(c)
     gdm_input(c)
     if reload:
