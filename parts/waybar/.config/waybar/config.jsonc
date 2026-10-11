@@ -9,7 +9,12 @@
     "spacing": 8,
     "modules-left": ["sway/workspaces", "sway/mode"],
     "modules-center": [],
-    "modules-right": ["mpris", "tray", "bluetooth", "network", "pulseaudio", "backlight", "battery", "cpu", "memory", "clock", "custom/ready"],
+    "modules-right": ["mpris", "tray", "group/status", "clock", "custom/ready"],
+
+    "group/status": {
+        "orientation": "horizontal",
+        "modules": ["bluetooth", "network", "pulseaudio", "backlight", "battery", "cpu", "memory"]
+    },
 
     "sway/workspaces": {
         "disable-scroll": false,
@@ -45,8 +50,8 @@
 
     "bluetooth": {
         "align": 0.5,
-        "format": "󰂯  {num_connections}",
-        "format-connected": "󰂱  {num_connections}",
+        "format": "󰂯 {num_connections}",
+        "format-connected": "󰂱 {num_connections}",
         "format-off": "󰂲",
         "format-disabled": "󰂲",
         "tooltip-format": "Bluetooth on  ·  {num_connections} connected",
@@ -58,19 +63,20 @@
 
     "network": {
         "align": 0.5,
-        "format-wifi": "󰖩  {essid}",
+        "format-wifi": "{icon}",
+        "format-icons": ["󰤯", "󰤟", "󰤢", "󰤥", "󰤨"],
         "format-ethernet": "󰈀",
-        "format-disconnected": "󰖪  offline",
-        "max-length": 20,
-        "tooltip-format-wifi": "{essid}  {signalStrength}%\n{ipaddr}",
+        "format-disconnected": "󰤮",
+        "tooltip-format-wifi": "{essid}  ·  {signalStrength}%\n{ipaddr}",
+        "tooltip-format-disconnected": "Not connected",
         "on-click": "alacritty --class nmtui-float -e nmtui",
         "on-click-right": "nm-connection-editor"
     },
 
     "pulseaudio": {
         "align": 0.5,
-        "format": "{icon}  {volume}%",
-        "format-muted": "󰝟  muted",
+        "format": "{icon} {volume}%",
+        "format-muted": "󰝟",
         "format-icons": { "default": ["󰕿", "󰖀", "󰕾"] },
         "scroll-step": 5,
         "on-click": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
@@ -87,8 +93,8 @@
     "battery": {
         "align": 0.5,
         "states": { "warning": 25, "critical": 12 },
-        "format": "{icon}  {capacity}%",
-        "format-charging": "󰂄  {capacity}%",
+        "format": "{icon} {capacity}%",
+        "format-charging": "󰂄 {capacity}%",
         "format-icons": ["󰁺", "󰁼", "󰁿", "󰂁", "󰁹"],
         "tooltip-format": "{timeTo}"
     },
@@ -97,14 +103,14 @@
         "interval": 3,
         "states": { "warning": 85 },
         "format": "",
-        "format-warning": "󰻠  {usage}%"
+        "format-warning": "󰻠 {usage}%"
     },
 
     "memory": {
         "interval": 5,
         "states": { "warning": 85 },
         "format": "",
-        "format-warning": "󰍛  {percentage}%"
+        "format-warning": "󰍛 {percentage}%"
     },
 
     "clock": {
