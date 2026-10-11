@@ -5,6 +5,8 @@ include /etc/sway/config.d/*
 
 # The bar first, so it is up as soon as sway is.
 exec ~/.config/sway/bar-handoff.sh
+# A reload re-creates the placeholder; hide it again when waybar is already running.
+exec_always ~/.config/sway/bar-state.sh
 
 set $hyper Ctrl+Mod1+Mod4+Shift
 set $term  alacritty

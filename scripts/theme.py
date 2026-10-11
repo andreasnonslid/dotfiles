@@ -923,6 +923,7 @@ def apply(colors, style, reload=True):
         gsettings(c, icons)
     if reload:
         sh("swaymsg", "reload")
+        sh("swaymsg", "bar", "boot", "mode", "invisible")  # reload re-creates the placeholder
         sh("pkill", "-SIGUSR2", "-x", "waybar")
         sh("makoctl", "reload")
     print(f"colors: {colors}  style: {style}")
