@@ -29,7 +29,7 @@ done
 [ -f "$esp/EFI/linux/vmlinuz.efi" ] && rm -rf "$esp/EFI/linux" || true
 efibootmgr -q --create --disk "/dev/$disk" --part "$part" --label "$label" \
     --loader '\EFI\debian-direct\vmlinuz.efi' \
-    --unicode "$root ro quiet splash loglevel=1 vt.global_cursor_default=0 initrd=\\EFI\\debian-direct\\initrd.img"
+    --unicode "$root ro quiet splash loglevel=1 systemd.show_status=false rd.udev.log_level=3 udev.log_level=3 vt.global_cursor_default=0 initrd=\\EFI\\debian-direct\\initrd.img"
 if [ "${1:-}" = "--hook" ]; then
     d=$(cd "$(dirname "$0")" && pwd)
     install -Dm755 "$d/efistub-sync" /etc/kernel/postinst.d/zz-efistub-sync
