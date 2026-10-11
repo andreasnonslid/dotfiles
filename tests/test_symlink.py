@@ -104,6 +104,12 @@ def expected_links(darwin):
     return expected
 
 
+@pytest.fixture(autouse=True)
+def all_tools_installed(monkeypatch):
+    """The link-set tests assert the full set; presence filtering has its own tests below."""
+    monkeypatch.setattr(symlink, "tool_present", lambda spec: True)
+
+
 def run_symlink_main(monkeypatch, home, system):
     monkeypatch.setenv("HOME", str(home))
     monkeypatch.setattr(symlink.platform, "system", lambda: system)
@@ -299,3 +305,21 @@ def test_part_link_unlink_swap(tmp_path):
     symlink.unlink_part(a, home)
     symlink.link_part(b, home)  # swap
     assert (home / ".config" / "app").resolve() == (b / ".config" / "app").resolve()
+
+
+def test_parts_and_configs_for_missing_tools_are_skipped(monkeypatch, fake_home):
+    monkeypatch.setattr(symlink, "tool_present", lambda spec: False)
+    run_symlink_main(monkeypatch, fake_home, "Linux")
+    assert not (fake_home / ".config" / "sway").exists()
+    assert not (fake_home / ".config" / "waybar").exists()
+    assert not (fake_home / ".config" / "zellij").exists()
+    # data-only parts and always-on entries are still linked
+    assert (fake_home / ".config" / "palette").is_symlink()
+    assert (fake_home / ".bashrc").is_symlink()
+
+
+def test_installed_tool_gets_its_part(monkeypatch, fake_home):
+    monkeypatch.setattr(symlink, "tool_present", lambda spec: spec == "sway")
+    run_symlink_main(monkeypatch, fake_home, "Linux")
+    assert (fake_home / ".config" / "sway").is_symlink()
+    assert not (fake_home / ".config" / "waybar").exists()

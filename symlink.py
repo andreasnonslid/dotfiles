@@ -55,6 +55,47 @@ DARWIN_PART_EXCLUDE = {"sway", "waybar", "which-key", "fuzzel", "swaylock", "gtk
 LINUX_PART_EXCLUDE = {"aerospace", "hammerspoon"}
 
 
+# Only link what the machine can use: an entry is skipped when none of its tools is installed.
+# Each value is "any of": a command name (looked up on PATH plus the usual extra dirs) or an
+# absolute path (macOS apps). Entries not listed here (palette, git, ...) are always linked.
+PART_NEEDS = {
+    "sway": ["sway"],
+    "waybar": ["waybar"],
+    "which-key": ["wlr-which-key"],
+    "fuzzel": ["fuzzel"],
+    "swaylock": ["swaylock"],
+    "gtklock": ["gtklock"],
+    "alacritty": ["alacritty", "/Applications/Alacritty.app"],
+    "aerospace": ["aerospace", "/Applications/AeroSpace.app"],
+    "hammerspoon": ["hs", "/Applications/Hammerspoon.app"],
+}
+CONFIG_NEEDS = {  # entries of bashrc/.config
+    "ghostty": ["ghostty", "/Applications/Ghostty.app"],
+    "hypr": ["Hyprland", "hyprland"],
+    "waybar": ["waybar"],
+    "mako": ["mako"],
+    "zed": ["zed", "/Applications/Zed.app"],
+    "zellij": ["zellij"],
+    "mise": ["mise"],
+    "gh": ["gh"],
+    "fd": ["fd", "fdfind"],
+    "clangd": ["clangd"],
+}
+EXTRA_BIN_DIRS = ("~/.cargo/bin", "~/.local/bin", "/opt/homebrew/bin", "/usr/local/bin")
+
+
+def tool_present(spec):
+    """True if `spec` (command name or absolute path) exists on this machine."""
+    if spec.startswith("/"):
+        return os.path.exists(spec)
+    path = os.pathsep.join([os.environ.get("PATH", "")] + [os.path.expanduser(d) for d in EXTRA_BIN_DIRS])
+    return shutil.which(spec, path=path) is not None
+
+
+def installed(needs):
+    return any(tool_present(spec) for spec in needs)
+
+
 def create_symlink(target, link_name, auto_yes=False):
     try:
         target = os.path.abspath(os.path.expanduser(target))
@@ -165,11 +206,14 @@ def main():
                     if is_darwin
                     else LINUX_CONFIG_EXCLUDE
                 )
+                missing = {n for n, needs in CONFIG_NEEDS.items() if not installed(needs)}
+                for n in sorted(missing - config_exclude):
+                    print(f"Skipped (not installed): ~/.config/{n}")
                 symlink_dir_contents(
                     str(src_path),
                     str(config_dir),
                     auto_yes=args.yes,
-                    extra_exclude=config_exclude,
+                    extra_exclude=config_exclude | missing,
                 )
             elif item == ".ssh":
                 # Never symlink ~/.ssh wholesale: private keys, known_hosts
@@ -249,8 +293,12 @@ def main():
     if parts_dir.is_dir() and not is_windows:
         for part in sorted(parts_dir.iterdir()):
             skip = DARWIN_PART_EXCLUDE if is_darwin else LINUX_PART_EXCLUDE
-            if part.is_dir() and part.name not in skip:
-                link_part(part, home, auto_yes=args.yes)
+            if not part.is_dir() or part.name in skip:
+                continue
+            if part.name in PART_NEEDS and not installed(PART_NEEDS[part.name]):
+                print(f"Skipped (not installed): parts/{part.name}")
+                continue
+            link_part(part, home, auto_yes=args.yes)
 
     # Local-only secrets: kept outside the repo in ~/.local/secrets and linked
     # into place only if present. These are never committed (see .gitignore).
