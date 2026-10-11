@@ -1,5 +1,5 @@
 [general]
-import = ["~/.config/alacritty/colors.toml"]
+import = ["~/.config/alacritty/colors.toml", "~/.config/alacritty/style.toml"]
 
 [font]
 normal = { family = "IosevkaTerm Nerd Font", style = "Regular" }

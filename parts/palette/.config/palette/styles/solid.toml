@@ -1,0 +1,15 @@
+gaps_inner = 0
+gaps_outer = 0
+border = 2
+radius = 0
+bar_height = 32
+bar_margin = 0
+bar_bg = "@bg"
+mod_bg = "transparent"
+mod_pad = 12
+bar_border = "2px solid @accent"
+wallpaper = "rings"
+opacity = 1.0
+wk_border = 2
+wk_pad = 16
+font_size = 14

@@ -1,5 +1,6 @@
 # sway: leader = Hyper (ctrl+alt+super+shift, from keyd/Vial: Caps hold). See ~/rice/keymap.md.
 include ~/.config/sway/colors.conf
+include ~/.config/sway/style.conf
 include /etc/sway/config.d/*
 
 set $hyper Ctrl+Mod1+Mod4+Shift
@@ -7,10 +8,6 @@ set $term  alacritty
 set $menu  fuzzel
 
 font pango:IosevkaTerm Nerd Font 11
-default_border pixel 2
-gaps inner 8
-gaps outer 4
-smart_borders on
 client.focused $accent $accent $bg $accent $accent
 client.unfocused $dim $bg $fg $dim $dim
 client.urgent $urgent $urgent $bg $urgent $urgent

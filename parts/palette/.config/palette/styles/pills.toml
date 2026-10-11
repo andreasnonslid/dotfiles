@@ -1,0 +1,15 @@
+gaps_inner = 8
+gaps_outer = 4
+border = 2
+radius = 14
+bar_height = 34
+bar_margin = 6
+bar_bg = "transparent"
+mod_bg = "alpha(@bg, 0.92)"
+mod_pad = 14
+bar_border = "none"
+wallpaper = "glow"
+opacity = 0.96
+wk_border = 3
+wk_pad = 22
+font_size = 14

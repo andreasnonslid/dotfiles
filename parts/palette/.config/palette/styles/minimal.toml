@@ -1,0 +1,15 @@
+gaps_inner = 4
+gaps_outer = 0
+border = 1
+radius = 4
+bar_height = 28
+bar_margin = 0
+bar_bg = "transparent"
+mod_bg = "transparent"
+mod_pad = 10
+bar_border = "none"
+wallpaper = "flat"
+opacity = 1.0
+wk_border = 1
+wk_pad = 14
+font_size = 13
