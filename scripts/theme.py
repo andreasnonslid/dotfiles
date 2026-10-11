@@ -15,7 +15,6 @@ Not committed (per machine): GTK3/4 gtk.css in ~/.config, wallpaper in ~/.local/
 import math
 import colorsys
 import os
-import pwd
 import random
 import re
 import struct
@@ -665,88 +664,16 @@ def gsettings(c, icons):
         gs("icon-theme", "dotfiles-icons")
 
 
-# ---------------------------------------------------------------- login screen (root)
+# ---------------------------------------------------------------- login screen
 
-GDM_MARK = ("# BEGIN dotfiles theme", "# END dotfiles theme")
-
-
-def gdm(dry=False):
-    """dry=True: build and verify the new resource under /tmp, install nothing."""
-    if not dry and os.geteuid() != 0:
-        sys.exit("run as root: sudo python3 " + " ".join(sys.argv))
-    user = os.environ.get("SUDO_USER") or ("" if dry else sys.exit("run via sudo"))
-    home = Path(pwd.getpwnam(user).pw_dir) if user else Path.home()
-    colors = (PALETTE / "current-colors").read_text().strip()
-    c = load("colors", colors)
-    res = Path("/usr/share/gnome-shell/gnome-shell-theme.gresource")
-    orig = res.with_name(res.name + ".orig-dotfiles")
-    if not dry and not orig.exists():
-        shutil.copy2(res, orig)
-    if dry:
-        orig = res
-
-    # 1. assets: wallpaper + cursor/icon themes must be readable by the gdm user
-    wp = home / ".local/share/palette/wallpaper.png"
-    if not dry:
-        shutil.copy2(wp, "/usr/share/gdm/palette-wallpaper.png")
-        os.chmod("/usr/share/gdm/palette-wallpaper.png", 0o644)
-    for n in ("dotfiles", "dotfiles-icons"):
-        d = home / ".local/share/icons" / n
-        if d.is_dir() and not dry:
-            shutil.rmtree(f"/usr/share/icons/{n}", ignore_errors=True)
-            shutil.copytree(d, f"/usr/share/icons/{n}", symlinks=True)
-    # icon symlinks point at /usr/share/icons/Papirus-Dark/...: fine system-wide.
-
-    # 2. shell theme: recolor the dark stylesheet, put the wallpaper behind the login
-    tmp = Path(tempfile.mkdtemp())
-    listing = subprocess.run(["gresource", "list", str(orig)], capture_output=True, text=True, check=True).stdout.split()
-    prefix = "/org/gnome/shell/theme/"
-    for r in listing:
-        out = tmp / r[len(prefix):]
-        out.write_bytes(subprocess.run(["gresource", "extract", str(orig), r], capture_output=True, check=True).stdout)
-    css = (tmp / "gnome-shell-dark.css").read_text()
-    bg, fg, dim = c["bg"], c["fg"], c["dim"]
-    for old, new in {
-        "#222226": bg, "#2e2e33": mix(bg, fg, 0.05), "#36363a": mix(bg, fg, 0.10),
-        "#38383b": mix(bg, fg, 0.11), "#424247": mix(bg, fg, 0.14), "#47474c": mix(bg, fg, 0.16),
-        "#4a4a4f": mix(bg, fg, 0.17), "#4d4d4d": mix(bg, fg, 0.18), "#56565c": mix(bg, fg, 0.22),
-        "#9b9b9d": dim, "#fafafb": fg, "#ffffff": fg,
-    }.items():
-        css = css.replace(old, new)
-    css = re.sub(r"#lockDialogGroup \{[^}]*\}",
-                 "#lockDialogGroup {\n  background-color: %s;\n  background-image: url(file:///usr/share/gdm/palette-wallpaper.png);\n"
-                 "  background-size: cover; background-position: center; }" % bg, css, count=1)
-    (tmp / "gnome-shell-dark.css").write_text(css)
-    xml = '<?xml version="1.0" encoding="UTF-8"?>\n<gresources><gresource prefix="/org/gnome/shell/theme">\n'
-    xml += "".join(f"  <file>{r[len(prefix):]}</file>\n" for r in listing) + "</gresource></gresources>\n"
-    (tmp / "theme.gresource.xml").write_text(xml)
-    new = tmp / "out.gresource"
-    subprocess.run(["glib-compile-resources", f"--sourcedir={tmp}", f"--target={new}", str(tmp / "theme.gresource.xml")], check=True)
-    chk = subprocess.run(["gresource", "list", str(new)], capture_output=True, text=True, check=True).stdout.split()
-    assert sorted(chk) == sorted(listing), "resource list mismatch, not installing"
-    os.chmod(new, 0o644)
-    if dry:
-        print(f"dry run ok: {len(listing)} resources, built {new} ({new.stat().st_size} bytes)")
-        print(re.search(r"#lockDialogGroup \{[^}]*\}", (tmp / "gnome-shell-dark.css").read_text()).group(0))
-        return
-    shutil.move(str(new), str(res))
-    shutil.rmtree(tmp)
-
-    # 3. greeter defaults (Debian: /etc/gdm3/greeter.dconf-defaults)
-    gp = Path("/etc/gdm3/greeter.dconf-defaults")
-    txt = gp.read_text()
-    txt = re.sub(rf"\n?{re.escape(GDM_MARK[0])}.*?{re.escape(GDM_MARK[1])}\n?", "\n", txt, flags=re.S)
-    block = f"""{GDM_MARK[0]}
-[org/gnome/desktop/interface]
-color-scheme='prefer-dark'
-accent-color='{nearest(GNOME_ACCENTS, c['accent'])}'
-cursor-theme='dotfiles'
-{"icon-theme='dotfiles-icons'" if Path('/usr/share/icons/dotfiles-icons').is_dir() else ""}
-{GDM_MARK[1]}
-"""
-    gp.write_text(txt.rstrip("\n") + "\n\n" + block)
-    subprocess.run(["/usr/share/gdm/generate-config"], check=False)
-    print(f"login screen themed: colors={colors}. Original kept at {orig}. Log out to see it.")
+def gdm_input(c):
+    """Hand the root helper (linux/gdm-theme.py, run by a path unit) what it may use."""
+    import json
+    p = WALLPAPER.parent / "gdm-input.json"
+    tmp = p.with_suffix(".tmp")
+    tmp.write_text(json.dumps({"colors": {k: c[k] for k in ("bg", "fg", "dim", "accent")},
+                               "accent": nearest(GNOME_ACCENTS, c["accent"])}))
+    os.replace(tmp, p)  # one change event for the path unit
 
 
 # ---------------------------------------------------------------- wallpaper
@@ -828,6 +755,7 @@ def apply(colors, style, reload=True):
     wallpaper(c, s["wallpaper"])
     make_cursors(c)
     icons = make_icons(c)
+    gdm_input(c)
     if reload:
         gsettings(c, icons)
     if reload:
@@ -859,8 +787,6 @@ def main(argv):
         apply(cycle("colors"), cs)
     elif cmd == "next-style":
         apply(cc, cycle("styles"))
-    elif cmd == "gdm":
-        gdm(dry="--dry" in args)
     elif cmd == "random":
         apply(random.choice(names("colors")), random.choice(names("styles")))
     else:
