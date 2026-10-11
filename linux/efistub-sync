@@ -1,0 +1,18 @@
+#!/bin/sh
+# Kernel/initramfs hook: keep the direct EFI stub copy on the ESP in step with the newest kernel.
+# Installed (root-owned) as /etc/kernel/postinst.d/zz-efistub-sync and
+# /etc/initramfs/post-update.d/zz-efistub-sync by linux/efistub-boot.sh --hook.
+ver=$1
+esp=/boot/efi
+[ -n "$ver" ] || exit 0
+[ -f "/boot/vmlinuz-$ver" ] && [ -f "/boot/initrd.img-$ver" ] || exit 0
+newest=$(ls -1 /boot/vmlinuz-* 2>/dev/null | sed 's|.*/vmlinuz-||' | sort -V | tail -1)
+[ "$ver" = "$newest" ] || exit 0
+mountpoint -q "$esp" || exit 0
+[ -d "$esp/EFI/linux" ] || exit 0   # direct boot not set up
+cp -L "/boot/vmlinuz-$ver" "$esp/EFI/linux/vmlinuz.efi.new" &&
+cp -L "/boot/initrd.img-$ver" "$esp/EFI/linux/initrd.img.new" &&
+sync &&
+mv "$esp/EFI/linux/vmlinuz.efi.new" "$esp/EFI/linux/vmlinuz.efi" &&
+mv "$esp/EFI/linux/initrd.img.new" "$esp/EFI/linux/initrd.img"
+exit 0

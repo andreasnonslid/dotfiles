@@ -2,7 +2,7 @@
 # Boot the kernel straight from UEFI (EFI stub): no GRUB, no menu. Needs Secure Boot OFF.
 # Copies /vmlinuz + /initrd.img to the ESP and (re)creates a "Debian (direct)" boot entry
 # first in BootOrder. The GRUB entry stays as fallback. Re-run after kernel updates.
-# Usage: sudo linux/efistub-boot.sh
+# Usage: sudo linux/efistub-boot.sh [--hook]   (--hook also installs the kernel-update sync hooks)
 set -euo pipefail
 [ "$(id -u)" = 0 ] || { echo "run with sudo"; exit 1; }
 if [ "$(od -An -tu1 -j4 -N1 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c)" -ne 0 ]; then
@@ -27,5 +27,11 @@ for n in $(efibootmgr | sed -n "s/^Boot\([0-9A-F]\{4\}\)\*\? $label\$/\1/p"); do
 done
 efibootmgr -q --create --disk "/dev/$disk" --part "$part" --label "$label" \
     --loader '\EFI\linux\vmlinuz.efi' \
-    --unicode "$root ro ignore_loglevel earlycon=efifb,keep initrd=\\EFI\\linux\\initrd.img"
+    --unicode "$root ro quiet initrd=\\EFI\\linux\\initrd.img"
+if [ "${1:-}" = "--hook" ]; then
+    d=$(cd "$(dirname "$0")" && pwd)
+    install -Dm755 "$d/efistub-sync" /etc/kernel/postinst.d/zz-efistub-sync
+    install -Dm755 "$d/efistub-sync" /etc/initramfs/post-update.d/zz-efistub-sync
+    echo "sync hooks installed"
+fi
 efibootmgr
