@@ -101,3 +101,4 @@ if [[ $- == *i* ]]; then
 fi
 
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+export PATH="$HOME/flutter/bin:$PATH"
