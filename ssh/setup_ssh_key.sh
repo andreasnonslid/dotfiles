@@ -65,7 +65,7 @@ create)
     key_file="$HOME/.ssh/id_$key_type"
     i=1
     while [ -e "$key_file" ]; do
-        key_file="$HOME/.ssh/id_$key_type_$i"
+        key_file="$HOME/.ssh/id_${key_type}_$i"
         i=$((i + 1))
     done
     ssh-keygen -t "$key_type" -C "$name <$email>" -f "$key_file"
