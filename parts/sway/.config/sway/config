@@ -35,6 +35,10 @@ for_window [app_id="nmtui-float"] floating enable, resize set width 70 ppt heigh
 assign [app_id="dev.zed.Zed"] workspace number 2
 assign [app_id="^firefox.*"] workspace number 3
 
+# Night mode: the screen warms gradually after sunset (you work 19-23h). wlsunset is optional; coordinates
+# are roughly Oslo, edit -l/-L for elsewhere. Nothing happens if it is not installed.
+exec sh -c 'command -v wlsunset >/dev/null 2>&1 && exec wlsunset -l 59.9 -L 10.7 -t 4200 -T 6500'
+
 # Touch and pen follow the panel (and its rotation).
 output eDP-1 scale 1.25
 input type:touch map_to_output eDP-1

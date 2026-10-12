@@ -69,10 +69,36 @@ def bar(n, top, width=28):
     return "█" * max(1, round(n / top * width)) if top else ""
 
 
+def digest(days=7):
+    """A few lines for a notification: volume, the top habits, and the one suggestion worth acting on."""
+    ev = load(days)
+    if not ev:
+        return ""
+    cmds = [e[3] for e in ev]
+    top = collections.Counter(first(c) for c in cmds)
+    tops = ", ".join(f"{k} {100 * n // len(cmds)}%" for k, n in top.most_common(3))
+    rc = [e for e in ev if e[1] is not None]
+    fail = f", {100 * sum(1 for e in rc if e[1]) // len(rc)}% failed" if rc else ""
+    al = aliases()
+    expansions = collections.defaultdict(list)
+    for k, v in al.items():
+        expansions[v.strip()].append(k)
+    typed = collections.Counter(c.strip() for c in cmds if c.strip() in expansions)
+    tip = ""
+    if typed:
+        c, n = typed.most_common(1)[0]
+        tip = f"\nTip: `{c[:36]}` typed in full {n}x, `{expansions[c][0]}` does it"
+    return f"{len(cmds)} commands in {days} days{fail}\nMostly: {tops}{tip}"
+
+
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=0)
+    ap.add_argument("--digest", action="store_true", help="short summary for a notification")
     a = ap.parse_args()
+    if a.digest:
+        print(digest(a.days or 7))
+        return
     ev = load(a.days)
     if not ev:
         sys.exit("no data yet: open a new shell and use it for a while (the log starts when habits.sh is sourced)")
@@ -168,8 +194,6 @@ def main():
         s.append("cd and ls alternate a lot: make `cd` zoxide-smart and list the directory after jumping")
     if reps:
         s.append(f"`{reps[0][0][:40]}` repeated {reps[0][1]}x: give it a one-word name")
-    if top.get("cd") and not top.get("z"):
-        s.append("you use `cd` but never `z` (zoxide): the jump database is going unused")
     print("  " + ("\n  ".join(f"- {x}" for x in s) if s else "none yet"))
 
 

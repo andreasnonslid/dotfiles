@@ -19,6 +19,7 @@ after_unlock() {
     ( while pgrep -x gtklock >/dev/null || pgrep -x swaylock >/dev/null; do sleep 0.4; done
       rm -f "$XDG_RUNTIME_DIR/startup-active"
       pgrep -x squeekboard >/dev/null || setsid squeekboard >/dev/null 2>&1 &
+      ( sleep 20; [ -x "$HOME/dotfiles/scripts/habits-digest.sh" ] && "$HOME/dotfiles/scripts/habits-digest.sh" ) &
       sleep 6
       nice -n 19 python3 "$HOME/.config/sway/quote-frame.py" --render "$HOME/.local/share/palette/lock-frame.png" --new
     ) >/dev/null 2>&1 &
