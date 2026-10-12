@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+# dots: one entry point for looking after this machine.
+#   dots            status (a one-screen overview)
+#   dots update     apt + snap + pipx
+#   dots check      the repo's test gate
+#   dots theme ...  colors/style (see scripts/theme.py)
+#   dots habits     what you actually do (see scripts/habits.py)
+#   dots backup     run a backup now (see scripts/backup.sh)
+here=$(cd "$(dirname "$(readlink -f "$0")")" && pwd)
+root=$(dirname "$here")
+dim=$'\e[2m'; off=$'\e[0m'; ok=$'\e[32m'; warn=$'\e[33m'; bad=$'\e[31m'
+
+status() {
+    echo "boot      $(systemd-analyze 2>/dev/null | head -1 | sed 's/Startup finished in //; s/ = /  total /')"
+    local bat=/sys/class/power_supply/BAT0
+    [ -r $bat/capacity ] && echo "battery   $(cat $bat/capacity)% $(cat $bat/status)  health $(( 100 * $(cat $bat/energy_full) / $(cat $bat/energy_full_design) ))%  profile $(powerprofilesctl get 2>/dev/null)"
+    echo "disk      $(df -h / /home --output=target,pcent 2>/dev/null | tail -n +2 | awk '{printf "%s %s  ", $1, $2}')"
+    local up; up=$(apt list --upgradable 2>/dev/null | grep -c upgradable)
+    echo "updates   $up pending $( [ "$up" -gt 0 ] && echo "${dim}(dots update)${off}")"
+    local failed; failed=$(systemctl --failed --no-legend 2>/dev/null | wc -l)
+    echo "services  $( [ "$failed" -eq 0 ] && echo "${ok}none failed${off}" || echo "${bad}$failed failed${off}")"
+    echo "theme     $("$here/theme.py" current 2>/dev/null)"
+    # repos: anything not safe on a remote
+    local r n=0 msg=
+    for r in "$root" ~/dev/* ~/dev/*/* ~/work/* ~/Patricia; do
+        [ -d "$r/.git" ] || continue
+        local ahead dirty
+        ahead=$(git -C "$r" rev-list --count '@{u}..HEAD' 2>/dev/null || echo 0)
+        dirty=$(git -C "$r" status --porcelain 2>/dev/null | grep -vc '^??')
+        if [ "$ahead" -gt 0 ] || [ "$dirty" -gt 0 ]; then msg+="    ${r/#$HOME/~}: $ahead unpushed, $dirty modified"$'\n'; n=$((n+1)); fi
+    done
+    echo "repos     $( [ $n -eq 0 ] && echo "${ok}all pushed and clean${off}" || echo "${warn}$n need attention${off}")"
+    [ -n "$msg" ] && printf '%s' "$msg"
+    local last; last=$(cat "${XDG_STATE_HOME:-$HOME/.local/state}/dots/last-backup" 2>/dev/null)
+    if [ -n "$last" ]; then
+        local age=$(( ( $(date +%s) - last ) / 86400 ))
+        echo "backup    $( [ $age -le 2 ] && echo "${ok}${age}d ago${off}" || echo "${warn}${age} days ago${off}")"
+    else
+        echo "backup    ${warn}never (dots backup)${off}"
+    fi
+}
+
+case "${1:-status}" in
+    status|"") status ;;
+    update)
+        sudo apt update && sudo apt full-upgrade
+        command -v snap >/dev/null && sudo snap refresh
+        command -v pipx >/dev/null && pipx upgrade-all
+        ;;
+    check) "$root/check" ;;
+    theme) shift; exec "$here/theme.py" "$@" ;;
+    habits) shift; exec "$here/habits.py" "$@" ;;
+    backup) shift; exec "$here/backup.sh" "$@" ;;
+    -h|--help|help) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//' ;;
+    *) echo "dots: unknown command '$1' (try: dots help)"; exit 1 ;;
+esac
