@@ -5,7 +5,6 @@
 #   dots check      the repo's test gate
 #   dots theme ...  colors/style (see scripts/theme.py)
 #   dots habits     what you actually do (see scripts/habits.py)
-#   dots backup     run a backup now (see scripts/backup.sh)
 here=$(cd "$(dirname "$(readlink -f "$0")")" && pwd)
 root=$(dirname "$here")
 dim=$'\e[2m'; off=$'\e[0m'; ok=$'\e[32m'; warn=$'\e[33m'; bad=$'\e[31m'
@@ -31,13 +30,6 @@ status() {
     done
     echo "repos     $( [ $n -eq 0 ] && echo "${ok}all pushed and clean${off}" || echo "${warn}$n need attention${off}")"
     [ -n "$msg" ] && printf '%s' "$msg"
-    local last; last=$(cat "${XDG_STATE_HOME:-$HOME/.local/state}/dots/last-backup" 2>/dev/null)
-    if [ -n "$last" ]; then
-        local age=$(( ( $(date +%s) - last ) / 86400 ))
-        echo "backup    $( [ $age -le 2 ] && echo "${ok}${age}d ago${off}" || echo "${warn}${age} days ago${off}")"
-    else
-        echo "backup    ${warn}never (dots backup)${off}"
-    fi
 }
 
 case "${1:-status}" in
@@ -50,7 +42,6 @@ case "${1:-status}" in
     check) "$root/check" ;;
     theme) shift; exec "$here/theme.py" "$@" ;;
     habits) shift; exec "$here/habits.py" "$@" ;;
-    backup) shift; exec "$here/backup.sh" "$@" ;;
-    -h|--help|help) sed -n '2,10p' "$0" | sed 's/^# \{0,1\}//' ;;
+    -h|--help|help) sed -n '2,/^[^#]/{/^#/p}' "$0" | sed 's/^# \{0,1\}//' ;;
     *) echo "dots: unknown command '$1' (try: dots help)"; exit 1 ;;
 esac

@@ -4,7 +4,7 @@
 #   sudo linux/streamline.sh --revert  put it all back
 #
 #   ssh            : an SSH *server* listening on every interface with password logins allowed
-#                    (outgoing ssh, e.g. to your backup machine, is unaffected)
+#                    (outgoing ssh to other machines is unaffected)
 #   cups, avahi    : printing and mDNS, with no printer configured
 #   snap "just"    : replaced by the apt package (snapd itself stays: obsidian still needs it)
 set -euo pipefail
