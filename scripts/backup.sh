@@ -63,6 +63,7 @@ Downloads
 .config/BraveSoftware/*/Cache
 .config/Cursor/Cache*
 .config/Cursor/CachedData
+.config/dots/restic-password
 X
 
 case "${1:-run}" in
