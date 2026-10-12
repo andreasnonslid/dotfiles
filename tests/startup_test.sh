@@ -77,7 +77,8 @@ for a in firefox-esr zed waybar alacritty; do
 done
 check "all four windows were noticed"                'grep -q "^desktop-ready" "$log" && grep -q "^zed-window" "$log" && grep -q "^firefox-window" "$log"'
 check "frame kept while locked (startup-active)"     '[ -e "$XDG_RUNTIME_DIR/startup-active" ]'
-check "wallpaper NOT swapped while locked"           '! grep -q "output \* bg .*wallpaper.png" "$T/calls"'
+sleep 1.4
+check "wallpaper swapped once the lock covers the screen" 'grep -q "output \* bg .*wallpaper.png fill" "$T/calls"'
 
 echo "a normal (non-autologin) login must NOT lock"
 cp -r "$HOME/.cache" "$T/cache.keep"; : > "$T/calls"; rm -f "$T/apps"/* "$XDG_RUNTIME_DIR/startup-active" "$T/run/gtklock.pid"
@@ -98,8 +99,9 @@ touch "$T/unlock"
 for _ in $(seq 1 60); do [ -e "$XDG_RUNTIME_DIR/startup-active" ] || break; sleep 0.1; done
 sleep 0.5
 check "marker cleared after unlock"                  '[ ! -e "$XDG_RUNTIME_DIR/startup-active" ]'
-check "real wallpaper restored after unlock"         'grep -q "output \* bg .*wallpaper.png fill" "$T/calls"'
-check "next quote frame prepared"                    'grep -q "quote-frame.py --render .*lock-frame.png --new" "$T/calls"'
+check "no work at the unlock instant (no bg swap, no render)" '! grep -q "quote-frame.py" "$T/calls"'
+sleep 7
+check "next quote frame prepared a few seconds later, at low priority" 'grep -q "quote-frame.py --render .*lock-frame.png --new" "$T/calls"'
 
 # ---- 3. bg-state.sh (runs on every reload)
 echo "bg-state.sh"
