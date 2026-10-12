@@ -1,0 +1,80 @@
+#!/usr/bin/env python3
+"""rr: compile (if needed) and run a source file; -w re-runs it every time you save.
+
+  rr main.cpp [args...]        rr -w d1p1.cpp          rr script.py
+Language is picked by extension. Rust inside a cargo project uses `cargo run`.
+"""
+import hashlib
+import os
+import shlex
+import subprocess
+import sys
+import tempfile
+import time
+from pathlib import Path
+
+
+def plan(path, out):
+    """-> (compile_cmd or None, run_cmd list)"""
+    ext = path.suffix.lower()
+    p = str(path)
+    if ext in (".cpp", ".cc", ".cxx"):
+        return ["g++", "-std=c++20", "-O2", "-Wall", "-o", out, p], [out]
+    if ext == ".c":
+        return ["gcc", "-O2", "-Wall", "-o", out, p], [out]
+    if ext == ".rs":
+        for d in [path.parent, *path.parent.parents]:
+            if (d / "Cargo.toml").exists():
+                return None, ["cargo", "run", "-q", "--manifest-path", str(d / "Cargo.toml"), "--"]
+        return ["rustc", "-O", "-o", out, p], [out]
+    run = {".py": ["python3"], ".js": ["node"], ".sh": ["bash"], ".lua": ["lua"], ".rb": ["ruby"],
+           ".go": ["go", "run"], ".dart": ["dart", "run"], ".pl": ["perl"]}.get(ext)
+    if run:
+        return None, run + [p]
+    sys.exit(f"rr: don't know how to run {ext or path.name!r}")
+
+
+def once(path, args, out):
+    compile_cmd, run_cmd = plan(path, out)
+    if compile_cmd:
+        r = subprocess.run(compile_cmd)
+        if r.returncode:
+            print(f"\n\033[31m✘ compile failed ({r.returncode})\033[0m")
+            return r.returncode
+    t0 = time.time()
+    r = subprocess.run(run_cmd + args)
+    mark = "\033[32m✔\033[0m" if r.returncode == 0 else f"\033[31m✘ exit {r.returncode}\033[0m"
+    print(f"\n{mark} \033[2m{time.time() - t0:.2f}s\033[0m")
+    return r.returncode
+
+
+def main():
+    argv = sys.argv[1:]
+    watch = False
+    if argv and argv[0] in ("-w", "--watch"):
+        watch, argv = True, argv[1:]
+    if not argv or argv[0] in ("-h", "--help"):
+        sys.exit(__doc__)
+    path, args = Path(argv[0]).resolve(), argv[1:]
+    if not path.exists():
+        sys.exit(f"rr: no such file: {argv[0]}")
+    out = str(Path(tempfile.gettempdir()) / f"rr-{hashlib.sha1(str(path).encode()).hexdigest()[:10]}")
+    if not watch:
+        sys.exit(once(path, args, out))
+    last = None
+    print(f"\033[2mwatching {path.name} (Ctrl-C to stop)\033[0m")
+    try:
+        while True:
+            m = path.stat().st_mtime_ns
+            if m != last:
+                if last is not None:
+                    print("\033[2m" + "─" * 40 + "\033[0m")
+                last = m
+                once(path, args, out)
+            time.sleep(0.25)
+    except KeyboardInterrupt:
+        print()
+
+
+if __name__ == "__main__":
+    main()
