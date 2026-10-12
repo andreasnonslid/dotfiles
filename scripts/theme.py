@@ -41,7 +41,7 @@ I = {
     "layout": "", "resize": "", "apps": "", "term": "",
     "search": "", "kbd": "", "lock": "", "out": "",
     "sleep": "", "reboot": "", "off": "", "theme": "",
-    "color": "", "shape": "",
+    "color": "", "shape": "", "clip": "", "bell": "", "drop": "",
 }
 SWAY = "swaymsg "
 
@@ -89,6 +89,9 @@ def menu(c):
         ("x", f"{I['close']}  Close window", SWAY + "kill"),
         ("r", f"{I['resize']}  Resize mode", SWAY + "mode resize"),
         ("o", f"{I['kbd']}  On-screen keyboard", "~/.config/sway/osk-toggle.sh"),
+        ("c", f"{I['clip']}  Clipboard history", "~/.config/sway/clipboard.sh"),
+        ("n", f"{I['bell']}  Restore notification", "makoctl restore"),
+        ("d", f"{I['drop']}  Drop-down terminal", "~/.config/sway/scratch.sh"),
         ("m", f"{I['move']}  Move to workspace",
          [(str(n), f"To {n}", SWAY + f"move container to workspace number {n}") for n in range(1, 10)]),
         ("t", f"{I['layout']}  Layout", [

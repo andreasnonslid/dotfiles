@@ -10,7 +10,7 @@ sudo apt-get install -y \
     sway swaybg swaylock swayidle waybar fuzzel mako-notifier alacritty \
     squeekboard iio-sensor-proxy lisgd keyd brightnessctl playerctl \
     grim slurp wl-clipboard wev libnotify-bin xdg-desktop-portal-wlr \
-    blueman network-manager-gnome pavucontrol lua5.4 wlsunset eza
+    blueman network-manager-gnome pavucontrol lua5.4 wlsunset eza cliphist
 
 # Touch gestures (lisgd) read /dev/input directly; takes effect on next login.
 sudo usermod -aG input "$USER"

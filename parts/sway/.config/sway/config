@@ -39,6 +39,15 @@ assign [app_id="^firefox.*"] workspace number 3
 # are roughly Oslo, edit -l/-L for elsewhere. Nothing happens if it is not installed.
 exec sh -c 'command -v wlsunset >/dev/null 2>&1 && exec wlsunset -l 59.9 -L 10.7 -t 4200 -T 6500'
 
+# Drop-down terminal (scratch.sh): floating, centred, sized like a quake console.
+for_window [app_id="scratch-term"] floating enable, resize set width 80 ppt height 45 ppt, move position center, move scratchpad
+
+# Clipboard history for the picker (clipboard.sh); a no-op until cliphist is installed.
+exec sh -c 'command -v cliphist >/dev/null 2>&1 && wl-paste --watch cliphist store'
+
+# Power profile follows plugged in / battery level (power-saver at <= 35%).
+exec sh -c '[ -x "$HOME/dotfiles/scripts/power-profile.sh" ] && exec "$HOME/dotfiles/scripts/power-profile.sh"'
+
 # Touch and pen follow the panel (and its rotation).
 output eDP-1 scale 1.25
 input type:touch map_to_output eDP-1
