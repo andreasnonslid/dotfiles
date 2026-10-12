@@ -57,6 +57,8 @@ for app in alacritty:Alacritty firefox-esr:firefox-esr; do
 echo \"${app%%:*}\" >> \"\$SANDBOX/calls\"; touch \"\$SANDBOX/apps/${app##*:}\"; exit 0"
 done
 printf '#!/bin/bash\necho zed >> "$SANDBOX/calls"; touch "$SANDBOX/apps/dev.zed.Zed"; exit 0\n' > "$HOME/.local/bin/zed"; chmod +x "$HOME/.local/bin/zed"
+mk cliphist '#!/bin/bash
+echo "cliphist $*" >> "$SANDBOX/calls"; exit 0'
 mk plymouth '#!/bin/bash
 echo "plymouth $*" >> "$SANDBOX/calls"; exit 0'
 mk waybar '#!/bin/bash
@@ -81,6 +83,7 @@ done
 check "all four windows were noticed"                'grep -q "^desktop-ready" "$log" && grep -q "^zed-window" "$log" && grep -q "^firefox-window" "$log"'
 check "frame kept while locked (startup-active)"     '[ -e "$XDG_RUNTIME_DIR/startup-active" ]'
 sleep 1.4
+check "clipboard history wiped when the lock goes up"  'grep -q "^cliphist wipe" "$T/calls"'
 check "wallpaper swapped once the lock covers the screen" 'grep -q "output \* bg .*wallpaper.png fill" "$T/calls"'
 
 echo "a normal (non-autologin) login must NOT lock"
@@ -154,6 +157,7 @@ echo \"${app%%:*}\" >> \"\$HSB/calls\"; exit 0"
     done
     printf '#!/bin/bash\necho zed >> "$HSB/calls"\n' > "$H/home/.local/bin/zed"; chmod +x "$H/home/.local/bin/zed"
     hmk plymouth 'exit 0'
+    hmk cliphist 'exit 0'
     hmk waybar '#!/bin/bash
 echo waybar >> "$HSB/calls"; touch "$XDG_RUNTIME_DIR/waybar-ready"'
     (

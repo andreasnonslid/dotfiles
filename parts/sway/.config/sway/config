@@ -43,7 +43,7 @@ exec sh -c 'command -v wlsunset >/dev/null 2>&1 && exec wlsunset -l 59.9 -L 10.7
 for_window [app_id="scratch-term"] floating enable, resize set width 80 ppt height 45 ppt, move position center, move scratchpad
 
 # Clipboard history for the picker (clipboard.sh); a no-op until cliphist is installed.
-exec sh -c 'command -v cliphist >/dev/null 2>&1 && wl-paste --watch cliphist store'
+exec sh -c 'command -v cliphist >/dev/null 2>&1 && wl-paste --watch cliphist -max-items 100 store'
 
 # Power profile follows plugged in / battery level (power-saver at <= 35%).
 exec sh -c '[ -x "$HOME/dotfiles/scripts/power-profile.sh" ] && exec "$HOME/dotfiles/scripts/power-profile.sh"'

@@ -13,6 +13,8 @@ pgrep -x swaylock >/dev/null && exit 0
 after_lock() {
     ( sleep 1
       swaymsg output '*' bg "$HOME/.local/share/palette/wallpaper.png" fill >/dev/null 2>&1
+      # clipboard history never outlives a lock: whatever was copied (a password, a token) is gone
+      command -v cliphist >/dev/null 2>&1 && cliphist wipe >/dev/null 2>&1
     ) >/dev/null 2>&1 &
 }
 after_unlock() {
