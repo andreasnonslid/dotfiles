@@ -3,6 +3,9 @@
 # so by the time the password is typed everything is already there. Timings: ~/.cache/startup.log
 log=~/.cache/startup.log
 t() { printf '%s %.3f\n' "$1" "$(date +%s.%N)"; }
+# GDM only lets the boot splash quit when a GNOME session says it is ready, which sway never does, so it
+# waits ~20 s and holds up graphical.target. Say it ourselves (harmless if it is already gone).
+command -v plymouth >/dev/null 2>&1 && { plymouth quit --retain-splash >/dev/null 2>&1 & }
 touch "$XDG_RUNTIME_DIR/startup-active"      # keeps bg-state.sh from swapping the frame for the wallpaper
 { t script-start; echo "sway-uptime $(ps -o etimes= -p "$(pgrep -xn sway)")s"; } > "$log"
 

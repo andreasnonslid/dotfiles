@@ -57,6 +57,8 @@ for app in alacritty:Alacritty firefox-esr:firefox-esr; do
 echo \"${app%%:*}\" >> \"\$SANDBOX/calls\"; touch \"\$SANDBOX/apps/${app##*:}\"; exit 0"
 done
 printf '#!/bin/bash\necho zed >> "$SANDBOX/calls"; touch "$SANDBOX/apps/dev.zed.Zed"; exit 0\n' > "$HOME/.local/bin/zed"; chmod +x "$HOME/.local/bin/zed"
+mk plymouth '#!/bin/bash
+echo "plymouth $*" >> "$SANDBOX/calls"; exit 0'
 mk waybar '#!/bin/bash
 echo "waybar" >> "$SANDBOX/calls"; touch "$XDG_RUNTIME_DIR/waybar-ready"; exit 0'
 export PATH=$T/bin:$PATH
@@ -70,6 +72,7 @@ timeout 25 bash "$HOME/.config/sway/startup.sh" >/dev/null 2>&1
 rc=$?
 log=$HOME/.cache/startup.log
 check "startup.sh finished by itself (rc=$rc)"       '[ $rc -eq 0 ]'
+check "boot splash told to quit (no 20 s hold-up)"   'grep -q "^plymouth quit" "$T/calls"'
 check "the screen was locked first"                  'grep -q "^gtklock -d" "$T/calls"'
 check "lock came before any app"                     '[ "$(grep -n -m1 -E "^(gtklock|firefox-esr|zed|waybar|alacritty)" "$T/calls" | cut -d: -f2)" = "gtklock -d" ]'
 for a in firefox-esr zed waybar alacritty; do
@@ -150,6 +153,7 @@ echo "python3 $*" >> "$HSB/calls"'
 echo \"${app%%:*}\" >> \"\$HSB/calls\"; exit 0"
     done
     printf '#!/bin/bash\necho zed >> "$HSB/calls"\n' > "$H/home/.local/bin/zed"; chmod +x "$H/home/.local/bin/zed"
+    hmk plymouth 'exit 0'
     hmk waybar '#!/bin/bash
 echo waybar >> "$HSB/calls"; touch "$XDG_RUNTIME_DIR/waybar-ready"'
     (
