@@ -240,6 +240,17 @@ ___anh___gxcl_clean() {
     git clean -ffdx "${___anh___gxcl_clean_excludes[@]}"
 }
 
+# Shell-quoted exclude flags for git submodule foreach (bash ${arr@Q} is bash 5.1+
+# only and breaks under zsh).
+___anh___gxcl_clean_excludes_quoted() {
+    local item q quoted=""
+    for item in "${___anh___gxcl_clean_excludes[@]}"; do
+        printf -v q '%q' "$item"
+        quoted="$quoted $q"
+    done
+    echo "$quoted"
+}
+
 gxcl() {
     ___anh___wait_for_locks
     git reset --hard &&
@@ -248,7 +259,7 @@ gxcl() {
         ___anh___wait_for_locks
     git submodule update --init --recursive --force &&
         ___anh___wait_for_locks
-    git submodule foreach --recursive "git reset --hard HEAD && git clean -ffdx ${___anh___gxcl_clean_excludes[*]@Q}" &&
+    git submodule foreach --recursive "git reset --hard HEAD && git clean -ffdx $(___anh___gxcl_clean_excludes_quoted)" &&
         git checkout --force
 }
 wfn gxcl "Full git clean, reset, and submodule sync"
@@ -269,7 +280,7 @@ gxclfull() {
         ___anh___wait_for_locks
     git submodule update --init --recursive --force &&
         ___anh___wait_for_locks
-    git submodule foreach --recursive "git reset --hard HEAD && git clean -ffdx ${___anh___gxcl_clean_excludes[*]@Q}" &&
+    git submodule foreach --recursive "git reset --hard HEAD && git clean -ffdx $(___anh___gxcl_clean_excludes_quoted)" &&
         git checkout --force
 }
 wfn gxclfull "Aggressive git clean with LFS, reflog, gc"
@@ -282,7 +293,7 @@ gxclreset() {
         ___anh___wait_for_locks
     git submodule update --init --recursive --force &&
         ___anh___wait_for_locks
-    git submodule foreach --recursive "git fetch --all && git reset --hard origin/\$(git rev-parse --abbrev-ref HEAD) && git clean -ffdx ${___anh___gxcl_clean_excludes[*]@Q}" &&
+    git submodule foreach --recursive "git fetch --all && git reset --hard origin/\$(git rev-parse --abbrev-ref HEAD) && git clean -ffdx $(___anh___gxcl_clean_excludes_quoted)" &&
         git checkout --force
 }
 wfn gxclreset "Full clean with submodule reset to origin"

@@ -26,3 +26,4 @@ python = "3.13.15"
 # reproducibility reason as python above. Bump deliberately with
 # `mise use -g node@<version>` when 26 takes over -- not by drift.
 node = "24.18.1"
+ccache = "4.13.6"

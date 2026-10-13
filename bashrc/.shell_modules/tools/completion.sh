@@ -1,4 +1,6 @@
-# Bash completion setup
+# Bash completion setup — bash-only (shopt, complete -F). zsh uses
+# .shell_modules/zsh/completion.sh instead.
+[ -z "${BASH_VERSION:-}" ] && return 0
 
 # Enable programmable completion
 if ! shopt -oq posix; then

@@ -1,0 +1,20 @@
+{
+    "global": {
+        "check_for_updates_on_startup": true,
+        "show_in_menu_bar": true,
+        "show_profile_name_in_menu_bar": false
+    },
+    "profiles": [
+        {
+            "name": "dotfiles",
+            "profile_id": "8F3A2B1C-4D5E-6F70-8A9B-0C1D2E3F4051",
+            "selected": true,
+            "virtual_hid_keyboard": {
+                "keyboard_type_v2": "ansi"
+            },
+            "complex_modifications": {
+                "rules": []
+            }
+        }
+    ]
+}

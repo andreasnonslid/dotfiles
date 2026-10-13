@@ -91,12 +91,14 @@ bindsym Mod4+l exec ~/.config/sway/lock.sh
 include ~/.config/sway/hyper.conf
 
 # Leader: Hyper+space -> which-key overlay -> one key -> back (D6).
+# Hyper+space again closes the popup (bound inside which-key; it owns the keyboard).
 bindsym $hyper+space exec ~/.cargo/bin/wlr-which-key
 mode "resize" {
     bindsym h resize shrink width 40px
     bindsym l resize grow width 40px
     bindsym k resize shrink height 40px
     bindsym j resize grow height 40px
+    bindsym $hyper+space mode default
     bindsym Escape mode default
 }
 

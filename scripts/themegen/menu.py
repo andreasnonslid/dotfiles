@@ -1,15 +1,34 @@
 """The leader menu (single source) and what is derived from it: the which-key YAML and the Hyper+key bindings."""
-from .core import GEN, ME, names
 
+from .core import GEN, ME, names
 
 # Nerd Font (Font Awesome range) glyphs for the leader menu.
 I = {
-    "left": "", "down": "", "up": "", "right": "",
-    "ws": "", "move": "", "full": "", "close": "",
-    "layout": "", "resize": "", "apps": "", "term": "",
-    "search": "", "kbd": "", "lock": "", "out": "",
-    "sleep": "", "reboot": "", "off": "", "theme": "",
-    "color": "", "shape": "", "clip": "", "bell": "", "drop": "",
+    "left": "",
+    "down": "",
+    "up": "",
+    "right": "",
+    "ws": "",
+    "move": "",
+    "full": "",
+    "close": "",
+    "layout": "",
+    "resize": "",
+    "apps": "",
+    "term": "",
+    "search": "",
+    "kbd": "",
+    "lock": "",
+    "out": "",
+    "sleep": "",
+    "reboot": "",
+    "off": "",
+    "theme": "",
+    "color": "",
+    "shape": "",
+    "clip": "",
+    "bell": "",
+    "drop": "",
 }
 
 
@@ -43,33 +62,59 @@ def menu(c):
         ("c", f"{I['clip']}  Clipboard history", "~/.config/sway/clipboard.sh"),
         ("n", f"{I['bell']}  Restore notification", "makoctl restore"),
         ("d", f"{I['drop']}  Drop-down terminal", "~/.config/sway/scratch.sh"),
-        ("m", f"{I['move']}  Move to workspace",
-         [(str(n), f"To {n}", SWAY + f"move container to workspace number {n}") for n in range(1, 10)]),
-        ("t", f"{I['layout']}  Layout", [
-            ("s", "Stacking", SWAY + "layout stacking"),
-            ("w", "Tabbed", SWAY + "layout tabbed"),
-            ("e", "Split toggle", SWAY + "layout toggle split"),
-            ("v", "Split vertical", SWAY + "splitv"),
-            ("b", "Split horizontal", SWAY + "splith"),
-        ]),
-        ("a", f"{I['apps']}  Apps", [
-            ("t", f"{I['term']}  Terminal", "alacritty"),
-            ("d", f"{I['search']}  Launcher", "fuzzel"),
-        ]),
-        ("z", f"{I['theme']}  Theme", [
-            ("c", f"{I['color']}  Colors", pick_menu("colors", "colors")),
-            ("s", f"{I['shape']}  Style", pick_menu("styles", "style")),
-            ("n", "Next colors", f"{ME} next-colors"),
-            ("r", "Random", f"{ME} random"),
-        ]),
-        ("q", f"{I['off']}  Session", [
-            ("l", f"{I['lock']}  Lock", "~/.config/sway/lock.sh"),
-            ("e", f"{I['out']}  Log out", SWAY + "exit"),
-            ("s", f"{I['sleep']}  Suspend", "systemctl suspend"),
-            ("r", f"{I['reboot']}  Reboot", "systemctl reboot"),
-            ("p", f"{I['off']}  Power off", "systemctl poweroff"),
-            ("u", f"{I['reboot']}  Firmware setup (UEFI)", "systemctl reboot --firmware-setup"),
-        ]),
+        (
+            "m",
+            f"{I['move']}  Move to workspace",
+            [
+                (str(n), f"To {n}", SWAY + f"move container to workspace number {n}")
+                for n in range(1, 10)
+            ],
+        ),
+        (
+            "t",
+            f"{I['layout']}  Layout",
+            [
+                ("s", "Stacking", SWAY + "layout stacking"),
+                ("w", "Tabbed", SWAY + "layout tabbed"),
+                ("e", "Split toggle", SWAY + "layout toggle split"),
+                ("v", "Split vertical", SWAY + "splitv"),
+                ("b", "Split horizontal", SWAY + "splith"),
+            ],
+        ),
+        (
+            "a",
+            f"{I['apps']}  Apps",
+            [
+                ("t", f"{I['term']}  Terminal", "alacritty"),
+                ("d", f"{I['search']}  Launcher", "fuzzel"),
+            ],
+        ),
+        (
+            "z",
+            f"{I['theme']}  Theme",
+            [
+                ("c", f"{I['color']}  Colors", pick_menu("colors", "colors")),
+                ("s", f"{I['shape']}  Style", pick_menu("styles", "style")),
+                ("n", "Next colors", f"{ME} next-colors"),
+                ("r", "Random", f"{ME} random"),
+            ],
+        ),
+        (
+            "q",
+            f"{I['off']}  Session",
+            [
+                ("l", f"{I['lock']}  Lock", "~/.config/sway/lock.sh"),
+                ("e", f"{I['out']}  Log out", SWAY + "exit"),
+                ("s", f"{I['sleep']}  Suspend", "systemctl suspend"),
+                ("r", f"{I['reboot']}  Reboot", "systemctl reboot"),
+                ("p", f"{I['off']}  Power off", "systemctl poweroff"),
+                (
+                    "u",
+                    f"{I['reboot']}  Firmware setup (UEFI)",
+                    "systemctl reboot --firmware-setup",
+                ),
+            ],
+        ),
     ]
 
 
@@ -82,7 +127,10 @@ def hyper_bindings(c):
     move keys (H J K L) stay inside the menu.
     """
     wk = "~/.cargo/bin/wlr-which-key"
-    out = [f"# {GEN}", "# Hyper+X == Hyper+Space then X (lowercase). Edit menu() in scripts/theme.py."]
+    out = [
+        f"# {GEN}",
+        "# Hyper+X == Hyper+Space then X (lowercase). Edit menu() in scripts/theme.py.",
+    ]
     for key, _desc, cmd in menu(c):
         if not (key.islower() or key.isdigit()):
             continue
@@ -96,6 +144,11 @@ def hyper_bindings(c):
 
 
 def yaml_menu(items, ind):
+    # which-key takes the keyboard, so Sway never sees the chord that opened the
+    # popup. Hyper is Ctrl+Alt+Super+Shift; which-key ignores Shift, so this
+    # matches Hyper+Space on every page, including after q. `true` just closes it.
+    # A Caps tap is already Escape, which quits too.
+    items = list(items) + [("ctrl+alt+mod4+space", "Cancel", "true")]
     out = []
     for k, d, cmd in items:
         pad = "  " * ind

@@ -19,3 +19,8 @@
 # above. Clone work repos there for this to take effect.
 [includeIf "gitdir:~/work/"]
     path = ~/.local/secrets/git/work.gitconfig
+[filter "lfs"]
+	required = true
+	clean = git-lfs clean -- %f
+	smudge = git-lfs smudge -- %f
+	process = git-lfs filter-process

@@ -3,6 +3,9 @@
 # windows/wezterm.lua (no tab bar, zero padding, SteadyBlock cursor) and the
 # noctishc.nvim colourscheme used in nvim/lua/plugins/theme.lua, so the
 # terminal matches the editor.
+#
+# Shell: uses your login shell from passwd (chsh). No command= override —
+# Ghostty's custom command adds --posix, which breaks dotfiles aliases/functions.
 
 # Matches the IosevkaTerm Nerd Font Mono family name already in
 # bashrc/.config/zed/settings.json. Sized to the WezTerm choice (14) rather
@@ -42,7 +45,7 @@ cursor-style-blink = false
 
 # Generous scrollback -- WezTerm is set to 10k lines; Ghostty sizes its
 # buffer in bytes instead, so this isn't a literal conversion, just "a lot".
-scrollback-limit-bytes = 10000000
+scrollback-limit = 10000000
 
 mouse-hide-while-typing = true
 

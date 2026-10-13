@@ -1,4 +1,6 @@
-# AeroSpace: mirrors parts/sway (same leader, same keys). Leader = Hyper, sent by the Vial firmware.
+# AeroSpace: mirrors parts/sway (same leader, same keys).
+# Hyper is Caps Lock as ctrl+alt+cmd, with Shift NOT included, so Shift can
+# still choose move vs focus. Raycast Hyper Key → Include Shift must be off.
 # Hints overlay: parts/hammerspoon (optional; the modes below work without it).
 config-version = 2
 start-at-login = false
@@ -10,45 +12,80 @@ default-root-container-orientation = 'auto'
 automatically-unhide-macos-hidden-apps = false
 
 # Tell Hammerspoon (menu-bar workspace indicator) whenever the workspace changes.
-exec-on-workspace-change = ['/bin/bash', '-c',
-    'open -g "hammerspoon://workspace?name=$AEROSPACE_FOCUSED_WORKSPACE"']
+exec-on-workspace-change = [
+  '/bin/bash',
+  '-c',
+  'open -g "hammerspoon://workspace?name=$AEROSPACE_FOCUSED_WORKSPACE"',
+]
 
 [key-mapping]
 preset = 'qwerty'
 
 [gaps]
-inner.horizontal = 6
-inner.vertical = 6
-outer.left = 6
-outer.right = 6
-outer.top = 6
-outer.bottom = 6
+inner.horizontal = 0
+inner.vertical = 0
+outer.left = 0
+outer.right = 0
+outer.top = 0
+outer.bottom = 0
 
 [mode.main.binding]
 alt-enter = 'exec-and-forget open -na Ghostty'
 # Direct keys: Hyper+X is the same as Hyper+Space then X (mirrors parts/sway/hyper.conf).
-# A leaf acts directly; a group enters that mode. z (theme) and o (on-screen keyboard) are Linux-only.
-ctrl-alt-cmd-shift-h = 'focus left'
-ctrl-alt-cmd-shift-j = 'focus down'
-ctrl-alt-cmd-shift-k = 'focus up'
-ctrl-alt-cmd-shift-l = 'focus right'
-ctrl-alt-cmd-shift-f = 'fullscreen'
-ctrl-alt-cmd-shift-x = 'close'
-ctrl-alt-cmd-shift-r = 'mode resize'
-ctrl-alt-cmd-shift-m = 'mode move'
-ctrl-alt-cmd-shift-t = 'mode layout'
-ctrl-alt-cmd-shift-a = 'mode launch'
-ctrl-alt-cmd-shift-q = 'mode session'
-ctrl-alt-cmd-shift-1 = 'workspace 1'
-ctrl-alt-cmd-shift-2 = 'workspace 2'
-ctrl-alt-cmd-shift-3 = 'workspace 3'
-ctrl-alt-cmd-shift-4 = 'workspace 4'
-ctrl-alt-cmd-shift-5 = 'workspace 5'
-ctrl-alt-cmd-shift-6 = 'workspace 6'
-ctrl-alt-cmd-shift-7 = 'workspace 7'
-ctrl-alt-cmd-shift-8 = 'workspace 8'
-ctrl-alt-cmd-shift-9 = 'workspace 9'
-ctrl-alt-cmd-shift-space = ['mode leader', 'exec-and-forget open -g hammerspoon://leader']
+# Hyper+Shift+X moves. A leaf acts directly; a group enters that mode.
+# z (theme) and o (on-screen keyboard) are Linux-only.
+ctrl-alt-cmd-h = 'focus left'
+ctrl-alt-cmd-j = 'focus down'
+ctrl-alt-cmd-k = 'focus up'
+ctrl-alt-cmd-l = 'focus right'
+ctrl-alt-cmd-shift-h = 'move left'
+ctrl-alt-cmd-shift-j = 'move down'
+ctrl-alt-cmd-shift-k = 'move up'
+ctrl-alt-cmd-shift-l = 'move right'
+ctrl-alt-cmd-f = 'fullscreen'
+ctrl-alt-cmd-x = 'close'
+ctrl-alt-cmd-r = [
+  'mode resize',
+  'exec-and-forget open -g hammerspoon://submode?name=resize',
+]
+ctrl-alt-cmd-m = [
+  'mode move',
+  'exec-and-forget open -g hammerspoon://submode?name=move',
+]
+ctrl-alt-cmd-t = [
+  'mode layout',
+  'exec-and-forget open -g hammerspoon://submode?name=layout',
+]
+ctrl-alt-cmd-a = [
+  'mode launch',
+  'exec-and-forget open -g hammerspoon://submode?name=launch',
+]
+ctrl-alt-cmd-q = [
+  'mode session',
+  'exec-and-forget open -g hammerspoon://submode?name=session',
+]
+ctrl-alt-cmd-1 = 'workspace 1'
+ctrl-alt-cmd-2 = 'workspace 2'
+ctrl-alt-cmd-3 = 'workspace 3'
+ctrl-alt-cmd-4 = 'workspace 4'
+ctrl-alt-cmd-5 = 'workspace 5'
+ctrl-alt-cmd-6 = 'workspace 6'
+ctrl-alt-cmd-7 = 'workspace 7'
+ctrl-alt-cmd-8 = 'workspace 8'
+ctrl-alt-cmd-9 = 'workspace 9'
+ctrl-alt-cmd-shift-1 = 'move-node-to-workspace 1'
+ctrl-alt-cmd-shift-2 = 'move-node-to-workspace 2'
+ctrl-alt-cmd-shift-3 = 'move-node-to-workspace 3'
+ctrl-alt-cmd-shift-4 = 'move-node-to-workspace 4'
+ctrl-alt-cmd-shift-5 = 'move-node-to-workspace 5'
+ctrl-alt-cmd-shift-6 = 'move-node-to-workspace 6'
+ctrl-alt-cmd-shift-7 = 'move-node-to-workspace 7'
+ctrl-alt-cmd-shift-8 = 'move-node-to-workspace 8'
+ctrl-alt-cmd-shift-9 = 'move-node-to-workspace 9'
+ctrl-alt-cmd-space = [
+  'mode leader',
+  'exec-and-forget open -g hammerspoon://leader',
+]
 
 [mode.leader.binding]
 h = ['focus left', 'mode main']
@@ -70,11 +107,18 @@ shift-l = ['move right', 'mode main']
 9 = ['workspace 9', 'mode main']
 f = ['fullscreen', 'mode main']
 x = ['close', 'mode main']
-r = 'mode resize'
-m = 'mode move'
-t = 'mode layout'
-a = 'mode launch'
-q = 'mode session'
+r = ['mode resize', 'exec-and-forget open -g hammerspoon://submode?name=resize']
+m = ['mode move', 'exec-and-forget open -g hammerspoon://submode?name=move']
+t = ['mode layout', 'exec-and-forget open -g hammerspoon://submode?name=layout']
+a = ['mode launch', 'exec-and-forget open -g hammerspoon://submode?name=launch']
+q = [
+  'mode session',
+  'exec-and-forget open -g hammerspoon://submode?name=session',
+]
+ctrl-alt-cmd-space = [
+  'mode main',
+  'exec-and-forget open -g hammerspoon://dismiss',
+]
 esc = 'mode main'
 
 [mode.resize.binding]
@@ -82,6 +126,10 @@ h = 'resize width -50'
 l = 'resize width +50'
 k = 'resize height -50'
 j = 'resize height +50'
+ctrl-alt-cmd-space = [
+  'mode main',
+  'exec-and-forget open -g hammerspoon://dismiss',
+]
 esc = 'mode main'
 
 [mode.move.binding]
@@ -94,22 +142,43 @@ esc = 'mode main'
 7 = ['move-node-to-workspace 7', 'mode main']
 8 = ['move-node-to-workspace 8', 'mode main']
 9 = ['move-node-to-workspace 9', 'mode main']
+ctrl-alt-cmd-space = [
+  'mode main',
+  'exec-and-forget open -g hammerspoon://dismiss',
+]
 esc = 'mode main'
 
 [mode.layout.binding]
 s = ['layout v_accordion', 'mode main']
 w = ['layout h_accordion', 'mode main']
 e = ['layout tiles horizontal vertical', 'mode main']
-v = ['split vertical', 'mode main']
-b = ['split horizontal', 'mode main']
+ctrl-alt-cmd-space = [
+  'mode main',
+  'exec-and-forget open -g hammerspoon://dismiss',
+]
 esc = 'mode main'
 
 [mode.launch.binding]
 t = ['exec-and-forget open -na Ghostty', 'mode main']
 d = ['exec-and-forget open -a Raycast', 'mode main']
+ctrl-alt-cmd-space = [
+  'mode main',
+  'exec-and-forget open -g hammerspoon://dismiss',
+]
 esc = 'mode main'
 
 [mode.session.binding]
-l = ['exec-and-forget pmset displaysleepnow', 'mode main']
-s = ['exec-and-forget pmset sleepnow', 'mode main']
+l = ['exec-and-forget open -g hammerspoon://lock', 'mode main']
+s = [
+  "exec-and-forget /usr/bin/osascript -e 'tell application \"System Events\" to shut down'",
+  'mode main',
+]
+r = [
+  "exec-and-forget /usr/bin/osascript -e 'tell application \"System Events\" to restart'",
+  'mode main',
+]
+ctrl-alt-cmd-space = [
+  'mode main',
+  'exec-and-forget open -g hammerspoon://dismiss',
+]
 esc = 'mode main'

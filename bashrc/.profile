@@ -9,3 +9,8 @@ if [ -d "$HOME/tools/scripts" ]; then
 fi
 
 [ -f "$HOME/.cargo/env" ] && . "$HOME/.cargo/env"
+
+# macOS bash login shells read .profile, not .bashrc — pull in the full config.
+if [ -n "${BASH_VERSION:-}" ] && [ -f "$HOME/.bashrc" ]; then
+    . "$HOME/.bashrc"
+fi

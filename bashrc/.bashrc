@@ -4,6 +4,11 @@ case $- in
 *) return ;;
 esac
 
+# Ghostty spawns bash --posix --login. POSIX mode breaks bash extensions
+# ([[, ${arr@Q}, alias expansion) used throughout .shell_modules.
+set +o posix 2>/dev/null
+shopt -s expand_aliases 2>/dev/null
+
 export DOTFILES="$HOME/dotfiles"
 
 # Start Zellij first, before the (slow) rc below: the shell Zellij spawns loads the rc itself,

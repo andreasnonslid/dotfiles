@@ -31,12 +31,21 @@ __fn_wrapper() {
 # Clean up aliases from previous source (supports reloadbash).
 # Without this, re-sourcing a file containing both `rs() { ... }` and `wfn rs`
 # would fail because bash expands the existing `rs` alias during parsing of `rs() {`.
-# Uses -gA so the array stays global even when sourced from inside a function.
-for __fn_key in $(alias -p | sed -n "s/^alias \([^=]*\)='__fn_wrapper .*/\1/p"); do
-    unalias "$__fn_key" 2>/dev/null
-done
-unset __fn_key __fn_descriptions 2>/dev/null
-declare -gA __fn_descriptions
+if [ -n "${BASH_VERSION:-}" ]; then
+    # Uses -gA so the array stays global even when sourced from inside a function.
+    for __fn_key in $(alias -p | sed -n "s/^alias \([^=]*\)='__fn_wrapper .*/\1/p"); do
+        unalias "$__fn_key" 2>/dev/null
+    done
+    unset __fn_key __fn_descriptions 2>/dev/null
+    declare -gA __fn_descriptions
+elif [ -n "${ZSH_VERSION:-}" ]; then
+    unset __fn_key __fn_descriptions 2>/dev/null
+    typeset -gA __fn_descriptions
+    while IFS= read -r __fn_key; do
+        [ -n "$__fn_key" ] && unalias "$__fn_key" 2>/dev/null
+    done < <(alias 2>/dev/null | sed -n "s/^\([^=]*\)='__fn_wrapper .*/\1/p")
+    unset __fn_key
+fi
 
 __fn_desc() {
     echo "${__fn_descriptions[$1]:-}"
