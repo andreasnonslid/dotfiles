@@ -1,13 +1,11 @@
 {
- "kind": "find",
- "prompt": "Count how many lines of access.log have each status code (third column). Show count and code.",
- "answer": "3 200\n1 404",
- "ref": [
-  "awk '{print $3}' access.log | sort | uniq -c"
- ],
- "hints": [
-  "Extract the column first.",
-  "Counting needs equal values next to each other."
- ],
- "why": "The sort | uniq -c pipeline is the classic group-and-count. awk can also count with an array."
+    "kind": "find",
+    "prompt": "Count how many lines of access.log have each status code (third column). Show count and code.",
+    "answer": "3 200\n1 404",
+    "ref": ["awk '{print $3}' access.log | sort | uniq -c"],
+    "hints": [
+        "Extract the column first.",
+        "Counting needs equal values next to each other."
+    ],
+    "why": "The sort | uniq -c pipeline is the classic group-and-count. awk can also count with an array."
 }

@@ -64,7 +64,7 @@ local function encode_user()
     local ws = entries[title]
     local dir_block
     if #ws.dirs == 0 then
-      dir_block = "[\n      // extra search/LSP dirs, e.g. \"/abs/path/to/lib\"\n    ]"
+      dir_block = '[\n      // extra search/LSP dirs, e.g. "/abs/path/to/lib"\n    ]'
     else
       local dirs = {}
       for _, d in ipairs(ws.dirs) do
@@ -73,7 +73,7 @@ local function encode_user()
       dir_block = "[\n" .. table.concat(dirs, ",\n") .. "\n    ]"
     end
     local comma = i < #titles and "," or ""
-    chunks[#chunks + 1] = ("  %s: {\n    \"root\": %s,\n    \"dirs\": %s\n  }%s\n"):format(
+    chunks[#chunks + 1] = ('  %s: {\n    "root": %s,\n    "dirs": %s\n  }%s\n'):format(
       vim.json.encode(title),
       vim.json.encode(ws.root),
       dir_block,

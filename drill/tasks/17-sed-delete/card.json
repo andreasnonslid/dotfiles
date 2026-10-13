@@ -1,12 +1,10 @@
 {
- "kind": "transform",
- "prompt": "Delete all comment lines (starting with #) from config.ini.",
- "ref": [
-  "sed -i '/^#/d' config.ini"
- ],
- "hints": [
-  "sed commands can be addressed by a regex.",
-  "The d command deletes the line."
- ],
- "why": "/regex/d deletes matching lines. /regex/!d keeps only them. ^ anchors the start of line."
+    "kind": "transform",
+    "prompt": "Delete all comment lines (starting with #) from config.ini.",
+    "ref": ["sed -i '/^#/d' config.ini"],
+    "hints": [
+        "sed commands can be addressed by a regex.",
+        "The d command deletes the line."
+    ],
+    "why": "/regex/d deletes matching lines. /regex/!d keeps only them. ^ anchors the start of line."
 }

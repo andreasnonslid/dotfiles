@@ -36,7 +36,10 @@ if [ -n "${BASH_VERSION:-}" ] && [[ $- == *i* ]]; then
             local n
             n=$(command ls -A 2>/dev/null | wc -l)
             if [ "$n" -gt 0 ] && [ "$n" -le 200 ]; then
-                if [ "$n" -gt 40 ]; then ls 2>/dev/null | head -n 40; printf '\e[2m  \u2026 %s entries\e[0m\n' "$n"; else ls; fi
+                if [ "$n" -gt 40 ]; then
+                    ls 2>/dev/null | head -n 40
+                    printf '\e[2m  \u2026 %s entries\e[0m\n' "$n"
+                else ls; fi
             elif [ "$n" -gt 200 ]; then
                 printf '\e[2m  %s entries\e[0m\n' "$n"
             fi
@@ -44,7 +47,7 @@ if [ -n "${BASH_VERSION:-}" ] && [[ $- == *i* ]]; then
         return $rc
     }
     case ";${PROMPT_COMMAND:-};" in
-        *";__nav_auto_ls;"*) ;;
-        *) PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND;}__nav_auto_ls" ;;
+    *";__nav_auto_ls;"*) ;;
+    *) PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND;}__nav_auto_ls" ;;
     esac
 fi

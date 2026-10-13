@@ -1,14 +1,12 @@
 {
- "kind": "find",
- "prompt": "Print the user names (first field) from passwd.txt, whose fields are separated by colons.",
- "answer": "root\nann",
- "ordered": true,
- "ref": [
-  "cut -d: -f1 passwd.txt"
- ],
- "hints": [
-  "cut works on delimited columns.",
-  "-d sets the delimiter, -f picks the field."
- ],
- "why": "cut -d: -f1 for simple delimited data; awk -F: when you need conditions or reordering."
+    "kind": "find",
+    "prompt": "Print the user names (first field) from passwd.txt, whose fields are separated by colons.",
+    "answer": "root\nann",
+    "ordered": true,
+    "ref": ["cut -d: -f1 passwd.txt"],
+    "hints": [
+        "cut works on delimited columns.",
+        "-d sets the delimiter, -f picks the field."
+    ],
+    "why": "cut -d: -f1 for simple delimited data; awk -F: when you need conditions or reordering."
 }

@@ -1,13 +1,11 @@
 {
- "kind": "find",
- "prompt": "List the lines of app.log that do not contain debug (any case).",
- "answer": "INFO start\nERROR disk full\ninfo ok\nError: retry\nWARN error budget low",
- "ref": [
-  "rg -iv debug app.log"
- ],
- "hints": [
-  "Two flags combine here: one for case, one for negation.",
-  "Negation is -v, as in grep."
- ],
- "why": "-v inverts the match. Flags can be bundled: -iv is -i -v."
+    "kind": "find",
+    "prompt": "List the lines of app.log that do not contain debug (any case).",
+    "answer": "INFO start\nERROR disk full\ninfo ok\nError: retry\nWARN error budget low",
+    "ref": ["rg -iv debug app.log"],
+    "hints": [
+        "Two flags combine here: one for case, one for negation.",
+        "Negation is -v, as in grep."
+    ],
+    "why": "-v inverts the match. Flags can be bundled: -iv is -i -v."
 }

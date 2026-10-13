@@ -1,13 +1,11 @@
 {
- "kind": "find",
- "prompt": "Add up the third column of sales.txt. Output the sum only.",
- "answer": "42",
- "ref": [
-  "awk '{s+=$3} END {print s}' sales.txt"
- ],
- "hints": [
-  "awk can keep a variable across lines.",
-  "END runs once after the last line."
- ],
- "why": "awk is a per-line program with BEGIN/END hooks. Variables start at 0 or empty."
+    "kind": "find",
+    "prompt": "Add up the third column of sales.txt. Output the sum only.",
+    "answer": "42",
+    "ref": ["awk '{s+=$3} END {print s}' sales.txt"],
+    "hints": [
+        "awk can keep a variable across lines.",
+        "END runs once after the last line."
+    ],
+    "why": "awk is a per-line program with BEGIN/END hooks. Variables start at 0 or empty."
 }

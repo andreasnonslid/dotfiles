@@ -1,13 +1,11 @@
 {
- "kind": "find",
- "prompt": "List every file here (including hidden ones) that contains SECRET.",
- "answer": ".hidden.cfg\nconfig.txt",
- "ref": [
-  "rg -l --hidden SECRET"
- ],
- "hints": [
-  "rg skips some files unless told otherwise.",
-  "Dotfiles count as hidden."
- ],
- "why": "rg ignores hidden files and gitignored paths by default. --hidden includes dotfiles; -uuu removes all filtering."
+    "kind": "find",
+    "prompt": "List every file here (including hidden ones) that contains SECRET.",
+    "answer": ".hidden.cfg\nconfig.txt",
+    "ref": ["rg -l --hidden SECRET"],
+    "hints": [
+        "rg skips some files unless told otherwise.",
+        "Dotfiles count as hidden."
+    ],
+    "why": "rg ignores hidden files and gitignored paths by default. --hidden includes dotfiles; -uuu removes all filtering."
 }

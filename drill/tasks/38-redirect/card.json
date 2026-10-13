@@ -1,12 +1,10 @@
 {
- "kind": "transform",
- "prompt": "Write the sorted, de-duplicated lines of in.txt into out.txt.",
- "ref": [
-  "sort -u in.txt > out.txt"
- ],
- "hints": [
-  "sort can remove duplicates itself.",
-  "Send its output into a file with >."
- ],
- "why": "> truncates and writes; >> appends. sort -u is shorter than sort | uniq."
+    "kind": "transform",
+    "prompt": "Write the sorted, de-duplicated lines of in.txt into out.txt.",
+    "ref": ["sort -u in.txt > out.txt"],
+    "hints": [
+        "sort can remove duplicates itself.",
+        "Send its output into a file with >."
+    ],
+    "why": "> truncates and writes; >> appends. sort -u is shorter than sort | uniq."
 }

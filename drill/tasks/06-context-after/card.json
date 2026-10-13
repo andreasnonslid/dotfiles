@@ -1,13 +1,11 @@
 {
- "kind": "find",
- "prompt": "Show the line containing FATAL and the one line right after it in crash.log.",
- "answer": "FATAL out of memory\nstack: 0x1f",
- "ref": [
-  "rg -A1 FATAL crash.log"
- ],
- "hints": [
-  "Context flags show lines around a match.",
-  "A is for After, B for Before, C for both."
- ],
- "why": "-A/-B/-C N add context lines; the output separates distant groups with --."
+    "kind": "find",
+    "prompt": "Show the line containing FATAL and the one line right after it in crash.log.",
+    "answer": "FATAL out of memory\nstack: 0x1f",
+    "ref": ["rg -A1 FATAL crash.log"],
+    "hints": [
+        "Context flags show lines around a match.",
+        "A is for After, B for Before, C for both."
+    ],
+    "why": "-A/-B/-C N add context lines; the output separates distant groups with --."
 }

@@ -88,7 +88,9 @@ def tool_present(spec):
     """True if `spec` (command name or absolute path) exists on this machine."""
     if spec.startswith("/"):
         return os.path.exists(spec)
-    path = os.pathsep.join([os.environ.get("PATH", "")] + [os.path.expanduser(d) for d in EXTRA_BIN_DIRS])
+    path = os.pathsep.join(
+        [os.environ.get("PATH", "")] + [os.path.expanduser(d) for d in EXTRA_BIN_DIRS]
+    )
     return shutil.which(spec, path=path) is not None
 
 
@@ -164,8 +166,12 @@ def unlink_part(part_dir, home):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--link", nargs="+", metavar="PART", help="link only these parts/ and exit")
-    parser.add_argument("--unlink", nargs="+", metavar="PART", help="unlink these parts/ and exit")
+    parser.add_argument(
+        "--link", nargs="+", metavar="PART", help="link only these parts/ and exit"
+    )
+    parser.add_argument(
+        "--unlink", nargs="+", metavar="PART", help="unlink these parts/ and exit"
+    )
     parser.add_argument(
         "-y", "--yes", action="store_true", help="Automatically confirm all removals"
     )
@@ -206,7 +212,9 @@ def main():
                     if is_darwin
                     else LINUX_CONFIG_EXCLUDE
                 )
-                missing = {n for n, needs in CONFIG_NEEDS.items() if not installed(needs)}
+                missing = {
+                    n for n, needs in CONFIG_NEEDS.items() if not installed(needs)
+                }
                 for n in sorted(missing - config_exclude):
                     print(f"Skipped (not installed): ~/.config/{n}")
                 symlink_dir_contents(

@@ -1,13 +1,11 @@
 {
- "kind": "find",
- "prompt": "How many lines in subdir/ contain TODO (total, one number)?",
- "answer": "3",
- "ref": [
-  "rg TODO subdir | wc -l"
- ],
- "hints": [
-  "rg -c counts per file, which is not a total.",
-  "Count the matching lines instead."
- ],
- "why": "rg -c prints a count per file, not a total, so pipe plain matches to wc -l."
+    "kind": "find",
+    "prompt": "How many lines in subdir/ contain TODO (total, one number)?",
+    "answer": "3",
+    "ref": ["rg TODO subdir | wc -l"],
+    "hints": [
+        "rg -c counts per file, which is not a total.",
+        "Count the matching lines instead."
+    ],
+    "why": "rg -c prints a count per file, not a total, so pipe plain matches to wc -l."
 }

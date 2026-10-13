@@ -11,11 +11,17 @@ alias ccr='claude --resume'
 
 # jj: fuzzy-pick a just recipe (most used first) and edit it before running
 jj() {
-    command -v just >/dev/null 2>&1 || { echo "jj: just is not installed"; return 1; }
+    command -v just >/dev/null 2>&1 || {
+        echo "jj: just is not installed"
+        return 1
+    }
     local pick recipe line
     pick=$(python3 "$DOTFILES/scripts/jj.py" | fzf --height 40% --reverse --delimiter=$'\t' \
-            --with-nth=1,2 --prompt='just > ' --preview-window=hidden) || return 0
+        --with-nth=1,2 --prompt='just > ' --preview-window=hidden) || return 0
     recipe=${pick%%$'\t'*}
     read -e -i "just $recipe " -p '$ ' line || return 0
-    [ -n "$line" ] && { history -s "$line"; eval "$line"; }
+    [ -n "$line" ] && {
+        history -s "$line"
+        eval "$line"
+    }
 }

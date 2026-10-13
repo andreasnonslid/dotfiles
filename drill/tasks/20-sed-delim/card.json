@@ -1,12 +1,10 @@
 {
- "kind": "transform",
- "prompt": "In paths.conf replace /usr/local with /opt everywhere.",
- "ref": [
-  "sed -i 's|/usr/local|/opt|g' paths.conf"
- ],
- "hints": [
-  "The pattern contains slashes, which collide with sed's separator.",
-  "sed accepts another separator character."
- ],
- "why": "s can use any delimiter: s|a|b|, s#a#b#. Saves a lot of backslashes with paths."
+    "kind": "transform",
+    "prompt": "In paths.conf replace /usr/local with /opt everywhere.",
+    "ref": ["sed -i 's|/usr/local|/opt|g' paths.conf"],
+    "hints": [
+        "The pattern contains slashes, which collide with sed's separator.",
+        "sed accepts another separator character."
+    ],
+    "why": "s can use any delimiter: s|a|b|, s#a#b#. Saves a lot of backslashes with paths."
 }

@@ -19,6 +19,6 @@ blueman-applet nvim lisgd brightnessctl grim slurp wl-copy swaymsg notify-send f
     ls /var/cache/fontconfig/* /home/*/.cache/fontconfig/* 2>/dev/null
     ls /home/*/.local/share/fonts/*.ttf 2>/dev/null
 } | sort -u | while read -r f; do
-    [ -f "$f" ] && cat "$f" > /dev/null 2>&1
+    [ -f "$f" ] && cat "$f" >/dev/null 2>&1
 done
 exit 0

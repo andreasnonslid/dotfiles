@@ -5,11 +5,15 @@
 #   sudo linux/install-autologin.sh        turn it on
 #   sudo linux/install-autologin.sh --off  turn it off again (back to the GDM login screen)
 set -euo pipefail
-[ "$(id -u)" = 0 ] || { echo "run with sudo"; exit 1; }
+[ "$(id -u)" = 0 ] || {
+    echo "run with sudo"
+    exit 1
+}
 user=${SUDO_USER:?run with sudo}
 conf=/etc/gdm3/daemon.conf
 acct=/var/lib/AccountsService/users/$user
-mode=on; [ "${1:-}" = "--off" ] && mode=off
+mode=on
+[ "${1:-}" = "--off" ] && mode=off
 
 cp -a "$conf" "$conf.pre-autologin" 2>/dev/null || true
 python3 - "$conf" "$user" "$mode" <<'PY'
@@ -35,7 +39,7 @@ if [ "$mode" = on ]; then
     if [ -f "$acct" ]; then
         grep -q '^Session=' "$acct" && sed -i 's/^Session=.*/Session=sway/' "$acct" || sed -i '/^\[User\]/a Session=sway' "$acct"
     else
-        printf '[User]\nSession=sway\n' > "$acct"
+        printf '[User]\nSession=sway\n' >"$acct"
     fi
 fi
 echo "autologin $mode for $user"

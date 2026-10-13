@@ -2,10 +2,13 @@
 # One-time root install of the page-cache pre-warm, with a cold vs pre-warmed measurement.
 # Usage: sudo linux/install-prewarm.sh
 set -euo pipefail
-[ "$(id -u)" = 0 ] || { echo "run with sudo"; exit 1; }
+[ "$(id -u)" = 0 ] || {
+    echo "run with sudo"
+    exit 1
+}
 d=$(cd "$(dirname "$0")" && pwd)
 
-probe() {  # time loading the desktop binaries' libraries (--version links them all)
+probe() { # time loading the desktop binaries' libraries (--version links them all)
     local s e
     s=$(date +%s.%N)
     for b in sway waybar swaylock alacritty mako fuzzel swaybg; do "/usr/bin/$b" --version >/dev/null 2>&1 || true; done
@@ -14,9 +17,11 @@ probe() {  # time loading the desktop binaries' libraries (--version links them 
 }
 
 echo "== measuring (drops the page cache once; harmless)"
-sync; echo 3 > /proc/sys/vm/drop_caches
+sync
+echo 3 >/proc/sys/vm/drop_caches
 cold=$(probe)
-sync; echo 3 > /proc/sys/vm/drop_caches
+sync
+echo 3 >/proc/sys/vm/drop_caches
 sh "$d/prewarm.sh"
 warmed=$(probe)
 echo "cold start of sway/waybar/etc libraries : ${cold}s"

@@ -6,22 +6,36 @@
 LOW=${LOW:-35}
 
 ac_online() {
-    [ -n "${POWER_AC:-}" ] && { echo "$POWER_AC"; return; }
+    [ -n "${POWER_AC:-}" ] && {
+        echo "$POWER_AC"
+        return
+    }
     local f
-    for f in /sys/class/power_supply/A{C,DP}*/online; do [ -r "$f" ] && { cat "$f"; return; }; done
+    for f in /sys/class/power_supply/A{C,DP}*/online; do [ -r "$f" ] && {
+        cat "$f"
+        return
+    }; done
     echo 1
 }
 capacity() {
-    [ -n "${POWER_CAP:-}" ] && { echo "$POWER_CAP"; return; }
+    [ -n "${POWER_CAP:-}" ] && {
+        echo "$POWER_CAP"
+        return
+    }
     cat /sys/class/power_supply/BAT0/capacity 2>/dev/null || echo 100
 }
 desired() {
-    if [ "$(ac_online)" = 1 ]; then echo balanced
-    elif [ "$(capacity)" -le "$LOW" ]; then echo power-saver
+    if [ "$(ac_online)" = 1 ]; then
+        echo balanced
+    elif [ "$(capacity)" -le "$LOW" ]; then
+        echo power-saver
     else echo balanced; fi
 }
 
-if [ "${1:-}" = "--once" ]; then desired; exit 0; fi
+if [ "${1:-}" = "--once" ]; then
+    desired
+    exit 0
+fi
 
 command -v powerprofilesctl >/dev/null 2>&1 || exit 0
 last=

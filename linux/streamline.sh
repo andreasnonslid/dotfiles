@@ -8,7 +8,10 @@
 #   cups, avahi    : printing and mDNS, with no printer configured
 #   snap "just"    : replaced by the apt package (snapd itself stays: obsidian still needs it)
 set -euo pipefail
-[ "$(id -u)" = 0 ] || { echo "run with sudo"; exit 1; }
+[ "$(id -u)" = 0 ] || {
+    echo "run with sudo"
+    exit 1
+}
 units_ssh="ssh.service ssh.socket"
 units_print="cups.service cups.socket cups.path cups-browsed.service avahi-daemon.service avahi-daemon.socket"
 

@@ -1,13 +1,11 @@
 {
- "kind": "find",
- "prompt": "Print greeting.txt in upper case.",
- "answer": "HELLO WORLD",
- "ref": [
-  "tr a-z A-Z < greeting.txt"
- ],
- "hints": [
-  "tr translates characters, reading from standard input.",
-  "Give it two character ranges."
- ],
- "why": "tr SET1 SET2 maps characters; it reads stdin only, so redirect with < or pipe from cat."
+    "kind": "find",
+    "prompt": "Print greeting.txt in upper case.",
+    "answer": "HELLO WORLD",
+    "ref": ["tr a-z A-Z < greeting.txt"],
+    "hints": [
+        "tr translates characters, reading from standard input.",
+        "Give it two character ranges."
+    ],
+    "why": "tr SET1 SET2 maps characters; it reads stdin only, so redirect with < or pipe from cat."
 }

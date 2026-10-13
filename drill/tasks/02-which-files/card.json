@@ -1,13 +1,11 @@
 {
- "kind": "find",
- "prompt": "List the files in subdir/ that mention parseConfig.",
- "answer": "subdir/a.js\nsubdir/lib/b.js",
- "ref": [
-  "rg -l parseConfig subdir"
- ],
- "hints": [
-  "You want names, not lines.",
-  "rg has a files-with-matches flag."
- ],
- "why": "rg -l lists matching files only, searches recursively and skips .gitignored files by default; grep -rl does not skip them."
+    "kind": "find",
+    "prompt": "List the files in subdir/ that mention parseConfig.",
+    "answer": "subdir/a.js\nsubdir/lib/b.js",
+    "ref": ["rg -l parseConfig subdir"],
+    "hints": [
+        "You want names, not lines.",
+        "rg has a files-with-matches flag."
+    ],
+    "why": "rg -l lists matching files only, searches recursively and skips .gitignored files by default; grep -rl does not skip them."
 }

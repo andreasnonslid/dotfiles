@@ -1,10 +1,10 @@
 """Paths, constants, color math and the colors/styles registry shared by every part of the generator."""
+
 from pathlib import Path
 import colorsys
 import subprocess
 import sys
 import tomllib
-
 
 ROOT = Path(__file__).resolve().parent.parent.parent
 
@@ -50,7 +50,7 @@ def current(kind):
 
 def rgb(c):
     c = c.lstrip("#")
-    return tuple(int(c[i:i + 2], 16) for i in (0, 2, 4))
+    return tuple(int(c[i : i + 2], 16) for i in (0, 2, 4))
 
 
 def mix(a, b, t):
@@ -72,17 +72,39 @@ def nearest(table, hexc):
 
 
 # GNOME accent-color enum, Papirus folder colors: (name, hue)
-GNOME_ACCENTS = [("red", 355), ("orange", 30), ("yellow", 48), ("green", 130), ("teal", 175),
-                 ("blue", 215), ("purple", 275), ("pink", 330)]
+GNOME_ACCENTS = [
+    ("red", 355),
+    ("orange", 30),
+    ("yellow", 48),
+    ("green", 130),
+    ("teal", 175),
+    ("blue", 215),
+    ("purple", 275),
+    ("pink", 330),
+]
 
 
-PAPIRUS = [("red", 0), ("deeporange", 15), ("orange", 30), ("yellow", 48), ("green", 130),
-           ("teal", 175), ("cyan", 190), ("blue", 215), ("indigo", 235), ("violet", 270),
-           ("magenta", 300), ("pink", 335), ("carmine", 350)]
+PAPIRUS = [
+    ("red", 0),
+    ("deeporange", 15),
+    ("orange", 30),
+    ("yellow", 48),
+    ("green", 130),
+    ("teal", 175),
+    ("cyan", 190),
+    ("blue", 215),
+    ("indigo", 235),
+    ("violet", 270),
+    ("magenta", 300),
+    ("pink", 335),
+    ("carmine", 350),
+]
 
 
 def sh(*cmd):
     try:
-        subprocess.run(cmd, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(
+            cmd, check=False, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL
+        )
     except FileNotFoundError:
         pass

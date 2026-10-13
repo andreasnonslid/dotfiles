@@ -1,13 +1,11 @@
 {
- "kind": "find",
- "prompt": "List the empty files (size 0) under this folder.",
- "answer": "./empty.txt\n./sub/also-empty",
- "ref": [
-  "find . -type f -empty"
- ],
- "hints": [
-  "find has a test for emptiness.",
-  "Restrict to regular files with -type f."
- ],
- "why": "find tests: -empty, -size, -mtime, -name. fd has -S for size filters, find -empty is the portable one."
+    "kind": "find",
+    "prompt": "List the empty files (size 0) under this folder.",
+    "answer": "./empty.txt\n./sub/also-empty",
+    "ref": ["find . -type f -empty"],
+    "hints": [
+        "find has a test for emptiness.",
+        "Restrict to regular files with -type f."
+    ],
+    "why": "find tests: -empty, -size, -mtime, -name. fd has -S for size filters, find -empty is the portable one."
 }

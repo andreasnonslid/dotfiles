@@ -1,14 +1,12 @@
 {
- "kind": "find",
- "prompt": "Print only lines 3 to 5 of data.txt.",
- "answer": "l3\nl4\nl5",
- "ordered": true,
- "ref": [
-  "sed -n '3,5p' data.txt"
- ],
- "hints": [
-  "By default sed prints every line; one flag stops that.",
-  "The p command prints, and takes an address range."
- ],
- "why": "-n turns off auto-print, then 'N,Mp' prints a range. head -n 5 | tail -n 3 also works."
+    "kind": "find",
+    "prompt": "Print only lines 3 to 5 of data.txt.",
+    "answer": "l3\nl4\nl5",
+    "ordered": true,
+    "ref": ["sed -n '3,5p' data.txt"],
+    "hints": [
+        "By default sed prints every line; one flag stops that.",
+        "The p command prints, and takes an address range."
+    ],
+    "why": "-n turns off auto-print, then 'N,Mp' prints a range. head -n 5 | tail -n 3 also works."
 }

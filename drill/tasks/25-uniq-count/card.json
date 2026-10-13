@@ -1,13 +1,8 @@
 {
- "kind": "find",
- "prompt": "How many times does each word appear in words.txt? Show count and word.",
- "answer": "3 apple\n2 fig\n1 pear\n1 plum",
- "ref": [
-  "sort words.txt | uniq -c"
- ],
- "hints": [
-  "uniq only collapses neighbouring duplicates.",
-  "Sort first."
- ],
- "why": "uniq -c counts adjacent duplicates, so sort comes first. sort | uniq -c is the group-and-count idiom."
+    "kind": "find",
+    "prompt": "How many times does each word appear in words.txt? Show count and word.",
+    "answer": "3 apple\n2 fig\n1 pear\n1 plum",
+    "ref": ["sort words.txt | uniq -c"],
+    "hints": ["uniq only collapses neighbouring duplicates.", "Sort first."],
+    "why": "uniq -c counts adjacent duplicates, so sort comes first. sort | uniq -c is the group-and-count idiom."
 }

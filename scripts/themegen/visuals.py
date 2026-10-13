@@ -1,4 +1,5 @@
 """Generated imagery: the wallpaper, the lock/login art, and the boot splash."""
+
 import math
 import os
 import random
@@ -13,6 +14,7 @@ def png(path, w, h, rows):
     def chunk(tag, data):
         b = struct.pack(">I", len(data)) + tag + data
         return b + struct.pack(">I", zlib.crc32(tag + data) & 0xFFFFFFFF)
+
     raw = b"".join(b"\x00" + bytes(r) for r in rows)
     path.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(dir=path.parent, delete=False) as f:
@@ -70,7 +72,9 @@ def make_splash_bg(c, w=1920, h=1080):
     import cairo
     import hashlib
 
-    rnd = random.Random(int(hashlib.sha256((c["bg"] + c["accent"]).encode()).hexdigest()[:12], 16))
+    rnd = random.Random(
+        int(hashlib.sha256((c["bg"] + c["accent"]).encode()).hexdigest()[:12], 16)
+    )
     col = lambda hexc, a=1.0: tuple(v / 255 for v in rgb(hexc)) + (a,)
     surf = cairo.ImageSurface(cairo.FORMAT_ARGB32, w, h)
     cr = cairo.Context(surf)
@@ -118,11 +122,20 @@ def make_splash_bg(c, w=1920, h=1080):
                 0.55 * math.sin(freq[0] * 6.28 * x + phase[0])
                 + 0.28 * math.sin(freq[1] * 6.28 * x + phase[1])
                 + 0.12 * math.sin(freq[2] * 6.28 * x + phase[2])
-                + 0.05 * math.sin(freq[3] * 6.28 * x + phase[3]))
+                + 0.05 * math.sin(freq[3] * 6.28 * x + phase[3])
+            )
             cr.line_to(px, y)
         cr.line_to(w, h)
         cr.close_path()
-        cr.set_source_rgba(*col(mix(mix(c["bg"], c["accent"], 0.30 - 0.22 * f), "#000000", 0.10 + 0.55 * f)))
+        cr.set_source_rgba(
+            *col(
+                mix(
+                    mix(c["bg"], c["accent"], 0.30 - 0.22 * f),
+                    "#000000",
+                    0.10 + 0.55 * f,
+                )
+            )
+        )
         cr.fill()
 
     out = WALLPAPER.parent / "splash-bg.png"
@@ -132,14 +145,19 @@ def make_splash_bg(c, w=1920, h=1080):
 
 def make_plymouth(c):
     """Boot splash into linux/plymouth/dotfiles: the lock screen's horizon art and one thin progress
-    line, so boot -> lock is a single continuous scene (installed by linux/install-plymouth.sh)."""
+    line, so boot -> lock is a single continuous scene (installed by linux/install-plymouth.sh).
+    """
     import cairo
+
     out = ROOT / "linux/plymouth/dotfiles"
     out.mkdir(parents=True, exist_ok=True)
     art = WALLPAPER.parent / "splash-bg.png"
     shutil.copyfile(art, out / "bg.png")
     col = lambda h, a=1.0: tuple(v / 255 for v in rgb(h)) + (a,)
-    for name, color in (("track", col(c["fg"], 0.18)), ("fill", col(c["accent"], 0.95))):
+    for name, color in (
+        ("track", col(c["fg"], 0.18)),
+        ("fill", col(c["accent"], 0.95)),
+    ):
         sf = cairo.ImageSurface(cairo.FORMAT_ARGB32, 8, 3)
         cr = cairo.Context(sf)
         cr.set_source_rgba(*color)
@@ -152,7 +170,8 @@ def make_plymouth(c):
     (out / "dotfiles.plymouth").write_text(
         "[Plymouth Theme]\nName=dotfiles\nDescription=Palette-driven boot splash (scripts/theme.py)\n"
         "ModuleName=script\n\n[script]\nImageDir=/usr/share/plymouth/themes/dotfiles\n"
-        "ScriptFile=/usr/share/plymouth/themes/dotfiles/dotfiles.script\n")
+        "ScriptFile=/usr/share/plymouth/themes/dotfiles/dotfiles.script\n"
+    )
     (out / "dotfiles.script").write_text(f"""// {GEN}
 Window.SetBackgroundTopColor({bg[0] / 255:.4f}, {bg[1] / 255:.4f}, {bg[2] / 255:.4f});
 Window.SetBackgroundBottomColor({bg[0] / 255:.4f}, {bg[1] / 255:.4f}, {bg[2] / 255:.4f});

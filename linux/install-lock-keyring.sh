@@ -6,14 +6,18 @@
 #   sudo linux/install-lock-keyring.sh          add
 #   sudo linux/install-lock-keyring.sh --off    remove again
 set -euo pipefail
-[ "$(id -u)" = 0 ] || { echo "run with sudo"; exit 1; }
+[ "$(id -u)" = 0 ] || {
+    echo "run with sudo"
+    exit 1
+}
 line='auth optional pam_gnome_keyring.so'
 for f in /etc/pam.d/gtklock /etc/pam.d/swaylock; do
     [ -f "$f" ] || continue
     cp -a "$f" "$f.pre-keyring" 2>/dev/null || true
     sed -i '\|^auth optional pam_gnome_keyring.so$|d' "$f"
     if [ "${1:-}" != "--off" ]; then
-        printf '%s\n' "$line" >> "$f"
+        printf '%s\n' "$line" >>"$f"
     fi
-    echo "== $f"; cat "$f"
+    echo "== $f"
+    cat "$f"
 done

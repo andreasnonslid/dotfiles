@@ -1,12 +1,10 @@
 {
- "kind": "transform",
- "prompt": "Rename every .txt file to .md, keeping the names.",
- "ref": [
-  "fd -e txt -x mv {} {.}.md"
- ],
- "hints": [
-  "Run mv once per file.",
-  "fd's placeholder {.} is the path without its extension."
- ],
- "why": "fd placeholders: {} path, {.} path minus extension, {/} basename, {//} directory."
+    "kind": "transform",
+    "prompt": "Rename every .txt file to .md, keeping the names.",
+    "ref": ["fd -e txt -x mv {} {.}.md"],
+    "hints": [
+        "Run mv once per file.",
+        "fd's placeholder {.} is the path without its extension."
+    ],
+    "why": "fd placeholders: {} path, {.} path minus extension, {/} basename, {//} directory."
 }

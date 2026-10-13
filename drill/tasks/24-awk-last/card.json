@@ -1,13 +1,11 @@
 {
- "kind": "find",
- "prompt": "Print the file name (last path component) of each line in paths.txt.",
- "answer": "ls\nhosts\nfile.txt",
- "ref": [
-  "awk -F/ '{print $NF}' paths.txt"
- ],
- "hints": [
-  "Split on the slash.",
-  "NF is the number of fields, so $NF is the last."
- ],
- "why": "$NF is the last field. basename does the same one path at a time; awk does the whole file."
+    "kind": "find",
+    "prompt": "Print the file name (last path component) of each line in paths.txt.",
+    "answer": "ls\nhosts\nfile.txt",
+    "ref": ["awk -F/ '{print $NF}' paths.txt"],
+    "hints": [
+        "Split on the slash.",
+        "NF is the number of fields, so $NF is the last."
+    ],
+    "why": "$NF is the last field. basename does the same one path at a time; awk does the whole file."
 }

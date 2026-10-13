@@ -11,6 +11,10 @@ local exclude = {
     -- Flutter-generated runner code; not ours to format.
     "*/generated/*",
     "*/build/*",
+    -- Drill task corpora. Files under fixture/ are search input, including
+    -- .js that is not JavaScript, so Prettier cannot parse it.
+    "*/fixture",
+    "*/fixture/*",
 }
 
 local formatters = {

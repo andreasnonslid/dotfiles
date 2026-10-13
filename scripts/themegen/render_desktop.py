@@ -1,4 +1,5 @@
 """Renderers for desktop parts: sway, waybar, launcher, popup, notifications, lock screens, GTK."""
+
 from pathlib import Path
 from .core import COLOR_KEYS, FONT, GEN
 from .menu import hyper_bindings, menu, yaml_menu
@@ -17,24 +18,33 @@ smart_borders on
 smart_gaps on
 seat * xcursor_theme dotfiles 24
 """
-    return {"sway/.config/sway/colors.conf": col, "sway/.config/sway/style.conf": sty,
-            "sway/.config/sway/hyper.conf": hyper_bindings(c)}
+    return {
+        "sway/.config/sway/colors.conf": col,
+        "sway/.config/sway/style.conf": sty,
+        "sway/.config/sway/hyper.conf": hyper_bindings(c),
+    }
 
 
 def r_waybar(c, s):
     col = f"/* {GEN} */\n" + "".join(f"@define-color {k} {c[k]};\n" for k in COLOR_KEYS)
     m = s["bar_margin"]
     # window icons shown inside each workspace button (app_id regex -> icon)
-    icons = {  # ECMAScript regex (waybar uses std::regex): no (?i), so spell out the cases
-        "[Aa]lacritty|foot|kitty": "\uf120",
-        "[Ff]irefox.*": "\uf269",
-        "[Cc]hrom.*|[Bb]rave.*|[Gg]oogle-chrome.*": "\uf268",
-        "[Cc]ode.*|[Cc]ursor.*|[Zz]ed.*": "\uf121",
-        "[Oo]bsidian": "\U000f0b6e",
-        "org.gnome.[Nn]autilus|[Tt]hunar": "\uf07b",
-        "[Ss]lack": "\uf198", "[Dd]iscord": "\uf392", "[Ss]potify": "\uf1bc",
-        "[Pp]avucontrol": "\uf028", "[Ll]ibreoffice.*": "\uf1c2", "mpv|vlc": "\uf03d",
-    }
+    icons = (
+        {  # ECMAScript regex (waybar uses std::regex): no (?i), so spell out the cases
+            "[Aa]lacritty|foot|kitty": "\uf120",
+            "[Ff]irefox.*": "\uf269",
+            "[Cc]hrom.*|[Bb]rave.*|[Gg]oogle-chrome.*": "\uf268",
+            "[Cc]ode.*|[Cc]ursor.*|[Zz]ed.*": "\uf121",
+            "[Oo]bsidian": "\U000f0b6e",
+            "org.gnome.[Nn]autilus|[Tt]hunar": "\uf07b",
+            "[Ss]lack": "\uf198",
+            "[Dd]iscord": "\uf392",
+            "[Ss]potify": "\uf1bc",
+            "[Pp]avucontrol": "\uf028",
+            "[Ll]ibreoffice.*": "\uf1c2",
+            "mpv|vlc": "\uf03d",
+        }
+    )
     rewrite = ",\n".join(f'        "class<{k}>": "{v}"' for k, v in icons.items())
     cfg = f"""// {GEN}
 {{
@@ -154,7 +164,9 @@ def r_waybar(c, s):
 """
     border = "" if s["bar_border"] == "none" else f"border-bottom: {s['bar_border']};"
     r, p = s["radius"], s["mod_pad"]
-    w = lambda chars: round(chars * s["font_size"] * 0.58)  # Iosevka Term advance ~0.5em, plus margin
+    w = lambda chars: round(
+        chars * s["font_size"] * 0.58
+    )  # Iosevka Term advance ~0.5em, plus margin
     mods = "#workspaces, #mode, #clock, #tray, #mpris, #status"
     css = f"""/* {GEN} */
 @import "colors.css";
@@ -250,7 +262,11 @@ column_padding: 40
 anchor: center
 menu:
 """
-    return {"which-key/.config/wlr-which-key/config.yaml": head + "\n".join(yaml_menu(menu(c), 1)) + "\n"}
+    return {
+        "which-key/.config/wlr-which-key/config.yaml": head
+        + "\n".join(yaml_menu(menu(c), 1))
+        + "\n"
+    }
 
 
 def r_mako(c, s):
@@ -316,7 +332,11 @@ text-caps-lock-color={h('warn')}
 def r_gtklock(c, s):
     """A conventional lock screen: clock, date, avatar + name, password box (needs the gtklock package)."""
     import glob
-    mods = sorted(glob.glob("/usr/lib/*/gtklock/*userinfo*.so") + glob.glob("/usr/lib/gtklock/*userinfo*.so"))
+
+    mods = sorted(
+        glob.glob("/usr/lib/*/gtklock/*userinfo*.so")
+        + glob.glob("/usr/lib/gtklock/*userinfo*.so")
+    )
     modline = f"modules={mods[0]}\n" if mods else ""
     rad = max(s["radius"], 8)
     ini = f"""# {GEN}
@@ -355,19 +375,35 @@ window {{ background-color: {c['bg']}; }}
 
 def r_gtk(c, s):
     n = {
-        "accent_bg_color": c["accent"], "accent_fg_color": c["bg"], "accent_color": c["accent"],
-        "window_bg_color": c["bg"], "window_fg_color": c["fg"],
-        "view_bg_color": c["bg"], "view_fg_color": c["fg"],
-        "headerbar_bg_color": c["bg"], "headerbar_fg_color": c["fg"],
-        "headerbar_border_color": c["ansi"][0], "card_bg_color": c["ansi"][0], "card_fg_color": c["fg"],
-        "popover_bg_color": c["bg"], "popover_fg_color": c["fg"],
-        "sidebar_bg_color": c["bg"], "sidebar_fg_color": c["fg"],
-        "dialog_bg_color": c["bg"], "dialog_fg_color": c["fg"],
-        "destructive_bg_color": c["urgent"], "destructive_color": c["urgent"],
-        "error_color": c["urgent"], "warning_color": c["warn"], "success_color": c["ansi"][2],
+        "accent_bg_color": c["accent"],
+        "accent_fg_color": c["bg"],
+        "accent_color": c["accent"],
+        "window_bg_color": c["bg"],
+        "window_fg_color": c["fg"],
+        "view_bg_color": c["bg"],
+        "view_fg_color": c["fg"],
+        "headerbar_bg_color": c["bg"],
+        "headerbar_fg_color": c["fg"],
+        "headerbar_border_color": c["ansi"][0],
+        "card_bg_color": c["ansi"][0],
+        "card_fg_color": c["fg"],
+        "popover_bg_color": c["bg"],
+        "popover_fg_color": c["fg"],
+        "sidebar_bg_color": c["bg"],
+        "sidebar_fg_color": c["fg"],
+        "dialog_bg_color": c["bg"],
+        "dialog_fg_color": c["fg"],
+        "destructive_bg_color": c["urgent"],
+        "destructive_color": c["urgent"],
+        "error_color": c["urgent"],
+        "warning_color": c["warn"],
+        "success_color": c["ansi"][2],
         # GTK3 theme names
-        "theme_bg_color": c["bg"], "theme_fg_color": c["fg"], "theme_base_color": c["bg"],
-        "theme_text_color": c["fg"], "theme_selected_bg_color": c["accent"],
+        "theme_bg_color": c["bg"],
+        "theme_fg_color": c["fg"],
+        "theme_base_color": c["bg"],
+        "theme_text_color": c["fg"],
+        "theme_selected_bg_color": c["accent"],
         "theme_selected_fg_color": c["bg"],
     }
     css = f"/* {GEN} */\n" + "".join(f"@define-color {k} {v};\n" for k, v in n.items())

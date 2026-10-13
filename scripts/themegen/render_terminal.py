@@ -1,4 +1,5 @@
 """Renderers for terminal-side parts: alacritty, starship, zellij, nvim, fzf/bat."""
+
 from pathlib import Path
 import re
 from .core import COLOR_KEYS, GEN, ROOT, mix
@@ -12,10 +13,16 @@ def r_alacritty(c, s):
     col += f'[colors.cursor]\ncursor = "{c["accent"]}"\ntext = "{c["bg"]}"\n\n'
     col += f'[colors.selection]\nbackground = "{c["accent"]}"\ntext = "{c["bg"]}"\n\n'
     for sect in ("normal", "bright"):
-        col += f"[colors.{sect}]\n" + "".join(f'{k} = "{v}"\n' for k, v in zip(n, a)) + "\n"
+        col += (
+            f"[colors.{sect}]\n"
+            + "".join(f'{k} = "{v}"\n' for k, v in zip(n, a))
+            + "\n"
+        )
     pad = 0 if s["density"] == "compact" else max(s["gaps_inner"], 4)
-    sty = (f"# {GEN}\n[window]\nopacity = {s['opacity']}\ndynamic_padding = true\n"
-           f"padding = {{ x = {pad}, y = {pad} }}\n")
+    sty = (
+        f"# {GEN}\n[window]\nopacity = {s['opacity']}\ndynamic_padding = true\n"
+        f"padding = {{ x = {pad}, y = {pad} }}\n"
+    )
     d = "alacritty/.config/alacritty/"
     return {d + "colors.toml": col, d + "style.toml": sty}
 
@@ -79,41 +86,72 @@ error_symbol = "[❯](urgent)"
 def r_zellij(c, s):
     """Component theme (zellij 0.43+): dark surfaces, light text, accent emphasis."""
     a = c["ansi"]
-    surf = mix(c["bg"], c["fg"], 0.10)   # status bar / unselected ribbons
+    surf = mix(c["bg"], c["fg"], 0.10)  # status bar / unselected ribbons
     surf2 = mix(c["bg"], c["fg"], 0.18)  # selected text rows
-    dk = mix(c["bg"], "#000000", 0.35)   # readable on an accent background
+    dk = mix(c["bg"], "#000000", 0.35)  # readable on an accent background
 
     def comp(name, base, bgc, e0, e1, e2, e3):
-        return (f'        {name} {{\n            base "{base}"\n            background "{bgc}"\n'
-                f'            emphasis_0 "{e0}"\n            emphasis_1 "{e1}"\n'
-                f'            emphasis_2 "{e2}"\n            emphasis_3 "{e3}"\n        }}\n')
+        return (
+            f'        {name} {{\n            base "{base}"\n            background "{bgc}"\n'
+            f'            emphasis_0 "{e0}"\n            emphasis_1 "{e1}"\n'
+            f'            emphasis_2 "{e2}"\n            emphasis_3 "{e3}"\n        }}\n'
+        )
 
     em = (c["accent"], c["accent2"], a[2], c["warn"])
-    body = "".join([
-        comp("text_unselected", c["fg"], c["bg"], *em),
-        comp("text_selected", c["fg"], surf2, *em),
-        # emphasis_1 doubles as the background of every second (alternate) inactive tab,
-        # so it must be a quiet surface, not an accent.
-        comp("ribbon_unselected", c["fg"], surf, c["accent"], mix(c["bg"], c["fg"], 0.22), a[2], c["warn"]),
-        comp("ribbon_selected", c["bg"], c["accent"], dk, dk, dk, dk),
-        comp("table_title", c["accent"], c["bg"], *em),
-        comp("table_cell_unselected", c["fg"], c["bg"], *em),
-        comp("table_cell_selected", c["fg"], surf2, *em),
-        comp("list_unselected", c["fg"], c["bg"], *em),
-        comp("list_selected", c["fg"], surf2, *em),
-        comp("frame_unselected", c["dim"], c["bg"], *em),
-        comp("frame_selected", c["accent"], c["bg"], *em),
-        comp("frame_highlight", c["warn"], c["bg"], *em),
-        comp("exit_code_success", a[2], c["bg"], *em),
-        comp("exit_code_error", c["urgent"], c["bg"], *em),
-    ])
-    players = "".join(f'            player_{i + 1} "{col}"\n' for i, col in enumerate(
-        [c["accent"], c["accent2"], a[2], c["warn"], c["urgent"], a[5], a[6], c["fg"], c["dim"], a[0]]))
-    t = (f"// {GEN}\nthemes {{\n    dotfiles {{\n{body}"
-         f"        multiplayer_user_colors {{\n{players}        }}\n    }}\n}}\n")
+    body = "".join(
+        [
+            comp("text_unselected", c["fg"], c["bg"], *em),
+            comp("text_selected", c["fg"], surf2, *em),
+            # emphasis_1 doubles as the background of every second (alternate) inactive tab,
+            # so it must be a quiet surface, not an accent.
+            comp(
+                "ribbon_unselected",
+                c["fg"],
+                surf,
+                c["accent"],
+                mix(c["bg"], c["fg"], 0.22),
+                a[2],
+                c["warn"],
+            ),
+            comp("ribbon_selected", c["bg"], c["accent"], dk, dk, dk, dk),
+            comp("table_title", c["accent"], c["bg"], *em),
+            comp("table_cell_unselected", c["fg"], c["bg"], *em),
+            comp("table_cell_selected", c["fg"], surf2, *em),
+            comp("list_unselected", c["fg"], c["bg"], *em),
+            comp("list_selected", c["fg"], surf2, *em),
+            comp("frame_unselected", c["dim"], c["bg"], *em),
+            comp("frame_selected", c["accent"], c["bg"], *em),
+            comp("frame_highlight", c["warn"], c["bg"], *em),
+            comp("exit_code_success", a[2], c["bg"], *em),
+            comp("exit_code_error", c["urgent"], c["bg"], *em),
+        ]
+    )
+    players = "".join(
+        f'            player_{i + 1} "{col}"\n'
+        for i, col in enumerate(
+            [
+                c["accent"],
+                c["accent2"],
+                a[2],
+                c["warn"],
+                c["urgent"],
+                a[5],
+                a[6],
+                c["fg"],
+                c["dim"],
+                a[0],
+            ]
+        )
+    )
+    t = (
+        f"// {GEN}\nthemes {{\n    dotfiles {{\n{body}"
+        f"        multiplayer_user_colors {{\n{players}        }}\n    }}\n}}\n"
+    )
     out = {str(ROOT / "bashrc/.config/zellij/themes/dotfiles.kdl"): t}
     home = Path.home() / ".config/zellij"
-    if home.is_dir() and not home.is_symlink():  # machine not bootstrapped: theme it in place
+    if (
+        home.is_dir() and not home.is_symlink()
+    ):  # machine not bootstrapped: theme it in place
         out[str(home / "themes/dotfiles.kdl")] = t
     return out
 
@@ -121,7 +159,9 @@ def r_zellij(c, s):
 def zellij_options(s):
     """Managed option lines inside the hand-written config.kdl."""
     home = Path.home() / ".config/zellij/config.kdl"
-    for p in [ROOT / "bashrc/.config/zellij/config.kdl"] + ([home] if home.is_file() and not home.is_symlink() else []):
+    for p in [ROOT / "bashrc/.config/zellij/config.kdl"] + (
+        [home] if home.is_file() and not home.is_symlink() else []
+    ):
         if p.exists():
             zellij_edit(p, s)
 
@@ -188,10 +228,12 @@ for g, o in pairs(groups) do hl(g, o) end
 
 def r_env(c, s):
     b = "rounded" if s["density"] == "cozy" else "sharp"
-    fzf = (f"--color=bg:{c['bg']},bg+:{c['ansi'][0]},fg:{c['fg']},fg+:{c['fg']},"
-           f"hl:{c['accent']},hl+:{c['accent']},info:{c['dim']},prompt:{c['accent2']},"
-           f"pointer:{c['accent']},marker:{c['warn']},spinner:{c['accent']},header:{c['dim']},"
-           f"border:{c['dim']} --border={b} --info=inline")
+    fzf = (
+        f"--color=bg:{c['bg']},bg+:{c['ansi'][0]},fg:{c['fg']},fg+:{c['fg']},"
+        f"hl:{c['accent']},hl+:{c['accent']},info:{c['dim']},prompt:{c['accent2']},"
+        f"pointer:{c['accent']},marker:{c['warn']},spinner:{c['accent']},header:{c['dim']},"
+        f"border:{c['dim']} --border={b} --info=inline"
+    )
     t = f"""# {GEN}
 export FZF_DEFAULT_OPTS="{fzf}"
 export BAT_THEME=ansi

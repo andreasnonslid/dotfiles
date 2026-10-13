@@ -4,13 +4,20 @@
 # first in BootOrder. The GRUB entry stays as fallback. Re-run after kernel updates.
 # Usage: sudo linux/efistub-boot.sh [--hook]   (--hook also installs the kernel-update sync hooks)
 set -euo pipefail
-[ "$(id -u)" = 0 ] || { echo "run with sudo"; exit 1; }
+[ "$(id -u)" = 0 ] || {
+    echo "run with sudo"
+    exit 1
+}
 if [ "$(od -An -tu1 -j4 -N1 /sys/firmware/efi/efivars/SecureBoot-8be4df61-93ca-11d2-aa0d-00e098032b8c)" -ne 0 ]; then
-    echo "Secure Boot is on; an unsigned direct entry would not boot"; exit 1
+    echo "Secure Boot is on; an unsigned direct entry would not boot"
+    exit 1
 fi
 esp=/boot/efi
 root=$(sed -n 's/.*\(root=[^ ]*\).*/\1/p' /proc/cmdline)
-[ -n "$root" ] || { echo "no root= in /proc/cmdline"; exit 1; }
+[ -n "$root" ] || {
+    echo "no root= in /proc/cmdline"
+    exit 1
+}
 disk=$(lsblk -no PKNAME "$(findmnt -no SOURCE $esp)")
 part=$(cat "/sys/class/block/$(basename "$(findmnt -no SOURCE $esp)")/partition")
 

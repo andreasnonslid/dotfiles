@@ -12,7 +12,7 @@ hr "session start -> everything loaded (from ~/.cache/startup.log)"
 log=~/.cache/startup.log
 if [ -f "$log" ]; then
     grep -E '^(script-start|sway-uptime|locked|apps-launched|waybar-ready|terminal-window|zed-window|firefox-window|desktop-ready) ' "$log" |
-    awk '
+        awk '
         $1=="script-start"{s=$2; print "startup script ran"}
         $1=="sway-uptime"{print "sway had been up       " $2}
         $1=="locked"{printf "lock screen up         +%.2fs   <- the password prompt is on screen\n", $2-s}
@@ -27,7 +27,8 @@ else
 fi
 
 hr "services that failed"
-systemctl --failed --no-pager --no-legend | sed 's/^/  /'; systemctl --user --failed --no-pager --no-legend | sed 's/^/  (user) /'
+systemctl --failed --no-pager --no-legend | sed 's/^/  /'
+systemctl --user --failed --no-pager --no-legend | sed 's/^/  (user) /'
 
 hr "warnings and errors this boot (known firmware noise filtered out)"
 journalctl -b 0 -p warning --no-pager -o cat 2>/dev/null |

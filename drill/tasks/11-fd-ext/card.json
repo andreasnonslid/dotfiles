@@ -1,13 +1,11 @@
 {
- "kind": "find",
- "prompt": "List all markdown (.md) files below this folder.",
- "answer": "README.md\ndocs/a.md\ndocs/sub/b.md",
- "ref": [
-  "fd -e md"
- ],
- "hints": [
-  "fd searches file names, not contents.",
-  "There is an extension flag."
- ],
- "why": "fd -e md filters by extension; fd PATTERN searches names by regex. Hidden and ignored files are skipped."
+    "kind": "find",
+    "prompt": "List all markdown (.md) files below this folder.",
+    "answer": "README.md\ndocs/a.md\ndocs/sub/b.md",
+    "ref": ["fd -e md"],
+    "hints": [
+        "fd searches file names, not contents.",
+        "There is an extension flag."
+    ],
+    "why": "fd -e md filters by extension; fd PATTERN searches names by regex. Hidden and ignored files are skipped."
 }

@@ -1,12 +1,10 @@
 {
- "kind": "transform",
- "prompt": "In names.txt change \"Last, First\" lines into \"First Last\".",
- "ref": [
-  "sed -i -E 's/([A-Za-z]+), ([A-Za-z]+)/\\2 \\1/' names.txt"
- ],
- "hints": [
-  "You need two capture groups.",
-  "-E makes groups plain parentheses, and \\1 \\2 refer to them."
- ],
- "why": "Capture groups: (..) with -E, then \\1 \\2 in the replacement. Classic sed refactoring."
+    "kind": "transform",
+    "prompt": "In names.txt change \"Last, First\" lines into \"First Last\".",
+    "ref": ["sed -i -E 's/([A-Za-z]+), ([A-Za-z]+)/\\2 \\1/' names.txt"],
+    "hints": [
+        "You need two capture groups.",
+        "-E makes groups plain parentheses, and \\1 \\2 refer to them."
+    ],
+    "why": "Capture groups: (..) with -E, then \\1 \\2 in the replacement. Classic sed refactoring."
 }

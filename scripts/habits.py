@@ -7,6 +7,7 @@
 Everything stays on this machine. Arguments are shown only for repeated commands, never for ones that
 look like they carry a secret.
 """
+
 import argparse
 import collections
 import datetime
@@ -17,8 +18,12 @@ import time
 from pathlib import Path
 
 HOME = Path.home()
-LOG = Path(os.environ.get("XDG_DATA_HOME", HOME / ".local/share")) / "habits/commands.tsv"
-SECRET = re.compile(r"(token|passw|secret|api[_-]?key|bearer|authorization|ghp_|sk-|private.*key)", re.I)
+LOG = (
+    Path(os.environ.get("XDG_DATA_HOME", HOME / ".local/share")) / "habits/commands.tsv"
+)
+SECRET = re.compile(
+    r"(token|passw|secret|api[_-]?key|bearer|authorization|ghp_|sk-|private.*key)", re.I
+)
 
 
 def load(days):
@@ -52,7 +57,9 @@ def load(days):
 
 
 def first(cmd):
-    cmd = re.sub(r"^(sudo\s+|time\s+|env\s+)?([A-Z_][A-Z0-9_]*=\S+\s+)*", "", cmd.strip())
+    cmd = re.sub(
+        r"^(sudo\s+|time\s+|env\s+)?([A-Z_][A-Z0-9_]*=\S+\s+)*", "", cmd.strip()
+    )
     return cmd.split()[0] if cmd.split() else ""
 
 
@@ -60,7 +67,11 @@ def aliases():
     """alias name -> expansion, from the shell modules."""
     out = {}
     for f in (HOME / "dotfiles/bashrc/.shell_modules").rglob("*.sh"):
-        for m in re.finditer(r"^alias ([A-Za-z0-9_.-]+)=(['\"])(.*?)\2\s*$", f.read_text(errors="ignore"), re.M):
+        for m in re.finditer(
+            r"^alias ([A-Za-z0-9_.-]+)=(['\"])(.*?)\2\s*$",
+            f.read_text(errors="ignore"),
+            re.M,
+        ):
             out[m[1]] = m[3]
     return out
 
@@ -94,14 +105,18 @@ def digest(days=7):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument("--days", type=int, default=0)
-    ap.add_argument("--digest", action="store_true", help="short summary for a notification")
+    ap.add_argument(
+        "--digest", action="store_true", help="short summary for a notification"
+    )
     a = ap.parse_args()
     if a.digest:
         print(digest(a.days or 7))
         return
     ev = load(a.days)
     if not ev:
-        sys.exit("no data yet: open a new shell and use it for a while (the log starts when habits.sh is sourced)")
+        sys.exit(
+            "no data yet: open a new shell and use it for a while (the log starts when habits.sh is sourced)"
+        )
     cmds = [e[3] for e in ev]
     stamped = [e for e in ev if e[0]]
     span = ""
@@ -110,7 +125,9 @@ def main():
         d1 = datetime.datetime.fromtimestamp(max(e[0] for e in stamped))
         span = f", {d0:%b %d} to {d1:%b %d} ({max(1, (d1 - d0).days + 1)} days with stamps)"
     print(f"{len(ev)} commands{span}")
-    print(f"source: {'habit log' if LOG.exists() else 'old shell histories only (log starts after the next shell)'}\n")
+    print(
+        f"source: {'habit log' if LOG.exists() else 'old shell histories only (log starts after the next shell)'}\n"
+    )
 
     # ---- what
     top = collections.Counter(first(c) for c in cmds)
@@ -172,10 +189,19 @@ def main():
 
     # ---- when / where
     if stamped:
-        hrs = collections.Counter(datetime.datetime.fromtimestamp(e[0]).hour for e in stamped)
+        hrs = collections.Counter(
+            datetime.datetime.fromtimestamp(e[0]).hour for e in stamped
+        )
         mx = max(hrs.values())
         print("\n== by hour")
-        print("  " + " ".join(f"{h:02d}:{'#' * max(1, round(hrs[h] / mx * 8)) if hrs[h] else '.'}" for h in range(24) if hrs[h]))
+        print(
+            "  "
+            + " ".join(
+                f"{h:02d}:{'#' * max(1, round(hrs[h] / mx * 8)) if hrs[h] else '.'}"
+                for h in range(24)
+                if hrs[h]
+            )
+        )
     dirs = collections.Counter(e[2] for e in ev if e[2])
     if dirs:
         print("\n== where (directories)")
@@ -187,11 +213,17 @@ def main():
     s = []
     if typed_long:
         c, n = typed_long.most_common(1)[0]
-        s.append(f"you typed `{c[:40]}` in full {n}x though `{expansions[c][0]}` exists: shorter, more guessable names would help")
+        s.append(
+            f"you typed `{c[:40]}` in full {n}x though `{expansions[c][0]}` exists: shorter, more guessable names would help"
+        )
     if len(al) and len(used) < len(al) * 0.25:
-        s.append(f"{len(al) - len(used)} of {len(al)} aliases never used on this machine: prune or document them (check your other machines first)")
+        s.append(
+            f"{len(al) - len(used)} of {len(al)} aliases never used on this machine: prune or document them (check your other machines first)"
+        )
     if pairs.get(("cd", "ls"), 0) + pairs.get(("ls", "cd"), 0) > 15:
-        s.append("cd and ls alternate a lot: make `cd` zoxide-smart and list the directory after jumping")
+        s.append(
+            "cd and ls alternate a lot: make `cd` zoxide-smart and list the directory after jumping"
+        )
     if reps:
         s.append(f"`{reps[0][0][:40]}` repeated {reps[0][1]}x: give it a one-word name")
     print("  " + ("\n  ".join(f"- {x}" for x in s) if s else "none yet"))

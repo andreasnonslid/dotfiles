@@ -7,6 +7,7 @@ The quote is chosen from the date and time (YYYYMMDDHHMMSS) and remembered, so t
 the instant it starts and the lock screen on top of it carry the same one. --new picks a fresh quote
 (never the same as the last) for the next lock. No window is ever opened; this only writes a PNG.
 """
+
 import os
 import random
 import re
@@ -16,6 +17,7 @@ from pathlib import Path
 
 import cairo
 import gi
+
 gi.require_version("Pango", "1.0")
 gi.require_version("PangoCairo", "1.0")
 from gi.repository import Pango, PangoCairo  # noqa: E402
@@ -36,7 +38,9 @@ def colors():
                 c[m[1]] = m[2]
     except OSError:
         pass
-    return {k: tuple(int(v[i:i + 2], 16) / 255 for i in (1, 3, 5)) for k, v in c.items()}
+    return {
+        k: tuple(int(v[i : i + 2], 16) / 255 for i in (1, 3, 5)) for k, v in c.items()
+    }
 
 
 def rows():
@@ -67,9 +71,15 @@ def load_quote(new=False):
     except (OSError, ValueError):
         pass
     quote = pick()
-    if quote[0] == previous:  # still seeded by the date and time, never the same one twice in a row
+    if (
+        quote[0] == previous
+    ):  # still seeded by the date and time, never the same one twice in a row
         r = [x for x in rows() if x[0] != previous]
-        quote = random.Random(int(time.strftime("%Y%m%d%H%M%S")) + 1).choice(r) if r else quote
+        quote = (
+            random.Random(int(time.strftime("%Y%m%d%H%M%S")) + 1).choice(r)
+            if r
+            else quote
+        )
     try:
         PAL.mkdir(parents=True, exist_ok=True)
         QUOTE_FILE.write_text(f"{quote[0]}|{quote[1]}\n")
@@ -98,7 +108,9 @@ def render(out, new):
     lay = PangoCairo.create_layout(cr)
     lay.set_width(int(box * Pango.SCALE))
     lay.set_alignment(Pango.Alignment.CENTER)
-    lay.set_font_description(Pango.FontDescription(f"{SERIF} Italic {max(18, int(h * 0.034))}"))
+    lay.set_font_description(
+        Pango.FontDescription(f"{SERIF} Italic {max(18, int(h * 0.034))}")
+    )
     lay.set_text("“" + text + "”", -1)
     tw, th = lay.get_pixel_size()
     top = h * 0.085
@@ -107,7 +119,9 @@ def render(out, new):
     PangoCairo.show_layout(cr, lay)
     if author:
         al = PangoCairo.create_layout(cr)
-        al.set_font_description(Pango.FontDescription(f"{MONO} {max(11, int(h * 0.0175))}"))
+        al.set_font_description(
+            Pango.FontDescription(f"{MONO} {max(11, int(h * 0.0175))}")
+        )
         al.set_text("—  " + author, -1)
         aw, _ = al.get_pixel_size()
         cr.set_source_rgba(*c["accent"], 0.95)

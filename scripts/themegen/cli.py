@@ -11,6 +11,7 @@ Everything is generated from the two choices (committed, so symlinks just work):
   nvim/colors/palette.lua, palette/env.sh (fzf, bat; sourced by tools/palette.sh)
 Not committed (per machine): GTK3/4 gtk.css in ~/.config, wallpaper in ~/.local/share/palette.
 """
+
 from pathlib import Path
 import os
 import random
@@ -37,9 +38,17 @@ def apply(colors, style, reload=True):
     make_cursors(c)
     try:
         make_splash_bg(c)
-        subprocess.run(["python3", str(PARTS / "sway/.config/sway/quote-frame.py"), "--render",
-                        str(WALLPAPER.parent / "lock-frame.png")], check=False,
-                       stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+        subprocess.run(
+            [
+                "python3",
+                str(PARTS / "sway/.config/sway/quote-frame.py"),
+                "--render",
+                str(WALLPAPER.parent / "lock-frame.png"),
+            ],
+            check=False,
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+        )
         make_plymouth(c)
     except Exception as e:  # cairo/pango missing: the splash just isn't regenerated
         print(f"plymouth theme skipped: {e}", file=sys.stderr)

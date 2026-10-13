@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """List this directory's just recipes, most used first (from the habit log), for a fuzzy picker.
 Prints:  recipe<TAB>description"""
+
 import collections
 import os
 import re
@@ -8,7 +9,10 @@ import subprocess
 import sys
 from pathlib import Path
 
-log = Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share")) / "habits/commands.tsv"
+log = (
+    Path(os.environ.get("XDG_DATA_HOME", Path.home() / ".local/share"))
+    / "habits/commands.tsv"
+)
 used = collections.Counter()
 if log.exists():
     for line in log.read_text(errors="ignore").splitlines():
@@ -18,7 +22,9 @@ if log.exists():
             if m:
                 used[m[1]] += 1
 try:
-    out = subprocess.run(["just", "--list", "--unsorted"], capture_output=True, text=True, check=True).stdout
+    out = subprocess.run(
+        ["just", "--list", "--unsorted"], capture_output=True, text=True, check=True
+    ).stdout
 except (OSError, subprocess.CalledProcessError):
     sys.exit(1)
 rows = []
