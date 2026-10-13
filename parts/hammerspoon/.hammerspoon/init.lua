@@ -218,38 +218,3 @@ hs.urlevent.bind("submode", function(_, params)
         show(name)
     end
 end)
-
--- Menu-bar indicator: the current AeroSpace workspace. The macOS menu bar itself is left alone
--- (its left side holds the app menus); this adds one small item on the right.
-local item = hs.menubar.new()
-
-local function refresh(name)
-    if not name or name == "" then
-        name = (
-            hs.execute(aerospace .. " list-workspaces --focused", true) or ""
-        ):gsub("%s+", "")
-    end
-    item:setTitle(hs.styledtext.new(name ~= "" and name or "?", {
-        color = { hex = c.accent },
-        font = { size = 13 },
-    }))
-end
-
-item:setMenu(function()
-    local out = hs.execute(aerospace .. " list-workspaces --all", true) or ""
-    local menu = {}
-    for ws in out:gmatch("%S+") do
-        table.insert(menu, {
-            title = "Workspace " .. ws,
-            fn = function()
-                hs.execute(aerospace .. " workspace " .. ws, true)
-            end,
-        })
-    end
-    return menu
-end)
-
-hs.urlevent.bind("workspace", function(_, params)
-    refresh(params.name)
-end)
-refresh()
