@@ -207,6 +207,9 @@ end)
 hs.urlevent.bind("leader", function()
     show("leader")
 end)
+require("workspaces")
+require("strays")
+
 hs.urlevent.bind("submode", function(_, params)
     local name = params and params.name
     if not pages[name] then

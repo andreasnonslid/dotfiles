@@ -11,10 +11,15 @@ default-root-container-layout = 'tiles'
 default-root-container-orientation = 'auto'
 automatically-unhide-macos-hidden-apps = false
 
-# Menu bar icon is AeroSpace's own. Style is an app preference (not a toml key):
-# i3Ordered = filled chip for the workspace you are on, outline for the others
-# that have windows. The icon stays black or white; the menu bar cannot take a color.
-# defaults write bobko.aerospace displayStyle -string i3Ordered
+# On AeroSpace start: terminal on 1, Firefox on 2, Zed on 3, then focus 1.
+after-startup-command = [
+  'exec-and-forget /bin/bash -c "$HOME/.config/aerospace/startup.sh"',
+]
+
+# Menu bar: AeroSpace keeps its own item (current workspace, opens the real menu).
+# Hammerspoon draws one clickable chip per workspace (parts/hammerspoon workspaces.lua).
+# Style is an app preference, not a toml key.
+# defaults write bobko.aerospace displayStyle -string monospacedText
 
 [key-mapping]
 preset = 'qwerty'
