@@ -21,3 +21,4 @@ auth.sh
 
 # Editor backups
 .config/zellij/*.bak
+.config/gh/hosts.yml
