@@ -7,8 +7,9 @@ return {
     window_padding = { left = 0, right = 0, top = 0, bottom = 0 },
 
     -- Make title bar visually subtle
-    colors = {
-        titlebar_background = "#000000",
+    window_frame = {
+        active_titlebar_bg = "#000000",
+        inactive_titlebar_bg = "#000000",
     },
 
     -- Default to openSUSE Tumbleweed under WSL.
