@@ -15,6 +15,9 @@ local exclude = {
     -- .js that is not JavaScript, so Prettier cannot parse it.
     "*/fixture",
     "*/fixture/*",
+    -- nixos/: the home server's config, kept here untracked (it holds the build output of its Rust parts); not ours to format.
+    "./nixos",
+    "./nixos/*",
 }
 
 local formatters = {

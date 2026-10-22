@@ -30,7 +30,7 @@ missing() {
 sh_files=()
 while IFS= read -r -d ''; do
     sh_files+=("$REPLY")
-done < <(find . -path ./.git -prune -o -type f -name '*.sh' -print0)
+done < <(find . \( -path ./.git -o -path ./nixos \) -prune -o -type f -name '*.sh' -print0)
 
 # Extension-less shell scripts the *.sh glob above can't see: dotfiles meant
 # to be sourced, not executed (.bashrc, .profile), plus the pre-commit hook
@@ -50,7 +50,7 @@ zsh_only_files=()
 lua_files=()
 while IFS= read -r -d ''; do
     lua_files+=("$REPLY")
-done < <(find . -path ./.git -prune -o -type f -name '*.lua' -print0)
+done < <(find . \( -path ./.git -o -path ./nixos \) -prune -o -type f -name '*.lua' -print0)
 
 echo "==> shellcheck"
 if ! command -v shellcheck >/dev/null 2>&1; then
