@@ -295,6 +295,18 @@ def main():
             f"Add caveman manually or '@{caveman_dir / 'CLAUDE.md'}' import."
         )
 
+    # Claude Code skills: each claude/skills/<name>/ links to ~/.claude/skills/<name>
+    # (same path on every OS; ~/.claude/skills/synced is Claude's own and untouched).
+    skills_dir = repo_root / "claude" / "skills"
+    if skills_dir.is_dir():
+        for skill in sorted(skills_dir.iterdir()):
+            if skill.is_dir():
+                create_symlink(
+                    str(skill),
+                    str(home / ".claude" / "skills" / skill.name),
+                    auto_yes=args.yes,
+                )
+
     # parts/<name>/: swappable pieces (terminal, WM, bar, ...), see part_links.
     # Windows gets none: they are Linux/macOS desktop configs (Hyper also collides with the
     # Office key shortcuts there), so linking them would only leave dead files in the profile.

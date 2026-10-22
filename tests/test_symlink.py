@@ -80,6 +80,7 @@ NVIM_ENTRIES = {
 CAVEMAN_ENTRIES = {
     Path(".cursor/rules/caveman.mdc"): REPO_ROOT / "caveman" / "caveman.mdc",
     Path(".claude/CLAUDE.md"): REPO_ROOT / "caveman" / "CLAUDE.md",
+    Path(".claude/skills/my-review"): REPO_ROOT / "claude" / "skills" / "my-review",
 }
 
 
