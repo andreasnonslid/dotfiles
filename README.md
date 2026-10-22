@@ -27,6 +27,11 @@ cd ~/dotfiles && ./bootstrap.sh
    **caveman** rule into `~/.cursor/rules/caveman.mdc` (Cursor IDE + CLI) and
    `~/.claude/CLAUDE.md` (Claude Code). The link set is OS-aware — e.g. Ghostty and
    AeroSpace configs link only on darwin, Hyprland/waybar only on Linux.
+   It is safe to run again and on an old machine: `~/.config` is kept a real directory (an older
+   version linked it wholesale into the repo, so apps wrote their state into git; the installer
+   now moves that state into a real `~/.config` and keeps the tracked configs linked), and a real
+   `~/.ssh/config` is kept as `~/.local/secrets/ssh/legacy-config.conf` before the tracked one
+   replaces it. It never moves a folder aside to link it to itself.
 4. Reminds you about machine-local secrets in `~/.local/secrets/` (never tracked;
    linked in automatically when present).
 

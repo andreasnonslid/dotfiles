@@ -1,6 +1,7 @@
 import os
 import platform
 import shutil
+import subprocess
 from datetime import datetime
 from pathlib import Path
 import argparse
@@ -105,6 +106,14 @@ def create_symlink(target, link_name, auto_yes=False):
         parent_dir = os.path.dirname(link_name)
         # Always ensure the parent directory exists
         os.makedirs(parent_dir, exist_ok=True)
+        # If the parent is itself a symlink into the target's tree (an older installer linked ~/.config wholesale into the repo),
+        # link_name already IS the target. Moving it aside and linking it to itself would back up the repo's own folder and
+        # leave a symlink that points at itself.
+        if os.path.join(
+            os.path.realpath(parent_dir), os.path.basename(link_name)
+        ) == os.path.realpath(target):
+            print(f"Already in place, left alone: {link_name}")
+            return
         if os.path.islink(link_name) or os.path.exists(link_name):
             if not auto_yes:
                 response = input(
@@ -126,6 +135,74 @@ def create_symlink(target, link_name, auto_yes=False):
         print(f"Failed to create symlink from {target} to {link_name}: {e}")
 
 
+def repair_wholesale_config(config_dir, repo_root, auto_yes=False, dry_run=False):
+    """Older installers linked ~/.config wholesale to <repo>/bashrc/.config, so every app wrote its state into the repo. Make
+    ~/.config a real directory: what git does not track (app state, links made by part linking) moves into it; tracked entries stay
+    in the repo and are linked into it by the normal install afterwards. Nothing is deleted. Returns True when it repaired,
+    False when there was nothing to do or it was not safe to (not a link into this repo, no git to tell tracked from untracked,
+    or the question was answered no); with dry_run, the names that would move."""
+    config_dir, repo_root = Path(config_dir), Path(repo_root).resolve()
+    if not config_dir.is_symlink():
+        return False
+    real = Path(os.path.realpath(config_dir))
+    if repo_root not in real.parents:
+        return False
+    try:
+        listed = subprocess.run(
+            [
+                "git",
+                "-C",
+                str(repo_root),
+                "ls-files",
+                "-z",
+                "--",
+                str(real.relative_to(repo_root)),
+            ],
+            check=True,
+            capture_output=True,
+            text=True,
+        ).stdout
+    except (OSError, subprocess.CalledProcessError):
+        print(
+            f"WARNING: cannot ask git what is tracked in {real}; leaving ~/.config alone"
+        )
+        return False
+    rel = real.relative_to(repo_root)
+    tracked = {Path(f).relative_to(rel).parts[0] for f in listed.split("\0") if f}
+    move = sorted(n for n in os.listdir(real) if n not in tracked and n not in EXCLUDE)
+    if dry_run:
+        return move
+    print(
+        f"~/.config is a symlink into the repo ({real}). Making it a real directory; moving the untracked entries into it: {', '.join(move) or 'none'}"
+    )
+    if not auto_yes and input("Continue? [y/N]: ").lower() != "y":
+        print("Skipped: ~/.config repair")
+        return False
+    fresh = config_dir.with_name(f".config.new-{datetime.now():%Y%m%d%H%M%S}")
+    fresh.mkdir()
+    for name in move:
+        shutil.move(str(real / name), str(fresh / name))
+        print(f"Moved {real / name} -> {config_dir / name}")
+    config_dir.unlink()  # the link only; the repo's folder stays where it is
+    fresh.rename(config_dir)
+    return True
+
+
+def keep_ssh_config(ssh_config, secrets_root):
+    """A real ~/.ssh/config is about to be replaced by the tracked one, which Includes ~/.local/secrets/ssh/*.conf for host entries.
+    Keep the old file there (once; never over a file that is already there) so its hosts keep working.
+    """
+    if ssh_config.is_symlink() or not ssh_config.is_file():
+        return
+    kept = secrets_root / "ssh" / "legacy-config.conf"
+    if kept.exists():
+        return
+    kept.parent.mkdir(parents=True, exist_ok=True)
+    shutil.copyfile(ssh_config, kept)
+    os.chmod(kept, 0o600)
+    print(f"Kept the old ssh config as {kept} (it is Included by the tracked config)")
+
+
 def symlink_dir_contents(source_dir, target_dir, auto_yes=False, extra_exclude=None):
     exclude = EXCLUDE | (extra_exclude or set())
     for item in os.listdir(source_dir):
@@ -144,6 +221,11 @@ def part_links(part_dir, home):
             continue
         src = Path(part_dir) / item
         if item == ".config" and src.is_dir():
+            if (home / ".config").is_symlink():
+                print(
+                    f"Skipped {src}: ~/.config is a symlink, so linking into it would write into its target"
+                )
+                continue
             for sub in sorted(os.listdir(src)):
                 yield src / sub, home / ".config" / sub
         else:
@@ -183,6 +265,16 @@ def main():
     is_darwin = platform.system() == "Darwin"
     config_dir = home / ".config"
     parts_dir = repo_root / "parts"
+    # An older installer linked ~/.config wholesale (into this repo). Writing "into" it writes into wherever it points, so nothing
+    # below touches ~/.config on such a machine; the fix is to make ~/.config a real directory.
+    if not is_windows and not (args.link or args.unlink):
+        repair_wholesale_config(config_dir, repo_root, auto_yes=args.yes)
+    config_is_link = config_dir.is_symlink()
+    if config_is_link and not (args.link or args.unlink):
+        print(
+            f"WARNING: ~/.config is a symlink to {os.path.realpath(config_dir)}. Anything linked or written into it would write straight into "
+            "that folder (and so into git when it is this repo). Skipping every ~/.config link; make ~/.config a real directory to fix this."
+        )
 
     # Part management: `--unlink old --link new` swaps one part for another.
     if args.link or args.unlink:
@@ -201,6 +293,8 @@ def main():
             if item in DARWIN_ONLY_TOP_LEVEL and not is_darwin:
                 continue
             src_path = bashrc_source / item
+            if item == ".config" and config_is_link:
+                continue
             if item == ".config":
                 # Never symlink ~/.config wholesale: every app that writes
                 # into $XDG_CONFIG_HOME (browsers, 1Password, ...) would end
@@ -233,6 +327,7 @@ def main():
                 ssh_dir = home / ".ssh"
                 ssh_dir.mkdir(parents=True, exist_ok=True)
                 os.chmod(ssh_dir, 0o700)
+                keep_ssh_config(ssh_dir / "config", home / ".local" / "secrets")
                 ssh_exclude = set() if is_darwin else {"config.darwin"}
                 symlink_dir_contents(
                     str(src_path),
@@ -254,7 +349,9 @@ def main():
     else:
         nvim_target = config_dir / "nvim"
 
-    if nvim_source.exists() and nvim_source.is_dir():
+    if config_is_link and not is_windows:
+        pass  # see the warning above
+    elif nvim_source.exists() and nvim_source.is_dir():
         symlink_dir_contents(str(nvim_source), str(nvim_target), auto_yes=args.yes)
     else:
         print(f"nvim source directory not found: {nvim_source}")
@@ -272,7 +369,8 @@ def main():
     else:
         starship_target = config_dir / "starship.toml"
 
-    create_symlink(str(starship_source), str(starship_target), auto_yes=args.yes)
+    if not (config_is_link and not is_windows):
+        create_symlink(str(starship_source), str(starship_target), auto_yes=args.yes)
 
     # caveman: always-on terse-output rule for Cursor (IDE + CLI) and Claude Code
     caveman_dir = repo_root / "caveman"
@@ -328,7 +426,9 @@ def main():
     }
     for rel_path, link_target in secret_links.items():
         secret_file = secrets_root / rel_path
-        if secret_file.exists():
+        if config_is_link and not is_windows and link_target.is_relative_to(config_dir):
+            print(f"Skipped (~/.config is a symlink): {link_target}")
+        elif secret_file.exists():
             create_symlink(str(secret_file), str(link_target), auto_yes=args.yes)
         else:
             print(f"Secret not found, skipping link: {secret_file}")

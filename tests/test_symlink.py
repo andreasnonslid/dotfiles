@@ -18,6 +18,7 @@ DARWIN_ONLY_CONFIG = {"ghostty"}
 
 COMMON_TOP_LEVEL = {
     Path(".bashrc"): REPO_ROOT / "bashrc" / ".bashrc",
+    Path(".bash_profile"): REPO_ROOT / "bashrc" / ".bash_profile",
     Path(".gitconfig"): REPO_ROOT / "bashrc" / ".gitconfig",
     Path(".profile"): REPO_ROOT / "bashrc" / ".profile",
     Path(".ripgreprc"): REPO_ROOT / "bashrc" / ".ripgreprc",
@@ -147,6 +148,26 @@ def test_link_set_matches_expected(monkeypatch, fake_home, system, darwin):
     run_symlink_main(monkeypatch, fake_home, system)
     actual = links_under(fake_home)
     expected = expected_links(darwin)
+    # git-ignored files (local scripts like bashrc/auth.sh) are linked too, but they exist on one machine only: not part of the contract
+    ignored = {
+        REPO_ROOT / f
+        for f in subprocess.run(
+            [
+                "git",
+                "-C",
+                str(REPO_ROOT),
+                "ls-files",
+                "-o",
+                "-i",
+                "--exclude-standard",
+                "-z",
+            ],
+            capture_output=True,
+            text=True,
+        ).stdout.split("\0")
+        if f
+    }
+    actual = {rel: target for rel, target in actual.items() if target not in ignored}
 
     assert set(actual) == set(expected), (
         f"link set mismatch for {system}: "
@@ -330,3 +351,233 @@ def test_installed_tool_gets_its_part(monkeypatch, fake_home):
     run_symlink_main(monkeypatch, fake_home, "Linux")
     assert (fake_home / ".config" / "sway").is_symlink()
     assert not (fake_home / ".config" / "waybar").exists()
+
+
+# --- an older installer linked ~/.config wholesale into the repo; running this one on such a machine must not loop ---
+
+
+def test_a_link_that_would_point_at_itself_is_skipped_not_looped(tmp_path):
+    # ~/.config -> repo/.config, so ~/.config/nvim and repo/.config/nvim are the same folder. Moving the "existing" folder aside and
+    # linking the name to the repo path would put the repo's own folder in a backup and leave a symlink pointing at itself.
+    repo_cfg = tmp_path / "repo" / ".config"
+    (repo_cfg / "nvim").mkdir(parents=True)
+    (repo_cfg / "nvim" / "init.lua").write_text("keep me\n")
+    home = tmp_path / "home"
+    home.mkdir()
+    (home / ".config").symlink_to(repo_cfg)
+
+    symlink.create_symlink(
+        str(repo_cfg / "nvim"), str(home / ".config" / "nvim"), auto_yes=True
+    )
+
+    assert (repo_cfg / "nvim").is_dir() and not (repo_cfg / "nvim").is_symlink()
+    assert (repo_cfg / "nvim" / "init.lua").read_text() == "keep me\n"
+    assert not list(repo_cfg.glob("*.bak-*")), "nothing was moved aside"
+    assert (
+        home / ".config" / "nvim" / "init.lua"
+    ).read_text() == "keep me\n", "and it still reads through ~/.config"
+
+
+def test_main_warns_when_config_dir_is_a_symlink(
+    monkeypatch, fake_home, tmp_path, capsys
+):
+    elsewhere = tmp_path / "wholesale"
+    elsewhere.mkdir()
+    (fake_home / ".config").symlink_to(elsewhere)
+    run_symlink_main(monkeypatch, fake_home, "Linux")
+    out = capsys.readouterr().out
+    assert "~/.config is a symlink" in out and "write straight into" in out
+    assert (
+        list(elsewhere.iterdir()) == []
+    ), "nothing was written through the link: not by the config loop, nvim, starship, parts or secrets"
+
+
+# --- replacing a real ~/.ssh/config must not lose its host entries ---
+
+
+def test_an_existing_ssh_config_is_kept_as_an_included_file(monkeypatch, fake_home):
+    ssh = fake_home / ".ssh"
+    ssh.mkdir()
+    old = "Host pi\n    HostName 10.0.0.2\n    User pi\n"
+    (ssh / "config").write_text(old)
+
+    run_symlink_main(monkeypatch, fake_home, "Linux")
+
+    kept = fake_home / ".local" / "secrets" / "ssh" / "legacy-config.conf"
+    assert (
+        kept.read_text() == old
+    ), "the tracked config Includes ~/.local/secrets/ssh/*.conf, so the old hosts keep working"
+    assert (kept.stat().st_mode & 0o777) == 0o600
+    assert (ssh / "config").is_symlink()
+    assert len(list(ssh.glob("config.bak-*"))) == 1
+
+
+def test_a_kept_ssh_config_is_not_overwritten_by_a_second_run(monkeypatch, fake_home):
+    kept_dir = fake_home / ".local" / "secrets" / "ssh"
+    kept_dir.mkdir(parents=True)
+    (kept_dir / "legacy-config.conf").write_text("Host mine\n")
+    ssh = fake_home / ".ssh"
+    ssh.mkdir()
+    (ssh / "config").write_text("Host other\n")
+
+    run_symlink_main(monkeypatch, fake_home, "Linux")
+
+    assert (kept_dir / "legacy-config.conf").read_text() == "Host mine\n"
+
+
+def test_running_twice_leaves_the_same_links_and_makes_no_backups(
+    monkeypatch, fake_home
+):
+    run_symlink_main(monkeypatch, fake_home, "Linux")
+    first = links_under(fake_home)
+    run_symlink_main(monkeypatch, fake_home, "Linux")
+    assert links_under(fake_home) == first
+    assert not list(fake_home.rglob("*.bak-*"))
+
+
+# --- the repair: an older installer linked ~/.config wholesale into the repo; make it a real directory, keep everything ---
+
+import subprocess
+
+
+def git(repo, *args):
+    return subprocess.run(
+        ["git", "-c", "user.name=t", "-c", "user.email=t@t", "-C", str(repo), *args],
+        check=True,
+        capture_output=True,
+        text=True,
+    ).stdout
+
+
+@pytest.fixture
+def old_machine(tmp_path):
+    """A repo whose bashrc/.config has tracked configs, plus what apps and the old installer left in it (untracked), and a home whose
+    ~/.config is a symlink to it."""
+    repo = tmp_path / "repo"
+    cfg = repo / "bashrc" / ".config"
+    (cfg / "git").mkdir(parents=True)
+    (cfg / "git" / "config").write_text("[user]\n")
+    (repo / "starship.toml").write_text("s\n")
+    (cfg / "starship.toml").symlink_to("../../starship.toml")
+    (repo / ".gitignore").write_text("")
+    git(repo, "init", "-q", "-b", "main")
+    git(repo, "add", "-A")
+    git(repo, "commit", "-qm", "base")
+    (cfg / "cursor").mkdir()
+    (cfg / "cursor" / "state.json").write_text("app state\n")
+    (cfg / "palette").symlink_to(
+        repo / "somewhere"
+    )  # a link made by part linking, untracked
+    (cfg / "git" / "hosts.yml").write_text(
+        "token\n"
+    )  # untracked file inside a tracked folder: stays with its folder
+    home = tmp_path / "home"
+    home.mkdir()
+    (home / ".config").symlink_to(cfg)
+    return repo, home, cfg
+
+
+def test_repair_makes_config_a_real_directory_and_moves_only_what_git_does_not_track(
+    old_machine,
+):
+    repo, home, cfg = old_machine
+    assert git(repo, "status", "--porcelain", "--untracked-files=no") == ""
+
+    assert (
+        symlink.repair_wholesale_config(home / ".config", repo, auto_yes=True) is True
+    )
+
+    config = home / ".config"
+    assert config.is_dir() and not config.is_symlink()
+    assert (
+        config / "cursor" / "state.json"
+    ).read_text() == "app state\n", "app state moved to the real directory"
+    assert (config / "palette").is_symlink()
+    assert not (cfg / "cursor").exists() and not (cfg / "palette").is_symlink()
+    assert (cfg / "git" / "config").exists() and (
+        cfg / "git" / "hosts.yml"
+    ).read_text() == "token\n", "tracked folders stay in the repo, with what is inside"
+    assert not (
+        config / "git"
+    ).exists(), "the tracked entries are linked by the normal install, not moved"
+    assert (
+        git(repo, "status", "--porcelain", "--untracked-files=no") == ""
+    ), "no tracked file changed"
+    assert "cursor" not in git(
+        repo, "status", "--porcelain"
+    ), "and the repo no longer holds the app state"
+
+
+def test_repair_twice_changes_nothing_and_says_so(old_machine):
+    repo, home, _ = old_machine
+    symlink.repair_wholesale_config(home / ".config", repo, auto_yes=True)
+    state = sorted(str(p) for p in (home / ".config").rglob("*"))
+    assert (
+        symlink.repair_wholesale_config(home / ".config", repo, auto_yes=True) is False
+    )
+    assert sorted(str(p) for p in (home / ".config").rglob("*")) == state
+
+
+def test_repair_dry_run_and_a_declined_question_change_nothing(
+    old_machine, monkeypatch
+):
+    repo, home, cfg = old_machine
+    plan = symlink.repair_wholesale_config(home / ".config", repo, dry_run=True)
+    assert plan == ["cursor", "palette"]
+    monkeypatch.setattr("builtins.input", lambda *_: "n")
+    assert symlink.repair_wholesale_config(home / ".config", repo) is False
+    assert (home / ".config").is_symlink() and (cfg / "cursor" / "state.json").exists()
+
+
+def test_repair_leaves_a_symlink_that_points_elsewhere_and_a_machine_without_git_alone(
+    old_machine, tmp_path
+):
+    repo, home, cfg = old_machine
+    other = tmp_path / "other"
+    other.mkdir()
+    (home / ".config").unlink()
+    (home / ".config").symlink_to(other)
+    assert (
+        symlink.repair_wholesale_config(home / ".config", repo, auto_yes=True) is False
+    )
+    assert (home / ".config").is_symlink()
+    (home / ".config").unlink()
+    (home / ".config").symlink_to(cfg)
+    not_git = tmp_path / "plain"
+    (not_git / "bashrc" / ".config").mkdir(parents=True)
+    (home / ".config").unlink()
+    (home / ".config").symlink_to(not_git / "bashrc" / ".config")
+    assert (
+        symlink.repair_wholesale_config(home / ".config", not_git, auto_yes=True)
+        is False
+    )
+    assert (
+        home / ".config"
+    ).is_symlink(), "without git there is no telling what is tracked: nothing is moved"
+
+
+@pytest.mark.parametrize("system", ["Linux", "Darwin"])
+def test_a_whole_install_on_an_old_machine_repairs_it_and_links_the_tracked_configs(
+    monkeypatch, old_machine, system
+):
+    repo, home, cfg = old_machine
+    (repo / "bashrc" / ".bashrc").write_text("b\n")
+    (repo / "bashrc" / ".ssh").mkdir()
+    (repo / "bashrc" / ".ssh" / "config").write_text("Host *\n")
+    git(repo, "add", "-A")
+    git(repo, "commit", "-qm", "more")
+    monkeypatch.setattr(symlink, "__file__", str(repo / "symlink.py"))
+
+    run_symlink_main(monkeypatch, home, system)
+
+    config = home / ".config"
+    assert config.is_dir() and not config.is_symlink()
+    assert (config / "git").is_symlink() and (config / "git").resolve() == (
+        cfg / "git"
+    ).resolve()
+    assert (config / "cursor" / "state.json").exists()
+    assert (config / "starship.toml").resolve() == (repo / "starship.toml").resolve()
+    assert (
+        git(repo, "status", "--porcelain", "--untracked-files=no") == ""
+    ), "the install changed no tracked file of the repo"
+    assert not list(repo.rglob("*.bak-*")), "and moved no folder of the repo aside"
