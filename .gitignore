@@ -26,6 +26,8 @@
 
 .DS_Store
 __pycache__/
+scripts/zellij-bell/target/
+scripts/zellij-bell/*.wasm
 
 # Personal Claude Code overrides (permissions etc.) — not shared repo config.
 /.claude/settings.local.json
