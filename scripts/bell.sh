@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 # Ring the pane bell. Zellij >= 0.44 shows [!] on an unfocused tab for that.
-# 0.43 drops bells from background tabs, so suffix that tab's name with [!].
-# Needs bellmark.wasm: cd scripts/zellij-bell && cargo build --release --target wasm32-wasip1 && cp target/wasm32-wasip1/release/zellij_bell.wasm bellmark.wasm
+# 0.43 drops those bells, so a hidden plugin suffixes the tab name until it is focused.
 p=$$
 pty_pid=
 while [ "$p" -gt 1 ]; do
@@ -16,11 +15,9 @@ while [ "$p" -gt 1 ]; do
     p=$(awk '{print $4}' "/proc/$p/stat" 2>/dev/null) || exit 0
 done
 [ -n "$pty_pid" ] || exit 0
-wasm=$HOME/dotfiles/scripts/zellij-bell/bellmark.wasm
-[ -f "$wasm" ] || exit 0
-python3 - "$pty_pid" "$wasm" <<'PY'
-import re, subprocess, sys
-pid, wasm = sys.argv[1], sys.argv[2]
+python3 - "$pty_pid" <<'PY'
+import os, re, subprocess, sys
+pid = sys.argv[1]
 try:
     raw = open(f"/proc/{pid}/cmdline", "rb").read().replace(b"\0", b" ").decode()
     env = open(f"/proc/{pid}/environ", "rb").read().split(b"\0")
@@ -29,6 +26,8 @@ except OSError:
 sess = next((e.split(b"=", 1)[1].decode() for e in env if e.startswith(b"ZELLIJ_SESSION_NAME=")), None)
 if not sess:
     sys.exit(0)
+watch = os.path.expanduser("~/dotfiles/scripts/zellij-bell-watch.sh")
+subprocess.Popen([watch, sess], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL, start_new_session=True)
 layout = subprocess.check_output(
     ["/usr/bin/zellij", "--session", sess, "action", "dump-layout"], text=True
 )
@@ -38,7 +37,7 @@ for line in layout.splitlines():
     if s.startswith("tab name="):
         q = s.find('"')
         q2 = s.find('"', q + 1)
-        cur = {"name": s[q + 1 : q2], "panes": []}
+        cur = {"name": s[q + 1 : q2], "focus": "focus=true" in s, "panes": []}
         tabs.append(cur)
     elif cur is not None and s.startswith("pane command="):
         q = s.find('"')
@@ -63,9 +62,10 @@ if not m:
 marked = f"{base} [!]"
 if name == marked:
     sys.exit(0)
+if hit["focus"]:
+    sys.exit(0)
 subprocess.run(
-    ["/usr/bin/zellij", "--session", sess, "pipe", "--plugin", f"file:{wasm}",
-     "--name", "bell", "--", f"{m.group(1)}\t{marked}"],
-    timeout=12,
+    ["/usr/bin/zellij", "--session", sess, "pipe", "--name", "bell", "--", f"{m.group(1)}\t{marked}"],
+    timeout=3,
 )
 PY
