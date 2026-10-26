@@ -6,11 +6,11 @@ pty_pid=
 while [ "$p" -gt 1 ]; do
     t=$(readlink "/proc/$p/fd/2" 2>/dev/null || true)
     case $t in
-        /dev/pts/*)
-            printf '\a' >"$t" 2>/dev/null || true
-            pty_pid=$p
-            break
-            ;;
+    /dev/pts/*)
+        printf '\a' >"$t" 2>/dev/null || true
+        pty_pid=$p
+        break
+        ;;
     esac
     p=$(awk '{print $4}' "/proc/$p/stat" 2>/dev/null) || exit 0
 done

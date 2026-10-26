@@ -1,3 +1,7 @@
+-- DISABLED: not required from init.lua. AeroSpace's own menu-bar item shows
+-- current/active workspaces (app preference / experimental displayStyle).
+-- Uncomment require("workspaces") in init.lua to restore these chips.
+--
 -- Workspace chips in the menu bar, same idea as AeroSpace's i3Ordered style:
 -- filled chip for the workspace you are on, outline for the others that have windows.
 -- Each chip is its own menu-bar item, so a click focuses that workspace.

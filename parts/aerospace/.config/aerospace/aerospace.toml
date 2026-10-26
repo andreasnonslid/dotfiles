@@ -16,10 +16,10 @@ after-startup-command = [
   'exec-and-forget /bin/bash -c "$HOME/.config/aerospace/startup.sh"',
 ]
 
-# Menu bar: AeroSpace keeps its own item (current workspace, opens the real menu).
-# Hammerspoon draws one clickable chip per workspace (parts/hammerspoon workspaces.lua).
+# Menu bar: AeroSpace's own item (current / active workspaces; opens the real menu).
 # Style is an app preference, not a toml key.
 # defaults write bobko.aerospace displayStyle -string monospacedText
+# Hammerspoon chips (parts/hammerspoon workspaces.lua) are disabled; re-enable via init.lua.
 
 [key-mapping]
 preset = 'qwerty'

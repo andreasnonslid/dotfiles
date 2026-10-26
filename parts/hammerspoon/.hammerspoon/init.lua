@@ -207,7 +207,9 @@ end)
 hs.urlevent.bind("leader", function()
     show("leader")
 end)
-require("workspaces")
+-- Workspace chips: AeroSpace menu bar owns this now (experimental / displayStyle).
+-- Keep workspaces.lua; uncomment to restore Hammerspoon chips.
+-- require("workspaces")
 require("strays")
 
 hs.urlevent.bind("submode", function(_, params)
