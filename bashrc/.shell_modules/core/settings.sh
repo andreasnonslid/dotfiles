@@ -11,5 +11,9 @@ export GCC_COLORS='error=01;31:warning=01;35:note=01;36:caret=01;32:locus=01:quo
 export EDITOR='nvim'
 alias vim="nvim"
 
+# Use nvim as manpager
+export MANPAGER="nvim +Man!"
+export MANWIDTH=999
+
 # Ripgrep config
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
