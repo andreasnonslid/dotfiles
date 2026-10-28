@@ -1,7 +1,7 @@
 if (-not (Get-Command choco -ErrorAction SilentlyContinue)) {
     Set-ExecutionPolicy Bypass -Scope Process -Force; iex ((New-Object System.Net.WebClient).DownloadString('https://chocolatey.org/install.ps1'))
 }
-$tools = @('git', 'make', 'cmake', 'alacritty', 'fzf', 'sudo', 'ripgrep', 'jq', 'bat', 'zoxide', 'just', 'fd', 'sd', 'ag', 'tldr', 'delta', 'starship', 'neovim', 'jre8', 'vcredist140', 'notepadplusplus', 'sysinternals', 'vscode', 'ninja', 'autoruns', 'everything', 'flux', 'grepwin', 'winaero-tweaker', 'wincompose', 'ultravnc', 'powertoys', 'teracopy', 'nerd-fonts-meslo', 'autohotkey', 'shutup10', 'geekuninstaller', 'ditto', 'directoryopus', 'screentogif', 'lua')
+$tools = @('git', 'make', 'cmake', 'alacritty', 'fzf', 'sudo', 'ripgrep', 'jq', 'bat', 'zoxide', 'just', 'fd', 'sd', 'ag', 'tealdeer', 'delta', 'starship', 'neovim', 'jre8', 'vcredist140', 'notepadplusplus', 'sysinternals', 'vscode', 'ninja', 'autoruns', 'everything', 'flux', 'grepwin', 'winaero-tweaker', 'wincompose', 'ultravnc', 'powertoys', 'teracopy', 'nerd-fonts-meslo', 'autohotkey', 'shutup10', 'geekuninstaller', 'ditto', 'directoryopus', 'screentogif', 'lua')
 foreach ($tool in $tools) { choco install $tool -y }
 choco install pyenv-win -y
 $env:PATH += ";$env:USERPROFILE\.pyenv\pyenv-win\bin;$env:USERPROFILE\.pyenv\pyenv-win\shims"
