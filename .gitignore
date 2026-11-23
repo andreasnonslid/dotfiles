@@ -32,3 +32,6 @@ scripts/zellij-bell/*.wasm
 
 # Personal Claude Code overrides (permissions etc.) — not shared repo config.
 /.claude/settings.local.json
+
+# Ghostty writes its theme-picker choice here (app state, not config).
+/bashrc/.config/ghostty/auto/
