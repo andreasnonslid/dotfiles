@@ -24,7 +24,7 @@ def run_session(commands):
     }
     pid, fd = pty.fork()
     if pid == 0:
-        os.execvpe("/bin/bash", ["bash", "--norc", "--noprofile", "-i"], env)
+        os.execvpe("bash", ["bash", "--norc", "--noprofile", "-i"], env)
 
     def drain(t=0.3):
         end = time.time() + t
@@ -70,7 +70,9 @@ def test_logger():
     assert (1, rows[1][1], "false") in rows or any(
         c == "false" and rc == 1 for rc, _, c in rows
     )
-    assert any(c.startswith("ls /nonexistent") and rc == 2 for rc, _, c in rows)
+    assert any(
+        c.startswith("ls /nonexistent") and rc != 0 for rc, _, c in rows
+    )  # GNU ls: 2, BSD ls: 1
     assert not any("token" in c for c in cmds)  # secret-looking is skipped
     assert not any("hidden" in c for c in cmds)  # a leading space means "don't record"
     assert any(c == "echo two" and d == "/tmp" for _, d, c in rows)
@@ -92,7 +94,7 @@ def _session_output(setup, commands):
     }
     pid, fd = pty.fork()
     if pid == 0:
-        os.execvpe("/bin/bash", ["bash", "--norc", "--noprofile", "-i"], env)
+        os.execvpe("bash", ["bash", "--norc", "--noprofile", "-i"], env)
     out = []
 
     def drain(t=0.3, keep=False):
