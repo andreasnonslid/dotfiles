@@ -12,28 +12,49 @@ __HABIT_X= # must be set (even empty): bash skips the arithmetic below for an un
 # the history list; the arithmetic side effect flags "a command ran" without printing anything.
 __HABIT_PS0='${__HABIT_X:0:$((__HABIT_RAN=1,0))}'
 
-# Alias nudge: when a command you typed in full has a shorter alias, say so once per session.
+# Alias nudge: when a command you typed starts with the full expansion of a shorter alias, say so
+# (dimmed, after the command) once per session per suggestion. The longest matching expansion wins:
+# `git diff --cached x` suggests `dc x`, `git diff --stat` suggests `d --stat`.
 declare -A __HABIT_HINT=() __HABIT_HINTED=()
 __HABIT_HINT_READY=
 __habit_hint_build() {
-    local name exp
+    local name exp first
     for name in "${!BASH_ALIASES[@]}"; do
         exp=${BASH_ALIASES[$name]}
-        # keep the shortest alias for an expansion; ignore aliases that only add flags to a command
+        first=${exp%% *}
+        [ "$first" = "$name" ] && continue                                   # only adds flags to itself (ls='ls --color')
+        [ ${#name} -lt ${#exp} ] || continue                                 # suggesting a longer word is no help
+        case $exp in *'$'* | *'`'* | *';'* | *'|'* | *'&'*) continue ;; esac # not a plain command prefix
         if [ -z "${__HABIT_HINT[$exp]:-}" ] || [ ${#name} -lt ${#__HABIT_HINT[$exp]} ]; then
             __HABIT_HINT[$exp]=$name
         fi
     done
     __HABIT_HINT_READY=1
 }
+# __habit_suggest CMD: set REPLY to the shortened command (no subshell); fail if none.
+__habit_suggest() {
+    local cmd=$1 prefix rest name
+    local -a words
+    read -ra words <<<"$cmd"
+    local n=${#words[@]} i
+    for ((i = n; i >= 1; i--)); do
+        prefix="${words[*]:0:i}"
+        name=${__HABIT_HINT[$prefix]:-}
+        [ -n "$name" ] || continue
+        rest="${words[*]:i}"
+        REPLY="$name${rest:+ $rest}"
+        return 0
+    done
+    return 1
+}
 __habit_nudge() {
-    local cmd=$1 name
+    local cmd=$1 short REPLY
     [ -n "$__HABIT_HINT_READY" ] || __habit_hint_build
-    name=${__HABIT_HINT[$cmd]:-}
-    [ -n "$name" ] && [ "$name" != "$cmd" ] || return 0
-    [ -z "${__HABIT_HINTED[$cmd]:-}" ] || return 0
-    __HABIT_HINTED[$cmd]=1
-    printf '\e[2m  \u21b3 you can type: %s\e[0m\n' "$name" >&2
+    __habit_suggest "$cmd" || return 0
+    short=$REPLY
+    [ -z "${__HABIT_HINTED[$short]:-}" ] || return 0
+    __HABIT_HINTED[$short]=1
+    printf '\e[2m  \u21b3 you can type: %s\e[0m\n' "$short" >&2
 }
 
 __habit_log() {
