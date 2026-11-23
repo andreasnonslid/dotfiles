@@ -3,6 +3,11 @@ if [ -d "$HOME/.local/bin" ]; then
     PATH="$HOME/.local/bin:$PATH"
 fi
 
+# Docker Desktop CLI tools (it appends a hard-coded copy of this on install)
+if [ -d "$HOME/.docker/bin" ]; then
+    PATH="$PATH:$HOME/.docker/bin"
+fi
+
 # Add tools scripts directory
 if [ -d "$HOME/tools/scripts" ]; then
     PATH="$PATH:$HOME/tools/scripts"
