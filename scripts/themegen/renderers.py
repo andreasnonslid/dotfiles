@@ -11,12 +11,13 @@ from .render_desktop import (
     r_gtklock,
     r_gtk,
 )
-from .render_terminal import r_alacritty, r_starship, r_zellij, r_nvim, r_env
+from .render_terminal import r_alacritty, r_ghostty, r_starship, r_zellij, r_nvim, r_env
 
 RENDERERS = [
     r_sway,
     r_waybar,
     r_alacritty,
+    r_ghostty,
     r_fuzzel,
     r_whichkey,
     r_mako,

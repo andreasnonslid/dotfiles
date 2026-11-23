@@ -1,4 +1,4 @@
-"""Renderers for terminal-side parts: alacritty, starship, zellij, nvim, fzf/bat."""
+"""Renderers for terminal-side parts: alacritty, ghostty, starship, zellij, nvim, fzf/bat."""
 
 from pathlib import Path
 import re
@@ -25,6 +25,21 @@ def r_alacritty(c, s):
     )
     d = "alacritty/.config/alacritty/"
     return {d + "colors.toml": col, d + "style.toml": sty}
+
+
+def r_ghostty(c, s):
+    """Ghostty theme file; bashrc/.config/ghostty/config selects it with `theme = dotfiles`."""
+    a = c["ansi"]
+    bright = [c["dim"]] + a[
+        1:
+    ]  # bright black is what prompts/autosuggestions use for muted text
+    t = f"# {GEN}\n"
+    t += f"background = {c['bg']}\nforeground = {c['fg']}\n"
+    t += f"cursor-color = {c['accent']}\ncursor-text = {c['bg']}\n"
+    t += f"selection-background = {mix(c['bg'], c['accent'], 0.35)}\nselection-foreground = {c['fg']}\n"
+    t += "".join(f"palette = {i}={v}\n" for i, v in enumerate(a))
+    t += "".join(f"palette = {i + 8}={v}\n" for i, v in enumerate(bright))
+    return {str(ROOT / "bashrc/.config/ghostty/themes/dotfiles"): t}
 
 
 def r_starship(c, s):
