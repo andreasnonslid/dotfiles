@@ -17,6 +17,10 @@ export DOTFILES="$HOME/dotfiles"
 if [ -z "$ZELLIJ" ] && [ -z "$TMUX" ] && [ "${TERM_PROGRAM:-}" != zed ]; then
     PATH="$HOME/.cargo/bin:$PATH"
     if command -v zellij >/dev/null 2>&1; then
+        # AeroSpace resizes a new window right after it opens, often before zellij listens for
+        # SIGWINCH, so zellij kept the first size (wrapped status bar) until the next resize.
+        # Re-send the resize signal once the window has settled; harmless if nothing changed.
+        ( (sleep 0.3; pkill -WINCH -P $$ -x zellij; sleep 0.7; pkill -WINCH -P $$ -x zellij) >/dev/null 2>&1 & )
         zellij
     fi
 fi
