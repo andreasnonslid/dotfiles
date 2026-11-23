@@ -18,7 +18,7 @@ font-style = Extended
 font-style-bold = Bold Extended
 font-style-italic = Extended Italic
 font-style-bold-italic = Bold Extended Italic
-font-size = 14
+font-size = 16
 # Heavier strokes: both monitors are 1x (non-Retina), where macOS draws thin.
 font-thicken = true
 # Extra line height so lines in a block stay visually apart.
