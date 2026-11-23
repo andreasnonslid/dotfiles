@@ -1,5 +1,6 @@
 if command -v eza >/dev/null 2>&1; then
     alias ls='eza --icons --git'
+    alias l='eza -F --icons --git'
     alias ll='eza -lh --icons --git'
     alias la='eza -lha --icons --git'
     alias lt='eza --tree --icons --git'
