@@ -47,13 +47,15 @@ shell-integration-features = no-cursor,ssh-env,ssh-terminfo
 # No tab bar: zellij owns pane/window multiplexing here, same as under WezTerm.
 # AeroSpace tiles every window, so the macOS title bar only costs a row.
 macos-titlebar-style = hidden
-# No padding: zellij's bars sit flush against the window edges. The window is
-# rarely an exact number of cells, so the leftover pixels (bottom/right only,
-# not balanced onto the top) are painted with the adjacent cells' colour,
-# always, so no seam shows. Spacing lives in the content (adjust-cell-height).
+# No padding: zellij's bar sits flush against the window edge. The window is
+# rarely an exact number of cells, so up to one row of pixels is left over.
+# Balance splits it top/bottom and extend-always paints each half with the
+# adjacent row's colour: the top half disappears into the pane background and
+# the bottom bar grows by at most half a row, instead of a whole one.
+# Spacing lives in the content (adjust-cell-height), not around it.
 window-padding-x = 0
 window-padding-y = 0
-window-padding-balance = false
+window-padding-balance = true
 window-padding-color = extend-always
 
 # Generous scrollback -- WezTerm is set to 10k lines; Ghostty sizes its
