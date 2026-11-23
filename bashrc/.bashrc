@@ -45,12 +45,26 @@ for config_file in ~/.shell_modules/git/*.sh; do
     source "$config_file"
 done
 
+# Cached `<tool> init` output: saves a process spawn per tool on every shell start.
+# Rebuilt when the tool binary is newer than the cache (i.e. after an upgrade).
+__cached_init() {
+    local name=$1 bin cache
+    shift
+    bin=$(command -v "$1") || return 1
+    cache="${XDG_CACHE_HOME:-$HOME/.cache}/shell-init/$name.sh"
+    if [ ! -s "$cache" ] || [ "$bin" -nt "$cache" ]; then
+        mkdir -p "${cache%/*}"
+        "$@" > "$cache.tmp" 2>/dev/null && mv "$cache.tmp" "$cache"
+    fi
+    . "$cache"
+}
+
 # Source tool configurations. wsl.sh is WSL-only (M10) -- sourced
 # separately below via is_wsl instead of unconditionally here.
 for config_file in ~/.shell_modules/tools/*.sh; do
-    [ "$(basename "$config_file")" = wsl.sh ] && continue
+    [ "${config_file##*/}" = wsl.sh ] && continue
     # completion.sh costs ~45 ms; it is loaded on the first Tab instead (below).
-    [ "$(basename "$config_file")" = completion.sh ] && continue
+    [ "${config_file##*/}" = completion.sh ] && continue
     source "$config_file"
 done
 
@@ -78,20 +92,6 @@ bind '"\t": "\C-x\C-a\C-x\C-b"'
 # for config_file in ~/.shell_modules/scripts/*.sh; do
 #     source "$config_file"
 # done
-
-# Cached `<tool> init` output: saves a process spawn per tool on every shell start.
-# Rebuilt when the tool binary is newer than the cache (i.e. after an upgrade).
-__cached_init() {
-    local name=$1 bin cache
-    shift
-    bin=$(command -v "$1") || return 1
-    cache="${XDG_CACHE_HOME:-$HOME/.cache}/shell-init/$name.sh"
-    if [ ! -s "$cache" ] || [ "$bin" -nt "$cache" ]; then
-        mkdir -p "${cache%/*}"
-        "$@" > "$cache.tmp" 2>/dev/null && mv "$cache.tmp" "$cache"
-    fi
-    . "$cache"
-}
 
 # Initialize zoxide if available
 if command -v zoxide &>/dev/null; then
