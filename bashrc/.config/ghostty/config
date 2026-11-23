@@ -64,6 +64,15 @@ scrollback-limit = 10000000
 
 mouse-hide-while-typing = true
 
+# --- No confirmation popups --------------------------------------------------------
+# Close windows without asking: zellij quits its session on close
+# (on_force_close "quit"), and there is no long-running state to protect here.
+confirm-close-surface = false
+# No "unsafe paste" prompt for multi-line text. Ghostty can't see bash's
+# bracketed paste through zellij, so it warned on every multi-line paste; bash
+# has enable-bracketed-paste on, so pasted newlines never run a command anyway.
+clipboard-paste-protection = false
+
 # --- Keyboard --------------------------------------------------------------------
 # Left Option sends Alt for zellij/nvim bindings; right Option keeps typing
 # characters (æ ø å, € ...) on the US International layout.
