@@ -1,6 +1,6 @@
 # Ghostty config (M17). Darwin-only -- linked by symlink.py, excluded on
 # Linux by DARWIN_ONLY_CONFIG. Mirrors the minimal chrome of
-# windows/wezterm.lua (no tab bar, zero padding, SteadyBlock cursor).
+# windows/wezterm.lua (no tab bar, SteadyBlock cursor).
 #
 # Shell: uses your login shell from passwd (chsh). No command= override --
 # Ghostty's custom command adds --posix, which breaks dotfiles aliases/functions.
@@ -9,11 +9,20 @@
 # Reload a running Ghostty:  cmd+shift+,
 
 # --- Font --------------------------------------------------------------------
-# Iosevka Term, Nerd Font patched (brew install --cask font-iosevka-term-nerd-font),
-# same family as bashrc/.config/zed/settings.json. Ghostty also ships Nerd Font
-# symbols itself, so glyphs render even if the font is ever swapped out.
-font-family = IosevkaTerm Nerd Font Mono
+# Iosevka Term in its Extended width (brew install --cask font-iosevka): the
+# same design as the normal cut, but less cramped, so it reads without effort.
+# Nerd Font icons come from Ghostty's built-in symbol font, so no patched font
+# is needed (IosevkaTerm Nerd Font Mono stays installed for Zed).
+font-family = Iosevka Term
+font-style = Extended
+font-style-bold = Bold Extended
+font-style-italic = Extended Italic
+font-style-bold-italic = Bold Extended Italic
 font-size = 14
+# Heavier strokes: both monitors are 1x (non-Retina), where macOS draws thin.
+font-thicken = true
+# Extra line height so lines in a block stay visually apart.
+adjust-cell-height = 15%
 
 # --- Colours -------------------------------------------------------------------
 # Built-in Ghostty theme; browse them with `ghostty +list-themes` (interactive
@@ -38,10 +47,11 @@ shell-integration-features = no-cursor,ssh-env,ssh-terminfo
 # No tab bar: zellij owns pane/window multiplexing here, same as under WezTerm.
 # AeroSpace tiles every window, so the macOS title bar only costs a row.
 macos-titlebar-style = hidden
-window-padding-x = 0
-window-padding-y = 0
-# Spread the leftover sub-cell pixels evenly and paint them with the edge cells'
-# colour, so zellij's bars reach the window edges instead of leaving a seam.
+# A little breathing room around the text; leftover sub-cell pixels are spread
+# evenly and painted with the edge cells' colour, so zellij's bars still look
+# edge-to-edge instead of leaving a seam.
+window-padding-x = 6
+window-padding-y = 4
 window-padding-balance = true
 window-padding-color = extend
 
