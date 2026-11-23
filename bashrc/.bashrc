@@ -13,7 +13,8 @@ export DOTFILES="$HOME/dotfiles"
 
 # Start Zellij first, before the (slow) rc below: the shell Zellij spawns loads the rc itself,
 # so doing it here avoids paying for it twice on every new terminal.
-if [ -z "$ZELLIJ" ] && [ -z "$TMUX" ]; then
+# Not inside Zed's terminal: the editor already has its own splits and tabs.
+if [ -z "$ZELLIJ" ] && [ -z "$TMUX" ] && [ "${TERM_PROGRAM:-}" != zed ]; then
     PATH="$HOME/.cargo/bin:$PATH"
     if command -v zellij >/dev/null 2>&1; then
         zellij
