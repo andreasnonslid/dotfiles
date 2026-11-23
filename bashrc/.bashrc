@@ -32,6 +32,9 @@ fi
 # GitLab PAT for @autostore npm (read_api); used by ~/.npmrc ${GITLAB_ACCESS_KEY}
 [ -f "$HOME/.config/autostore/gitlab-npm.env" ] && . "$HOME/.config/autostore/gitlab-npm.env"
 
+# Jira API token for jiralog (JIRA_EMAIL/JIRA_TOKEN/JIRA_HOST)
+[ -f "$HOME/.config/autostore/jira.env" ] && . "$HOME/.config/autostore/jira.env"
+
 # Source core settings first
 for config_file in ~/.shell_modules/core/*.sh; do
     source "$config_file"

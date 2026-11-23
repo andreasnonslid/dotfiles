@@ -1,15 +1,9 @@
-# Jira time logging aliases. Requires 'jiralog' command.
-# Customize via env vars, e.g. export JIRA_LOGCH=TIME-123
-: "${JIRA_LOGCH:=TIME-195}"
-: "${JIRA_ASIOS:=TIME-164}"
-: "${JIRA_ASIO3:=TIME-76}"
-: "${JIRA_FUSION:=TIME-25}"
-: "${JIRA_VERSA:=TIME-13}"
-: "${JIRA_MEETING:=TIME-182}"
-
-alias logch="jiralog log $JIRA_LOGCH today"
-alias logasios="jiralog log $JIRA_ASIOS today"
-alias logasio3="jiralog log $JIRA_ASIO3 today"
-alias logfusion="jiralog log $JIRA_FUSION today"
-alias logversa="jiralog log $JIRA_VERSA today"
-alias logmeeting="jiralog log $JIRA_MEETING today"
+# Jira time logging shortcuts. Requires the 'jiralog' command.
+# Issue keys live in ~/.config/jiralog/config ([shortcuts]); these aliases only
+# save typing, e.g. `logch 2h -- code review` == `jiralog log ch 2h -- code review`.
+alias logch="jiralog log ch"
+alias logasios="jiralog log asios"
+alias logasio3="jiralog log asio3"
+alias logfusion="jiralog log fusion"
+alias logversa="jiralog log versa"
+alias logmeeting="jiralog log meeting"

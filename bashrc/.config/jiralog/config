@@ -1,0 +1,16 @@
+# jiralog config (https://github.com/andreasnonslid/jiralog)
+# Credentials are NOT here: JIRA_EMAIL/JIRA_TOKEN come from
+# ~/.local/secrets/autostore/jira.env.
+
+project = TIME
+workday = 7.5h
+start   = 09:00
+
+# Use as: jiralog log meeting 1h -- standup
+[shortcuts]
+ch      = TIME-195   # 1233 Case Handling
+asios   = TIME-164
+asio3   = TIME-76
+fusion  = TIME-25
+versa   = TIME-13
+meeting = TIME-182

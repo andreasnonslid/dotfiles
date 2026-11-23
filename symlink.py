@@ -81,6 +81,7 @@ CONFIG_NEEDS = {  # entries of bashrc/.config
     "gh": ["gh"],
     "fd": ["fd", "fdfind"],
     "clangd": ["clangd"],
+    "jiralog": ["jiralog"],
 }
 EXTRA_BIN_DIRS = ("~/.cargo/bin", "~/.local/bin", "/opt/homebrew/bin", "/usr/local/bin")
 
@@ -423,6 +424,7 @@ def main():
     secrets_root = home / ".local" / "secrets"
     secret_links = {
         "autostore/gitlab-npm.env": config_dir / "autostore" / "gitlab-npm.env",
+        "autostore/jira.env": config_dir / "autostore" / "jira.env",
     }
     for rel_path, link_target in secret_links.items():
         secret_file = secrets_root / rel_path
